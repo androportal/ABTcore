@@ -1,3 +1,5 @@
 gkAakashCore
 =======
-This is repository of core_engine for porting gnukhata on android 
+1.This is core_engine for porting gnukhata on android 
+
+
