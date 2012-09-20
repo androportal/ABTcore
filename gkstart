@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import akashcore.rpc_main
+
+if __name__ == "__main__":
+	
+	try:
+		
+		akashcore.rpc_main.rungnukhata()
+	except:
+		print "can't start GNUKhata, some thing is wrong "
+
