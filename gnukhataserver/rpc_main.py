@@ -10,7 +10,7 @@ import datetime
 import os,sys
 import getopt
 import dbconnect
-#import rpc_organisation
+import rpc_organisation
 import rpc_groups
 import rpc_account
 #import rpc_transaction
@@ -32,45 +32,70 @@ class gnukhata(xmlrpc.XMLRPC): #note that all the functions to be accessed by th
 	
 	
 	def xmlrpc_getOrganisationNames(self): 
-	'''def xmlrpc_getOrganisationNames :purpose
-		This function is used to return the list of organsations found in gnukhata.xml located at 
-	   /opt. Returns a list of organisations already present in the file'''
+		'''def xmlrpc_getOrganisationNames :purpose
+			This function is used to return the list of organsations found in gnukhata.xml located at 
+		   /opt. Returns a list of organisations already present in the file
+		'''
 	
 		orgs = dbconnect.getOrgList() #calling the function for getting list of organisation nodes.
+		
 		orgnames = [] #initialising an empty list for organisation names
 		for org in orgs:
 			orgname=org.find("orgname")
 			if orgname.text not in orgnames:
 				orgnames.append(orgname.text)
-   		return orgnames
+		
+		return orgnames
 
-	
+	def xmlrpc_getFinancialYear(self,arg_orgName):
+		"""
+		purpose:
+		This function will return a list of financial years for the given organisation.
+		Arguements, organisation name of type string.
+		returns, list of financial years in the format yyyy-yy
+		"""
+		#get the list of organisations from the /etc/gnukhata.xml file.
+		#we will call the getOrgList function to get the nodes.
+		orgs = dbconnect.getOrgList()
+		
+		#Initialising an empty list to be filled with financial years 
+		financialyearlist = []
+		for org in orgs:
+			orgname = org.find("orgname")
+			if orgname.text == arg_orgName:
+				financialyear_from = org.find("financial_year_from")
+				financialyear_to = org.find("financial_year_to")
+				from_and_to = [financialyear_from.text, financialyear_to.text]
+				financialyearlist.append(from_and_to)
+			
+		print financialyearlist
+		return financialyearlist
 	def xmlrpc_getConnection(self,queryParams):
-	'''
-	def xmlrpc_getConnection: purpose
-		This function is used to return the client_id found in dbconnect.py 
-		Returns the client_id
-	'''
+		'''
+		def xmlrpc_getConnection: purpose
+			This function is used to return the client_id found in dbconnect.py 
+			Returns the client_id
+		'''
 		self.client_id=dbconnect.getConnection(queryParams)
 		return self.client_id
 
 	
 	
 	def xmlrpc_Deploy(self,queryParams):
-	'''
-	def xmlrpc_Deploy : Purpose
-		This function deploys a database instance for an organisation for a given financial year.
-		The expected parameters are:
-		* organisation name
-		* From date
-		* to date
-		* organisation type (NGO or profit making)
-		The function will generate the database name based on the organisation name provided
-		The name of the database is a combination of,
-		First character of organisation name,
-		* time stap as yyyy-mm-dd-hh-MM-ss-ms
-		An entry will be made in the xml file for the currosponding organisation.
-	'''
+		'''
+		def xmlrpc_Deploy : Purpose
+			This function deploys a database instance for an organisation for a given financial year.
+			The expected parameters are:
+			* organisation name
+			* From date
+			* to date
+			* organisation type (NGO or profit making)
+			The function will generate the database name based on the organisation name provided
+			The name of the database is a combination of,
+			First character of organisation name,
+			* time stap as yyyy-mm-dd-hh-MM-ss-ms
+			An entry will be made in the xml file for the currosponding organisation.
+		'''
 		
 		gnukhataconf=et.parse("/opt/gnukhata.xml")
 		gnukhataroot = gnukhataconf.getroot()	
@@ -143,6 +168,8 @@ groups=rpc_groups.groups()
 gnukhata.putSubHandler('groups',groups)
 account=rpc_account.account()
 gnukhata.putSubHandler('account',account)
+organisation = rpc_organisation.organisation()
+gnukhata.putSubHandler('organisation',organisation)
 '''transaction=rpc_transaction.transaction()
 gnukhata.putSubHandler('transaction',transaction)'''
 data=rpc_data.data()

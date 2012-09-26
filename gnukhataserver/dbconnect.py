@@ -69,12 +69,12 @@ def getConnection(queryParams):
         orgname = org.find("orgname")
         financialyear_from = org.find("financial_year_from")
         financialyear_to = org.find("financial_year_to")
-        print queryParams
+       
         if orgname.text == queryParams[0] and financialyear_from.text == queryParams[1] and financialyear_to.text == queryParams[2]:
             print "we r in if"
             dbname = org.find("dbname")
             database = dbname.text
-    print database
+   
     global engines #the engine has to be a global variable so that it is accessed throughout the module.
     stmt = 'sqlite:////home/ashwini/db/' + database
     engine = create_engine(stmt, echo=False) #now we will create an engine instance to connect to the given database.

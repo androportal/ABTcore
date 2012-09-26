@@ -15,14 +15,14 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 	
 	
 	def xmlrpc_setSubGroup(self,queryParams,client_id):
-	'''
-	xmlrpc_setSubGroup : Purpose 
-		function for adding new subgroups in table subgroups	
-		Parameters : groupname(datatype:text), subgroupname(datatype:text)
-		Returns : returns 1 when successful, 0 when failed
-		Description : Adds new subgroup to the database. 
-				When successful it returns 1 otherwise it returns 0. 
-	'''	
+		'''
+		xmlrpc_setSubGroup : Purpose 
+			function for adding new subgroups in table subgroups	
+			Parameters : groupname(datatype:text), subgroupname(datatype:text)
+			Returns : returns 1 when successful, 0 when failed
+			Description : Adds new subgroup to the database. 
+					When successful it returns 1 otherwise it returns 0. 
+		'''	
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		res = Session.query(dbconnect.Groups).filter(dbconnect.Groups.groupname == queryParams[0]).first()
@@ -37,11 +37,11 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		
 	
 	def xmlrpc_getAllGroups(self,client_id):
-	'''
-	def xmlrpc_getAllGroups	: purpose
-		input parameters : client_id from client side
-		output : returns list containing group name.
-	'''
+		'''
+		def xmlrpc_getAllGroups	: purpose
+			input parameters : client_id from client side
+			output : returns list containing group name.
+		'''
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		res = Session.query(dbconnect.Groups).order_by(dbconnect.Groups.groupname).all()
@@ -54,14 +54,15 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			result = []
 			for i in range(0,len(res)):
 				result.append([res[i].groupcode, res[i].groupname, res[i].groupdesc])
+			print result
 			return result
 	
 	def xmlrpc_getGroupByName(self,queryParams,client_id):
-	'''
-	def xmlrpc_getGroupByName: purpose
-		input parameters : grupname , client_id from client side
-		output : returns list containing group name.
-	'''
+		'''
+		def xmlrpc_getGroupByName: purpose
+			input parameters : grupname , client_id from client side
+			output : returns list containing group name.
+		'''
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		res = Session.query(dbconnect.Groups).filter(dbconnect.Groups.groupname == queryParams[0]).order_by(dbconnect.Groups.groupcode).first()
@@ -74,11 +75,11 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 	
 	
 	def xmlrpc_getGroupCodeByName(self,queryParams,client_id):
-	'''
-	xmlrpc_getGroupCodeByName : purpose
-		input parameters : client_id from client side
-		output : returns list containing groupcode if its not None else will return false.
-	'''
+		'''
+		xmlrpc_getGroupCodeByName : purpose
+			input parameters : client_id from client side
+			output : returns list containing groupcode if its not None else will return false.
+		'''
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		res = Session.query(dbconnect.Groups.groupcode).filter(dbconnect.Groups.groupname == queryParams[0]).first()
@@ -91,12 +92,12 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 
 	
 	def xmlrpc_getGroupNameByAccountName(self,queryParams,client_id):
-	'''
-	xmlrpc_getGroupNameByAccountName :purpose 
-		function for extracting groupname from group table by account name
-		i/p parameters : accountname
-		o/p parameters : groupname
-	'''	
+		'''
+		xmlrpc_getGroupNameByAccountName :purpose 
+			function for extracting groupname from group table by account name
+			i/p parameters : accountname
+			o/p parameters : groupname
+		'''	
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		res = Session.query(dbconnect.Groups).select_from(join(dbconnect.Groups,dbconnect.Account)).filter(dbconnect.Account.accountname == queryParams[0]).first()
@@ -109,12 +110,12 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 	
 
 	def xmlrpc_getSubGroupByName(self,queryParams,client_id):
-	'''
-	xmlrpc_getSubGroupByName :Purpose 
-		function for extracting data from subgroup table by namewise 
-		i/p parameters : subgroupname
-		o/p parameters :subgroupcode	
-	'''	
+		'''
+		xmlrpc_getSubGroupByName :Purpose 
+			function for extracting data from subgroup table by namewise 
+			i/p parameters : subgroupname
+			o/p parameters :subgroupcode	
+		'''	
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		res = Session.query(dbconnect.subGroups).filter(dbconnect.subGroups.subgroupname == queryParams[0]).order_by(dbconnect.subGroups.groupcode).first()
@@ -127,13 +128,13 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 	
 	
 	def xmlrpc_subgroupExists(self,queryParams,client_id):	
-	'''
-	xmlrpc_subgroupExists:purpose: 
-		Checks if the new subgroup typed by the user already exists.
-		This will validate and prevent any duplication.
-		Description: The function takes queryParams as its parameter and contains one element, the subgroupname as string.
-		Returns True if the subgroup exists and False otherwise
-	'''	
+		'''
+		xmlrpc_subgroupExists:purpose: 
+			Checks if the new subgroup typed by the user already exists.
+			This will validate and prevent any duplication.
+			Description: The function takes queryParams as its parameter and contains one element, the subgroupname as string.
+			Returns True if the subgroup exists and False otherwise
+		'''	
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		res = Session.query(func.count(dbconnect.subGroups.subgroupname)).filter(dbconnect.subGroups.subgroupname == queryParams).all()

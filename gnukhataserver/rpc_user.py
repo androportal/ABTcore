@@ -12,14 +12,15 @@ class user(xmlrpc.XMLRPC):
 #note that all the functions to be accessed by the client must have the xmlrpc_ prefix.
 #the client however will not use the prefix to call the functions. 
 	
-	'''
-	def xmlrpc_getUser(self,queryParams,client_id): purpose
+	
+
+	def xmlrpc_getUser(self,queryParams,client_id):
+		'''
+		def xmlrpc_getUser(self,queryParams,client_id): purpose
 		It will provide information of user based on username and password
 		return list containing useename , userrole if condition is true
 		else return false 
-	'''
-
-	def xmlrpc_getUser(self,queryParams,client_id):
+		'''
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		res = Session.query(dbconnect.Users).filter(dbconnect.Users.username == queryParams[0]).filter(dbconnect.Users.userpassword == queryParams[1]).first()

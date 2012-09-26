@@ -13,10 +13,10 @@ class data(xmlrpc.XMLRPC):#inherit the class from XMLRPC to make it publishable 
 
  	
 	def xmlrpc_getStateNames(self):
-	'''
-	def xmlrpc_getStateNames : purpose
-		It will return list of all the distinct states present in the state_city table
-	'''
+		'''
+		def xmlrpc_getStateNames : purpose
+			It will return list of all the distinct states present in the state_city table
+		'''
 		try:
 			conn = sqlite.connect("/opt/places.db")
 			cur = conn.cursor()
@@ -31,11 +31,11 @@ class data(xmlrpc.XMLRPC):#inherit the class from XMLRPC to make it publishable 
 			return False
 
 	def xmlrpc_getCityNames(self,queryParams):
-	'''
-	def xmlrpc_getCityNames : purpose
-		Takes one parameters statename
-		It will return list of all the cities for 
-	'''
+		'''
+		def xmlrpc_getCityNames : purpose
+			Takes one parameters statename
+			It will return list of all the cities for 
+		'''
 		try:
 			conn = sqlite.connect("/opt/places.db")
 			cur = conn.cursor()

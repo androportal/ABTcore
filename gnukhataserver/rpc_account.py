@@ -13,4 +13,6 @@ import dbconnect
 
 class account(xmlrpc.XMLRPC):
 	
-	
+	"""class name is aacount which having different store procedures"""
+	def __init__(self):
+		xmlrpc.XMLRPC.__init__(self)
