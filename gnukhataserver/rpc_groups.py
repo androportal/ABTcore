@@ -115,7 +115,8 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			function for extracting data from subgroup table by namewise 
 			i/p parameters : subgroupname
 			o/p parameters :subgroupcode	
-		'''	
+		'''
+		print queryParams,client_id
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		res = Session.query(dbconnect.subGroups).filter(dbconnect.subGroups.subgroupname == queryParams[0]).order_by(dbconnect.subGroups.groupcode).first()

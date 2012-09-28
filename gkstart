@@ -1,12 +1,31 @@
 #!/usr/bin/python
-
+import os 
 import gnukhataserver.rpc_main
 
 if __name__ == "__main__":
 	
 	try:
-		
-		 gnukhataserver.rpc_main.rungnukhata()
-	except:
-		print "can't start GNUKhata, some thing is wrong "
+		if os.path.exists("/opt/gkAakash") == False:
+			try:
+				print "creating directory"
+				os.system("mkdir -p /opt/gkAakash/db")
+				
+			except:
+				print "can't create directory somthing is wrong"
 
+		else:
+			if os.path.exists("/opt/gkAakash/db") == False:
+				try:
+					print "creating directory"
+					os.system("mkdir /opt/gkAakash/db")
+				except:
+					print "can't create directory somthing is wrong"
+			else:
+				print "db already exist"
+			print "gkAakash already exist"
+		#calling rungnukhata() from rpc_main.py which is in gnukhataserver
+		gnukhataserver.rpc_main.rungnukhata()
+
+	except:
+		
+		"Somthing is wrong can't start GNUKhata"

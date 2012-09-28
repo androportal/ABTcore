@@ -23,7 +23,8 @@ import rpc_user
 from sqlalchemy.orm import join
 from decimal import *
 from sqlalchemy import or_
-class gnukhata(xmlrpc.XMLRPC): #note that all the functions to be accessed by the client must have the xmlrpc_ prefix.
+#note that all the functions to be accessed by the client must have the xmlrpc_ prefix.
+class gnukhata(xmlrpc.XMLRPC): 
 	
 
 	def __init__(self):
@@ -38,13 +39,14 @@ class gnukhata(xmlrpc.XMLRPC): #note that all the functions to be accessed by th
 		'''
 	
 		orgs = dbconnect.getOrgList() #calling the function for getting list of organisation nodes.
-		
+		#print orgs
 		orgnames = [] #initialising an empty list for organisation names
 		for org in orgs:
+			print "e r in getOrganisation"
 			orgname=org.find("orgname")
 			if orgname.text not in orgnames:
 				orgnames.append(orgname.text)
-		
+		#print orgnames
 		return orgnames
 
 	def xmlrpc_getFinancialYear(self,arg_orgName):
@@ -52,7 +54,7 @@ class gnukhata(xmlrpc.XMLRPC): #note that all the functions to be accessed by th
 		purpose:
 		This function will return a list of financial years for the given organisation.
 		Arguements, organisation name of type string.
-		returns, list of financial years in the format yyyy-yy
+		returns, list of financial years in the format yyyy-mm-dd
 		"""
 		#get the list of organisations from the /etc/gnukhata.xml file.
 		#we will call the getOrgList function to get the nodes.
@@ -68,15 +70,18 @@ class gnukhata(xmlrpc.XMLRPC): #note that all the functions to be accessed by th
 				from_and_to = [financialyear_from.text, financialyear_to.text]
 				financialyearlist.append(from_and_to)
 			
-		print financialyearlist
+		#print financialyearlist
 		return financialyearlist
+		
 	def xmlrpc_getConnection(self,queryParams):
 		'''
 		def xmlrpc_getConnection: purpose
 			This function is used to return the client_id found in dbconnect.py 
 			Returns the client_id
 		'''
+		#print queryParams
 		self.client_id=dbconnect.getConnection(queryParams)
+		print "getConnection method will give you client_id for existing organisation"
 		return self.client_id
 
 	
@@ -97,7 +102,7 @@ class gnukhata(xmlrpc.XMLRPC): #note that all the functions to be accessed by th
 			An entry will be made in the xml file for the currosponding organisation.
 		'''
 		
-		gnukhataconf=et.parse("/opt/gnukhata.xml")
+		gnukhataconf=et.parse("/opt/gkAakash/gnukhata.xml")
 		gnukhataroot = gnukhataconf.getroot()	
 		org = et.SubElement(gnukhataroot,"organisation") #creating an organisation tag
 		org_name = et.SubElement(org,"orgname")
@@ -114,7 +119,7 @@ class gnukhata(xmlrpc.XMLRPC): #note that all the functions to be accessed by th
 		financial_year_to = et.SubElement(org,"financial_year_to")
 		financial_year_to.text = db_to_date
 		dbname = et.SubElement(org,"dbname") 
-		print "welcome"
+		
 		#creating database name for organisation		
 		org_db_name=name_of_org[0:1]
 		time=datetime.datetime.now()
@@ -124,9 +129,9 @@ class gnukhata(xmlrpc.XMLRPC): #note that all the functions to be accessed by th
 		print result_dbname		
 		dbname.text = result_dbname #assigning created database name value in dbname tag text of gnukhata.xml
 		print result_dbname 
-		gnukhataconf.write("/opt/gnukhata.xml")
+		gnukhataconf.write("/opt/gkAakash/gnukhata.xml")
 		try:
-			conn = sqlite.connect("/home/ashwini/db/"+result_dbname)
+			conn = sqlite.connect("/opt/gkAakash/db/"+result_dbname)
             		cur = conn.cursor()
             		conn.commit()
             		cur.close()
@@ -136,7 +141,8 @@ class gnukhata(xmlrpc.XMLRPC): #note that all the functions to be accessed by th
 
 
 		self.client_id = dbconnect.getConnection([name_of_org,db_from_date,db_to_date])
-		print self.client_id
+		#print "In deploy dbconnect.getConnection give you client_id"
+		#print self.client_id
 		try:
 			metadata = dbconnect.Base.metadata
 			metadata.create_all(dbconnect.engines[self.client_id])
@@ -144,11 +150,18 @@ class gnukhata(xmlrpc.XMLRPC): #note that all the functions to be accessed by th
 			print "not work"
 		Session = scoped_session(sessionmaker(bind=dbconnect.engines[self.client_id]))
 		dbconnect.engines[self.client_id].execute("insert into users(username,userpassword,userrole) values('admin','admin',0);")
+		dbconnect.engines[self.client_id].execute("create view view_group_subgroup as select groups.groupcode, groups.groupname, subgroups.subgroupcode, subgroups.subgroupname from groups, subgroups where groups.groupcode = subgroups.groupcode order by groupname;")
 		connection = dbconnect.engines[self.client_id].raw_connection()
 		cur = connection.cursor()
 		
-		Session.add_all([dbconnect.Groups('Corpus',''),dbconnect.Groups('Current Asset',''),dbconnect.Groups('Current Liability',''),dbconnect.Groups('Direct Income','Income refers to consumption opportunity gained by an entity within a specified time frame. Examples for Income are comision,discount received etc'),dbconnect.Groups('Direct Expense','This are the expenses to be incurred for operating the buisness.Examples of expensestrftime pygtks are administrative expense,selling expenses etc.'),dbconnect.Groups('Fixed Assets',''),dbconnect.Groups('Indirect Income','Income refers to consumption opportunity gained by an entity within a specified time frame. Examples for Income are comision,discount received etc'),dbconnect.Groups('Indirect Expense','This are the expenses to be incurred for operating the buisness.Examples of expensestrftime pygtks are administrative expense,selling expenses etc.'),dbconnect.Groups('Investment',''),dbconnect.Groups('Loans(Asset)',''),dbconnect.Groups('Loans(Liability)',''),dbconnect.Groups('Reserves',''),dbconnect.Groups('Miscellaneous Expenses(Asset)','')])
-		Session.commit()
+		if (organisationType == "Profit Making"):
+
+			Session.add_all([dbconnect.Groups('Capital',''),dbconnect.Groups('Current Asset',''),dbconnect.Groups('Current Liability',''),dbconnect.Groups('Direct Income','Income refers to consumption opportunity gained by an entity within a specified time frame. Examples for Income are comision,discount received etc'),dbconnect.Groups('Direct Expense','This are the expenses to be incurred for operating the buisness.Examples of expensestrftime pygtks are administrative expense,selling expenses etc.'),dbconnect.Groups('Fixed Assets',''),dbconnect.Groups('Indirect Income','Income refers to consumption opportunity gained by an entity within a specified time frame. Examples for Income are comision,discount received etc'),dbconnect.Groups('Indirect Expense','This are the expenses to be incurred for operating the buisness.Examples of expensestrftime pygtks are administrative expense,selling expenses etc.'),dbconnect.Groups('Investment',''),dbconnect.Groups('Loans(Asset)',''),dbconnect.Groups('Loans(Liability)',''),dbconnect.Groups('Reserves',''),dbconnect.Groups('Miscellaneous Expenses(Asset)','')])
+			Session.commit()
+		
+		else:
+			Session.add_all([dbconnect.Groups('Corpus',''),dbconnect.Groups('Current Asset',''),dbconnect.Groups('Current Liability',''),dbconnect.Groups('Direct Income','Income refers to consumption opportunity gained by an entity within a specified time frame. Examples for Income are comision,discount received etc'),dbconnect.Groups('Direct Expense','This are the expenses to be incurred for operating the buisness.Examples of expensestrftime pygtks are administrative expense,selling expenses etc.'),dbconnect.Groups('Fixed Assets',''),dbconnect.Groups('Indirect Income','Income refers to consumption opportunity gained by an entity within a specified time frame. Examples for Income are comision,discount received etc'),dbconnect.Groups('Indirect Expense','This are the expenses to be incurred for operating the buisness.Examples of expensestrftime pygtks are administrative expense,selling expenses etc.'),dbconnect.Groups('Investment',''),dbconnect.Groups('Loans(Asset)',''),dbconnect.Groups('Loans(Liability)',''),dbconnect.Groups('Reserves',''),dbconnect.Groups('Miscellaneous Expenses(Asset)','')])
+			Session.commit()
 		
 		Session.add_all([dbconnect.subGroups('2','Bank'),dbconnect.subGroups('2','Cash'),dbconnect.subGroups('2','Inventory'),dbconnect.subGroups('2','Loans & Advance'),dbconnect.subGroups('2','Sundry Debtors'),dbconnect.subGroups('3','Provisions'),dbconnect.subGroups('3','Sundry Creditors for Expense'),dbconnect.subGroups('3','Sundry Creditors for Purchase'),dbconnect.subGroups('6','Building'),dbconnect.subGroups('6','Furniture'),dbconnect.subGroups('6','Land'),dbconnect.subGroups('6','Plant & Machinery'),dbconnect.subGroups('9','Investment in Shares & Debentures'),dbconnect.subGroups('9','Investment in Bank Deposits'),dbconnect.subGroups('11','Secured'),dbconnect.subGroups('11','Unsecured')])
 		
