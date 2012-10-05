@@ -1,31 +1,50 @@
 #!/usr/bin/python
-import os 
+import os, sys, signal 
+from time import sleep
+from subprocess import Popen, PIPE
 import gnukhataserver.rpc_main
 
 if __name__ == "__main__":
 	
 	try:
-		if os.path.exists("/opt/gkAakash") == False:
+		if os.path.exists("/opt/gkAakash") == False: # check for gkAakash directory , if false then 
 			try:
 				print "creating directory"
-				os.system("mkdir -p /opt/gkAakash/db")
+				os.system("mkdir -p /opt/gkAakash/db") # create gkAakash directory and db to host all databases
+				os.system("cp ./src/places.db /opt/gkAakash/") # copy places.db from /src to gkAakash
 				
 			except:
 				print "can't create directory somthing is wrong"
 
 		else:
-			if os.path.exists("/opt/gkAakash/db") == False:
+		 	if os.path.exists("/opt/gkAakash/db") == False: # check for gkAakash/db directory , if false then
 				try:
 					print "creating directory"
-					os.system("mkdir /opt/gkAakash/db")
+					os.system("mkdir /opt/gkAakash/db") # create db directory in gkAakash
+					os.system("cp ./src/places.db /opt/gkAakash/") # copy places.db from /src to gkAakash
 				except:
 					print "can't create directory somthing is wrong"
 			else:
 				print "db already exist"
+				
 			print "gkAakash already exist"
 		#calling rungnukhata() from rpc_main.py which is in gnukhataserver
+		#getpid()	# ??
 		gnukhataserver.rpc_main.rungnukhata()
-
-	except:
 		
-		"Somthing is wrong can't start GNUKhata"
+	except:
+		print "inside exception"
+		'''
+		var = "pgrep gkstart"
+		# var = "ps -eo pid,args | grep '/python \./gkstart' | cut -f 2 -d ' '"
+		val = Popen(var,shell=True,stdout=PIPE).stdout.read().strip('\n')
+		pid = val.split("\n")
+		print pid
+		os.kill(int(pid[0]),signal.SIGKILL)
+		print "sleeping for 2 sec"
+		sleep(3)
+
+		# run again
+		os.getpid()
+		gnukhataserver.rpc_main.rungnukhata()
+		'''

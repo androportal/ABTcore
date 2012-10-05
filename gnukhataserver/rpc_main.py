@@ -1,6 +1,7 @@
 #!/usr/bin/python
-
+#import the twisted modules for executing rpc calls and also to implement the server
 from twisted.web import xmlrpc, server
+#reactor from the twisted library starts the server with a published object and listens on a given port.
 from twisted.internet import reactor
 from sqlalchemy.orm import sessionmaker,scoped_session
 from xml.etree import ElementTree as et
@@ -42,7 +43,7 @@ class gnukhata(xmlrpc.XMLRPC):
 		#print orgs
 		orgnames = [] #initialising an empty list for organisation names
 		for org in orgs:
-			print "e r in getOrganisation"
+			print "we r in getOrganisation"
 			orgname=org.find("orgname")
 			if orgname.text not in orgnames:
 				orgnames.append(orgname.text)
@@ -106,7 +107,7 @@ class gnukhata(xmlrpc.XMLRPC):
 		gnukhataroot = gnukhataconf.getroot()	
 		org = et.SubElement(gnukhataroot,"organisation") #creating an organisation tag
 		org_name = et.SubElement(org,"orgname")
-		print queryParams
+		#print queryParams
 		# assigning client queryparams values to variables
 		name_of_org = queryParams[0] # name of organisation
 		db_from_date = queryParams[1]# from date
@@ -126,9 +127,9 @@ class gnukhata(xmlrpc.XMLRPC):
 		str_time=str(time.microsecond)	
 		new_microsecond=str_time[0:2]		
 		result_dbname=org_db_name + str(time.year) + str(time.month) + str(time.day) + str(time.hour) + str(time.minute) + str(time.second) + new_microsecond
-		print result_dbname		
+		#print result_dbname		
 		dbname.text = result_dbname #assigning created database name value in dbname tag text of gnukhata.xml
-		print result_dbname 
+		#print result_dbname 
 		gnukhataconf.write("/opt/gkAakash/gnukhata.xml")
 		try:
 			conn = sqlite.connect("/opt/gkAakash/db/"+result_dbname)

@@ -4,7 +4,7 @@ from sqlalchemy import orm
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, select, Text, DECIMAL, Enum
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.types import Numeric, TIMESTAMP, Enum
+from sqlalchemy.types import Numeric, TIMESTAMP, Enum 
 from xml.etree import ElementTree as et
 import os
 import datetime, time
@@ -101,7 +101,9 @@ def setLog(queryParams, client_id):
     The activity-codes are in the following order. 
     Any new activity should be apended in the activity enumeration in the log class.
     1. Login
-    2. Create Account
+    2. Create 
+    
+    Account
     3. Edit Account
     4. Create Voucher
     5. Edit Voucher

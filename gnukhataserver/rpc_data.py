@@ -18,7 +18,7 @@ class data(xmlrpc.XMLRPC):#inherit the class from XMLRPC to make it publishable 
 			It will return list of all the distinct states present in the state_city table
 		'''
 		try:
-			conn = sqlite.connect("/opt/places.db")
+			conn = sqlite.connect("/opt/gkAakash/places.db")
 			cur = conn.cursor()
 			result = cur.execute("select distinct state from state_city")
 			rows =result.fetchall()
@@ -37,7 +37,7 @@ class data(xmlrpc.XMLRPC):#inherit the class from XMLRPC to make it publishable 
 			It will return list of all the cities for 
 		'''
 		try:
-			conn = sqlite.connect("/opt/places.db")
+			conn = sqlite.connect("/opt/gkAakash/places.db")
 			cur = conn.cursor()
 			result =  cur.execute("select city from state_city where state = '%s'"%str(queryParams[0]))
 			rows = result.fetchall()
