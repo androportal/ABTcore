@@ -31,7 +31,7 @@ def getOrgList():
 	Function takes no arguments.
 	Returns a list of organisations.
 	'''	
-    print "calling getorglist "
+    
     if os.path.exists("/opt/gkAakash/gnukhata.xml") == False:
         print "file not found trying to create one."
         try:
@@ -77,11 +77,12 @@ def getConnection(queryParams):
         financialyear_to = org.find("financial_year_to")
         print orgname.text,queryParams[0],financialyear_from.text,queryParams[1],financialyear_to.text,queryParams[2]
         if orgname.text == queryParams[0] and financialyear_from.text == queryParams[1] and financialyear_to.text == queryParams[2]:
-            print "we r in if"
+            #print "we r in if"
             dbname = org.find("dbname")
             database = dbname.text
+            
 	else:
-	    print "cant go in"
+	    print "orgnisationname and financial year not match"
     global engines #the engine has to be a global variable so that it is accessed throughout the module.
     stmt = 'sqlite:////opt/gkAakash/db/' + database
     engine = create_engine(stmt, echo=False) #now we will create an engine instance to connect to the given database.
@@ -92,7 +93,7 @@ def getConnection(queryParams):
 #the function only accepts the activity. it gets the current user by itself.
 def setLog(queryParams, client_id): 
     '''
-	def setLog : Purpose
+    def setLog : Purpose
     To add logs of user activities.
     Description:
     The the parameter list should contain: 
