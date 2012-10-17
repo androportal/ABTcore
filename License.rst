@@ -1,7 +1,7 @@
 License
 -------
 
-GPL Version 3, 29 June 2007.
+GNU GPL Version 3, 29 June 2007.
 
 Please refer this `link <http://www.gnu.org/licenses/gpl-3.0.txt>`_
 for detailed description.
