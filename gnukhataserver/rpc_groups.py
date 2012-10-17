@@ -5,7 +5,7 @@ from twisted.internet import reactor #reactor from the twisted library starts th
 from sqlalchemy.orm import join
 from decimal import *
 from sqlalchemy import or_ , func
-
+import rpc_main
 #note that all the functions to be accessed by the client must have the xmlrpc_ prefix.
 #the client however will not use the prefix to call the functions. 
 
@@ -20,14 +20,14 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		Parameters : groupname(datatype:text), subgroupname(datatype:text) , client_id (datatype:integer)
 		Returns : returns 1 when successful, 0 when subgroupname(datatype:text) is null
 		Description : Adds new subgroup to the database. 
-				When successful it returns 1 otherwise it returns 0. 
+			When successful it returns 1 otherwise it returns 0. 
 		'''
 		# call getGroupCodeByGroupName func to get groupcode
-		res = self.xmlrpc_getGroupCodeByGroupName([queryParams[0]],client_id) 
+		result = self.xmlrpc_getGroupCodeByGroupName([queryParams[0]],client_id) 
 		# call getSubGroupCodeBySubGroupName fun to get subgroupcode
-		res1 = self.xmlrpc_getSubGroupCodeBySubGroupName([queryParams[1]],client_id) 
-		if res != None:
-			group_code = res[0]
+		#result = self.xmlrpc_getSubGroupCodeBySubGroupName([queryParams[1]],client_id) 
+		if result != None:
+			group_code = result[0]
 			#print group_code
 			connection = dbconnect.engines[client_id].connect()
                 	Session = dbconnect.session(bind=connection)
@@ -59,44 +59,51 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		'''
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		res = Session.query(dbconnect.Groups).order_by(dbconnect.Groups.groupname).all()
+		result = Session.query(dbconnect.Groups).order_by(dbconnect.Groups.groupname).all()
 		Session.close()
 		connection.connection.close()
-		#print res
-		if res == []:
+		#print result
+		if result == []:
 			return False
 		else:
-			result = []
-			for i in range(0,len(res)):
-				result.append([res[i].groupcode, res[i].groupname, res[i].groupdesc])
-			#print result
-			return result
+			grouplist = []
+			for i in range(0,len(result)):
+				grouplist.append([result[i].groupcode, result[i].groupname, result[i].groupdesc])
+			#print grouplist
+			return grouplist
 			
 	def xmlrpc_getSubGroupsByGroupName(self,queryParams,client_id):
 		'''
-		Purpose :function for extracting all rows of view_account based on groupname	
+		Purpose :function for extracting all rows of view_group_subgroup based on groupname	
 		Parameters : QueryParams, list containing groupname(datatype:text)
 		Returns : List of all subgroups when successful, else list containing strings 
-		Description : Querys the view_account which is created based on the account ,subgroups and groups table.
-			      It retrieves all rows of view_account based on groupname order by subgroupname.
-			      When successful it returns the list of lists in which each list contain each row that are retrived from view otherwise it returns list in which two default subgroup strings. 
+		Description : Querys the view_group_subgroup which is created based on the account ,subgroups and groups table.
+			      It retrieves all rows of view_group_subgroup based on groupname order by subgroupname.
+			      When successful it returns the list of lists in which 
+			      each list contain each row that are retrived from view otherwise 
+			      it returns list in which two default subgroup strings. 
 		
 		'''
-		stmt = "select subgroupname from view_group_subgroup where groupname='"+queryParams[0]+"' order by subgroupname"
-		res=dbconnect.engines[client_id].execute(stmt).fetchall()
-		subgrp = []
-		if res == []:
-			subgrp.append("No Sub-Group")
-			subgrp.append("Create New Sub-Group")
+		
+		statement = "select subgroupname\
+			from view_group_subgroup\
+			where groupname='"+queryParams[0]+"'\
+			order by subgroupname"
+		result=dbconnect.engines[client_id].execute(statement).fetchall()
+		subgrouplist = []
+		if result == []:
+			subgrouplist.append("No Sub-Group")
+			subgrouplist.append("Create New Sub-Group")
 			#print subgrp
-			return subgrp
+			return subgrouplist
 		else:
-			subgrp.append("No Sub-Group")
-			for l in range(0,len(res)): 
-				subgrp.append(res[l][0])
-			subgrp.append("Create New Sub-Group")
+			subgrouplist.append("No Sub-Group")
+			for l in range(0,len(result)): 
+				subgrouplist.append(result[l][0])
+			subgrouplist.append("Create New Sub-Group")
 			#print subgrp
-			return subgrp
+			return subgrouplist
+		
 			
 	def xmlrpc_getGroupCodeByGroupName(self,queryParams,client_id):
 		'''
@@ -108,12 +115,14 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		'''
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		res = Session.query(dbconnect.Groups).filter(dbconnect.Groups.groupname == queryParams[0]).first()
+		result = Session.query(dbconnect.Groups).\
+		      filter(dbconnect.Groups.groupname == queryParams[0]).\
+		      first()
 		Session.close()
 		connection.connection.close()
-		if res != None:
+		if result != None:
 			
-			return [res.groupcode]
+			return [result.groupcode]
 		else:
 			return False
 			
@@ -126,12 +135,14 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		'''
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		res = Session.query(dbconnect.subGroups).filter(dbconnect.subGroups.subgroupname == queryParams[0]).first()
+		result = Session.query(dbconnect.subGroups).\
+		      filter(dbconnect.subGroups.subgroupname == queryParams[0]).\
+		      first()
 		Session.close()
 		connection.connection.close()
-		if res != None:
+		if result != None:
 			
-			return [res.subgroupcode]
+			return [result.subgroupcode]
 		else:
 			return False
 			
@@ -145,12 +156,13 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		'''	
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		res = Session.query(func.count(dbconnect.subGroups.subgroupname)).filter(dbconnect.subGroups.subgroupname == queryParams).\
-		all()
+		result = Session.query(func.count(dbconnect.subGroups.subgroupname)).\
+		      filter(dbconnect.subGroups.subgroupname == queryParams[0]).scalar()
 		Session.close()
 		connection.connection.close()
-		print res
-		if res == []:
+		print "subgroup exist"
+		print result
+		if result == []:
 			return "0"
 		else:
 			return "1"
@@ -164,12 +176,12 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		res = Session.query(dbconnect.Groups).filter(dbconnect.Groups.groupname == queryParams[0]).\
+		result = Session.query(dbconnect.Groups).filter(dbconnect.Groups.groupname == queryParams[0]).\
 		order_by(dbconnect.Groups.groupcode).first()
 		Session.close()
 		connection.connection.close()
-		if res != None:
-			return [res.groupcode, res.groupname, res.groupdesc]
+		if result != None:
+			return [result.groupcode, result.groupname, result.groupdesc]
 		else:
 			return False
 	
@@ -186,12 +198,12 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		res = Session.query(dbconnect.Groups).select_from(join(dbconnect.Groups,dbconnect.Account)).\
+		result = Session.query(dbconnect.Groups).select_from(join(dbconnect.Groups,dbconnect.Account)).\
 		filter(dbconnect.Account.accountname == queryParams[0]).first()
 		Session.close()
 		connection.connection.close()
-		if res != None:
-			return [res.groupname]
+		if result != None:
+			return [result.groupname]
 		else:
 			return False
 	
@@ -206,12 +218,12 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		print queryParams,client_id
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		res = Session.query(dbconnect.subGroups).filter(dbconnect.subGroups.subgroupname == queryParams[0]).\
+		result = Session.query(dbconnect.subGroups).filter(dbconnect.subGroups.subgroupname == queryParams[0]).\
 		order_by(dbconnect.subGroups.groupcode).first()
 		Session.close()
 		connection.connection.close()
-		if res != None:
-			return res.subgroupcode
+		if result != None:
+			return result.subgroupcode
 		else:
 			return False'''
 	
