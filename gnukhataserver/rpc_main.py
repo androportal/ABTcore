@@ -20,9 +20,8 @@ import dbconnect
 import rpc_organisation
 import rpc_groups
 import rpc_account
-#import rpc_transaction
+import rpc_transaction
 import rpc_data
-#import rpc_customizable
 import rpc_user
 #import rpc_reports
 import rpc_getaccountsbyrule
@@ -284,15 +283,15 @@ account=rpc_account.account()
 gnukhata.putSubHandler('account',account)
 organisation = rpc_organisation.organisation()
 gnukhata.putSubHandler('organisation',organisation)
-'''
 transaction=rpc_transaction.transaction()
 gnukhata.putSubHandler('transaction',transaction)
-'''
+
 data=rpc_data.data()
 gnukhata.putSubHandler('data',data)
 '''
 reports=rpc_reports.reports()
-gnukhata.putSubHandler('reports',reports)'''
+gnukhata.putSubHandler('reports',reports)
+'''
 user=rpc_user.user()
 gnukhata.putSubHandler('user',user)
 '''

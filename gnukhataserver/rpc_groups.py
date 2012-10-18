@@ -42,9 +42,6 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
                 else:
 			return "false"
 		
-	
-		
-	
 	def xmlrpc_getAllGroups(self,client_id):
 		'''
 		purpose : function to get all groups present in the groups table
@@ -64,7 +61,7 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		connection.connection.close()
 		#print result
 		if result == []:
-			return False
+			return "false"
 		else:
 			grouplist = []
 			for i in range(0,len(result)):
@@ -87,7 +84,7 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		
 		statement = "select subgroupname\
 			from view_group_subgroup\
-			where groupname='"+queryParams[0]+"'\
+			where groupname ='"+queryParams[0]+"'\
 			order by subgroupname"
 		result=dbconnect.engines[client_id].execute(statement).fetchall()
 		subgrouplist = []
@@ -124,7 +121,7 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			
 			return [result.groupcode]
 		else:
-			return False
+			return "false"
 			
 	def xmlrpc_getSubGroupCodeBySubGroupName(self,queryParams,client_id):
 		'''
@@ -144,7 +141,7 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			
 			return [result.subgroupcode]
 		else:
-			return False
+			return "false"
 			
 	def xmlrpc_subgroupExists(self,queryParams,client_id):	
 		'''

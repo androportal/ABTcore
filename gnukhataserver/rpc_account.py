@@ -29,6 +29,7 @@ class account(xmlrpc.XMLRPC):
 		Returns True
 		""" 
 		group = rpc_groups.groups()
+		print queryParams
 		sp_params = [queryParams[0], queryParams[3]] # create sp_params list contain  groupname , accountname 
 		if queryParams[2] == "": # check for the new-subgroupname if blank then 
 
@@ -58,7 +59,7 @@ class account(xmlrpc.XMLRPC):
 			sp_params.append("null") # if blank then append "null"
 		else:
 			sp_params.append(queryParams[7]) # else append suggestedcode
-		
+		print "sp_params"
 		print sp_params
 		# execute here
 		connection = dbconnect.engines[client_id].connect()
@@ -167,7 +168,8 @@ class account(xmlrpc.XMLRPC):
 			if an account did exist then the given 3 characters will be postfixed 
 			with total count of existing similar account codes + 100.
 		If no such account is found then 100 will be concatinated to the first 3 chars.
-		for example if no account exists with an account code starting with CAS, then the suggested code will be CAS100.
+		for example if no account exists with an account code starting with CAS, 
+		then the suggested code will be CAS100.
 		Next time an account with 3 chars as CAS is entered, then it will be CAS101.
 		
 		"""	
@@ -185,6 +187,50 @@ class account(xmlrpc.XMLRPC):
 		Session.close()
 		connection.connection.close()
 	
+	def xmlrpc_getAccountCodeByAccountName(self, queryParams, client_id):	
+		'''
+		Purpose   : Function for getting if an accountcode with supplied 
+				accountname. 	
+		Parameters : queryParams which is a list containing one element, 
+				accountname as string.
+		Returns :  acountcode if accoutname match else eturn false string
+		Description : Querys the account table and sees if an account name 
+			similar to one provided as a parameter.
+			if it exists then it will return accountcode related accountname
+		'''
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Account.accountcode).\
+		      	 	filter(dbconnect.Account.accountname == queryParams[0]).\
+		      		first()
+		Session.close()
+		connection.connection.close()	
+		print result
+		if result == None:
+			return "false"
+		else:
+			return result[0]
+			
+	def xmlrpc_getAllAccountNames(self, client_id):
+		"""
+		purpose: returns the list of all accountnames in the database.
+		Input Parameters : It will take any i/p parameters
+		description: returns the list of name of all accounts.
+		if there are no accounts to return then returns 0.
+		"""
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Account.accountname).\
+		      	 		order_by(dbconnect.Account.accountname).\
+		      		all()
+		print result    		
+		accountnames = []
+		if result == None:
+			return 0
+		for row in result:
+			accountnames.append(row.accountname)
+		print accountnames 
+		return accountnames
 	
 	def xmlrpc_accountExists(self, queryParams, client_id):
 		'''
