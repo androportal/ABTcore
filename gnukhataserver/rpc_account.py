@@ -91,7 +91,7 @@ class account(xmlrpc.XMLRPC):
 			# check for subgroupcode if False 
 			print "subgroupcode"
 			print subgroup_code
-			if subgroup_code == False : # then 
+			if subgroup_code == "false" : # then 
 			        # call setSubGroup pass params groupname , new-subgroupname , client-id
    				group.xmlrpc_setSubGroup([sp_params[0],sp_params[2]],client_id); 
    				# call getSubGroupCodeBySubGroupName pass params new-subgroupname return subgroupcode

@@ -7,7 +7,6 @@ from twisted.internet import reactor
 import xmlrpclib
 import rpc_account
 from datetime import datetime, time
-
 from sqlalchemy import func
 from multiprocessing.connection import Client
 from rpc_organisation import organisation
@@ -120,10 +119,10 @@ class transaction(xmlrpc.XMLRPC):
 		      filter(dbconnect.Projects.projectname == queryParams[0]).first()
 		Session.close()
 		connection.connection.close()
-		projectCode = result[0]
-		if projectCode == None:
+		if result == None:
 			return 0
 		else:
+			projectCode = result[0]
 			return projectCode 
 			
 	def xmlrpc_setVoucherDetails(self,queryParams,client_id):
@@ -132,7 +131,6 @@ class transaction(xmlrpc.XMLRPC):
 		Purpose: It set voucher details which will be use in setTransaction
 		Input parameters : 
 			queryParams_details list will contain :
-		
 			* Dr or Cr flag,
 			* AccountName
 			* the amount for the respective account.
@@ -149,4 +147,79 @@ class transaction(xmlrpc.XMLRPC):
                 connection.connection.close()
                 return "success"
 		
+	def xmlrpc_getTransactions(self,queryParams,client_id):
+	
+		'''
+		Purpose: get voucher details from the database given input parameters
+		input parameters : [accountname,from_date,to_date,projectname]
+		output parameters : [vouchercode , voucherflag , reff_date , voucher_reference,
+					transaction_amount,show_narration]
+		Desription : It will chech for Project exist or not 
+		If 'No Project' then 
+			it will query to 'view_voucherbook' view in (rpc.main)
+			and gives the details of transactions which is under 'No Project'
+		else 
+			it will query to 'view_voucherbook' view in (rpc.main)
+			and gives the details of transactions which is under given project name 
 		
+			It will also call 1 funtions from same file rpc_transation.py
+			to get projectcode for given projectname
+			
+			1 . xmlrpc_getProjectcodeByProjectName  
+		
+		'''
+		if queryParams[3] == 'No Project':
+			
+			statement = "select vouchercode,typeflag,reffdate,reference,amount,narration\
+			     		from view_voucherbook\
+			     		where account_name = '"+queryParams[0]+"'\
+			     		and reffdate >= '"+queryParams[1]+"'\
+					and reffdate <= '"+queryParams[2]+"'\
+					and flag = 1\
+					order by reffdate"
+		else:
+			project_code = self.xmlrpc_getProjectcodeByProjectName([str(queryParams[3])],client_id)
+			statement = "select vouchercode, typeflag ,reffdate,reference,amount,narration\
+					from view_voucherbook\
+					where account_name = '"+queryParams[0]+"'\
+					and projectcode = '"+str(project_code)+"'\
+					and reffdate >= '"+queryParams[1]+"'\
+					and reffdate <= '"+queryParams[2]+"'\
+					and flag = 1\
+					order by reffdate"
+		result = dbconnect.engines[client_id].execute(statement).fetchall()
+		transactionlist = []
+		for row in result:
+	
+			transactionlist.append([row[0],row[1],row[2],row[3],'%.2f'%(row[4]),row[5]])
+		
+		print transactionlist	
+		return transactionlist
+		
+	def xmlrpc_getParticulars(self,queryParams,client_id):
+		'''
+		Purpose: get list of Particulars from the database given input parameters
+		input parameters : [voucher_code,type_flag]
+		output parameters : [accountnames]
+		Desription : It will retrive acount name list from view_voucherbook
+		accounts which is involved in transactions 
+		If it is involve then 
+			it will query to 'view_voucherbook' view in (rpc.main)
+			and gives the list of account names
+		else 
+			it will query to 'view_voucherbook' view in (rpc.main)
+			and gives the empty list
+		
+		'''
+		statement = "select account_name\
+		     		from view_voucherbook\
+		     		where vouchercode = '"+str(queryParams[0])+"'\
+		     		and typeflag ='"+queryParams[1]+"' \
+		     		and flag = 1\
+				order by account_name"
+		result = dbconnect.engines[client_id].execute(statement).fetchall()
+		accountnames = []
+		for row in result:
+			accountnames.append(row.account_name)
+		print accountnames 		
+		return accountnames	

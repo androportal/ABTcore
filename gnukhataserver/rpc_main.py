@@ -23,7 +23,7 @@ import rpc_account
 import rpc_transaction
 import rpc_data
 import rpc_user
-#import rpc_reports
+import rpc_reports
 import rpc_getaccountsbyrule
 #import rpc_inventory
 from sqlalchemy.orm import join
@@ -288,10 +288,9 @@ gnukhata.putSubHandler('transaction',transaction)
 
 data=rpc_data.data()
 gnukhata.putSubHandler('data',data)
-'''
 reports=rpc_reports.reports()
 gnukhata.putSubHandler('reports',reports)
-'''
+
 user=rpc_user.user()
 gnukhata.putSubHandler('user',user)
 '''

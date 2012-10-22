@@ -103,7 +103,7 @@ class organisation(xmlrpc.XMLRPC):
 		Session.close()
 		connection.connection.close()
 		if result == []:
-			return False
+			return "false"
 		else:
 			projects = []
 			for i in range(0,len(result)):
