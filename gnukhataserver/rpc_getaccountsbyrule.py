@@ -42,7 +42,7 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 		
 		
 		if result == []:
-			return "false"
+			return result
 		else:
 			contraAccounts = []
 			for row in result:
@@ -69,7 +69,7 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 		        or subgroupname != 'Cash' and subgroupname != 'Bank' order by accountname"
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
 		if result == []:
-			return "false"
+			return result
 		else:
 			journalAccounts = []
 			for row in result:
@@ -107,7 +107,7 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
 	
 		if result == []:
-			return "false"
+			return result
 		else:	 
 			recievableAccounts = []
 			for row in result:
@@ -145,7 +145,7 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 				
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
 		if result == []:
-			return "false"
+			return result
 		else:
 			paymentAccounts = []
 			for row in result:
@@ -185,7 +185,7 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
 		if result == []:
-			return "false"
+			return result
 		else:
 			debitnoteAccounts = []
 			for row in result:
@@ -222,7 +222,7 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 				
 		result = dbconnect.engines[client_id].execute(statement).fetchall()		
 		if result == []:
-			return "false"
+			return result
 		else:
 			creditnoteAccounts = []
 			for row in result:
@@ -259,7 +259,7 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 				  
 		result = dbconnect.engines[client_id].execute(statement).fetchall()	
 		if result == []:
-			return "false"
+			return result
 		else:
 			salesAccounts = []
 			for row in result:
@@ -297,7 +297,7 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 				
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
 		if result == []:
-			return "false"
+			return result
 		else:
 			purchaseAccounts = []
 			for row in result:
@@ -334,7 +334,7 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 				in ('Direct Expense','Indirect Expense') order by accountname"
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
 		if result == []:
-			return "false"
+			return result
 		else:
 			salesreturnAccounts = []
 			for row in result:
@@ -371,7 +371,7 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 				in ('Sundry Creditors for Expense','Sundry Creditors for Purchase')  order by accountname" 
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
 		if result == []:
-			return "false"
+			return result
 		else:
 			purchasereturnAccounts = []
 			for row in result:

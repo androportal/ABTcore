@@ -65,7 +65,7 @@ class organisation(xmlrpc.XMLRPC):
 				first()
 		#print res.flagname
 		if result == []:
-			return False
+			return result
 		else:
 			print result.flagname
 			return result.flagname
@@ -103,7 +103,7 @@ class organisation(xmlrpc.XMLRPC):
 		Session.close()
 		connection.connection.close()
 		if result == []:
-			return "false"
+			return result
 		else:
 			projects = []
 			for i in range(0,len(result)):
@@ -111,31 +111,38 @@ class organisation(xmlrpc.XMLRPC):
 			return projects
 		
 		
-	
-	'''	
 	def xmlrpc_setOrganisation(self,queryParams,client_id):
-		
-		Purpose : function for add organisation details in database					
-		i/p parameters : orgcode,orgaddress,orgcountry,orgstate,orgcity,
-				 orgpincode,orgtelno,orgfax,orgemail,
-				 orgwebsite,orgmvat,orgstax,orgregno,orgregdate,
-				 orgfcrano,orgfcradate,orgpan,client_id
+		'''
+		Purpose : function for add organisation details in database
+		if orgtype is 'NGO then				
+			i/p parameters : orgtype,orgaddress,orgcity,orgpincode,orgstate,
+					 orgcountry,orgtelno,orgfax,orgwebsite,orgemail,
+					 orgpan,orgregno,orgregdate,
+					 orgfcrano,orgfcradate,client_id
+		else 
+			i/p parameters : orgtype,orgaddress,orgcity,orgpincode,orgstate,
+					 orgcountry,orgtelno,orgfax,orgwebsite,orgemail,
+					 orgpan,orgmvat,orgstax,client_id
+					 
 		o/p parameter : true or false
-		
+		'''
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		print queryParams
 		Session.add_all([\
-				dbconnect.Organisation(queryParams[0],queryParams[1],queryParams[2],queryParams[3],queryParams[4],\
-				queryParams[5],queryParams[6],queryParams[7],queryParams[8],queryParams[9],queryParams[10],\
-				queryParams[11],queryParams[12],queryParams[13],queryParams[14],queryParams[15],\
-				queryParams[16],queryParams[17])\
+				dbconnect.Organisation(\
+					queryParams[0],queryParams[1],queryParams[2],queryParams[3],\
+					queryParams[4],queryParams[5],queryParams[6],queryParams[7],\
+					queryParams[8],queryParams[9],queryParams[10],queryParams[11],\
+					queryParams[12],queryParams[13],queryParams[14],\
+					queryParams[15],queryParams[16],queryParams[17])\
 				])
 		
 		Session.commit()
 		Session.close()
 		connection.connection.close()
 		return True 
+	'''
 
 	def xmlrpc_getOrganisation(self,client_id):
 		

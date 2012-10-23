@@ -404,7 +404,7 @@ class reports(xmlrpc.XMLRPC):
 					trialRow.append("")
 				srno = srno +1
 				trialBalance.append(trialRow)
-		total_balances = ['%.2f'%total_dr,'%.2f'%total_cr]
+		total_balances = ["","","",'%.2f'%total_dr,'%.2f'%total_cr]
 		trialBalance.append(total_balances)
 	
 		return trialBalance	

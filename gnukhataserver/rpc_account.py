@@ -66,7 +66,9 @@ class account(xmlrpc.XMLRPC):
 		Session = dbconnect.session(bind=connection)
 		# call getGroupCodeByGroupName() pass param groupname will return groupcode
 		group_code = group.xmlrpc_getGroupCodeByGroupName([sp_params[0]], client_id); 
-		# check for accountcode if null 
+		# check for accountcode if null
+		print "groupcode" 
+		print group_code
  		if sp_params[6] == 'null': # then
  			maxcode = Session.query(func.count(dbconnect.Account.accountcode)).scalar() # query on accountcode to get count
  			
@@ -78,7 +80,7 @@ class account(xmlrpc.XMLRPC):
 		# check for new-subgropname if null	
 		print "subgroupname"
 		print sp_params
-		print queryParams[1]	
+		
 		if sp_params[2] == 'null': # then 
 			# add all values in the account table
 			Session.add(dbconnect.Account(\
@@ -87,11 +89,12 @@ class account(xmlrpc.XMLRPC):
 		else:
 			# if new-subgroupname is present then call getSubGroupCodeBySubGroupName pass params new-subgroupname
 			# it will return subgroupcode or False
+			
 			subgroup_code =  group.xmlrpc_getSubGroupCodeBySubGroupName([sp_params[2]], client_id)
 			# check for subgroupcode if False 
 			print "subgroupcode"
 			print subgroup_code
-			if subgroup_code == "false" : # then 
+			if subgroup_code == [] : # then 
 			        # call setSubGroup pass params groupname , new-subgroupname , client-id
    				group.xmlrpc_setSubGroup([sp_params[0],sp_params[2]],client_id); 
    				# call getSubGroupCodeBySubGroupName pass params new-subgroupname return subgroupcode
@@ -104,6 +107,7 @@ class account(xmlrpc.XMLRPC):
    			Session.commit()
                 	Session.close()
                 	connection.connection.close()
+                	
 		return "success"
 		
 		
@@ -207,7 +211,7 @@ class account(xmlrpc.XMLRPC):
 		connection.connection.close()	
 		print result
 		if result == None:
-			return "false"
+			return []
 		else:
 			return result[0]
 			
@@ -226,7 +230,7 @@ class account(xmlrpc.XMLRPC):
 		print result    		
 		accountnames = []
 		if result == None:
-			return 0
+			return result
 		for row in result:
 			accountnames.append(row.accountname)
 		print accountnames 
