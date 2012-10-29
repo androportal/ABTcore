@@ -7,7 +7,7 @@ from twisted.internet import reactor
 import xmlrpclib
 import rpc_account
 from datetime import datetime, time
-from sqlalchemy import func
+from sqlalchemy import func , and_ , or_
 from multiprocessing.connection import Client
 from rpc_organisation import organisation
 
@@ -125,6 +125,26 @@ class transaction(xmlrpc.XMLRPC):
 			projectCode = result[0]
 			return projectCode 
 			
+	def xmlrpc_getProjectNameByProjectCode(self,queryParams,client_id):
+		"""
+		Purpose: function to get projectname acouding to projectcode
+		input parameters: It will take only one input projectcode
+		output parameters : it will return projectname if projectcode match
+			else returns None String
+		"""
+		# execute here
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Projects.projectname).\
+		      filter(dbconnect.Projects.projectcode == queryParams[0]).first()
+		Session.close()
+		connection.connection.close()
+		if result == None:
+			return result
+		else:
+			projectname = result[0]
+			return projectname
+			
 	def xmlrpc_setVoucherDetails(self,queryParams,client_id):
 	
 		"""
@@ -168,15 +188,21 @@ class transaction(xmlrpc.XMLRPC):
 			1 . xmlrpc_getProjectcodeByProjectName  
 		
 		'''
+		print "getTransactions"
+		print queryParams
+		from_date = str(datetime.strptime(str(queryParams[1]),"%d-%m-%Y"))
+		to_date = str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
 		if queryParams[3] == 'No Project':
 			
+			print "In No Project"
 			statement = "select vouchercode,typeflag,reffdate,reference,amount,narration\
 			     		from view_voucherbook\
 			     		where account_name = '"+queryParams[0]+"'\
-			     		and reffdate >= '"+queryParams[1]+"'\
-					and reffdate <= '"+queryParams[2]+"'\
-					and flag = 1\
+			     		and reffdate >= '"+from_date+"'\
+					and reffdate <= '"+to_date+"'\
+					and flag == 1\
 					order by reffdate"
+			result = dbconnect.engines[client_id].execute(statement).fetchall()
 		else:
 			project_code = self.xmlrpc_getProjectcodeByProjectName([str(queryParams[3])],client_id)
 			statement = "select vouchercode, typeflag ,reffdate,reference,amount,narration\
@@ -185,9 +211,11 @@ class transaction(xmlrpc.XMLRPC):
 					and projectcode = '"+str(project_code)+"'\
 					and reffdate >= '"+queryParams[1]+"'\
 					and reffdate <= '"+queryParams[2]+"'\
-					and flag = 1\
+					and flag == 1\
 					order by reffdate"
-		result = dbconnect.engines[client_id].execute(statement).fetchall()
+			result = dbconnect.engines[client_id].execute(statement).fetchall()
+		print "result"
+		print result
 		transactionlist = []
 		for row in result:
 	
@@ -222,4 +250,254 @@ class transaction(xmlrpc.XMLRPC):
 		for row in result:
 			accountnames.append(row.account_name)
 		print accountnames 		
-		return accountnames	
+		return accountnames
+		
+	def xmlrpc_searchVoucher(self,queryParams,client_id):
+		"""
+		Purpose : Returns one or more vouchers given the reference number 
+		or date range (which ever specified)takes one parameter queryParams 
+		as list.
+		'''
+  		input parameters : 
+  		[searchFlag , refeence_no , from_date , to_date , narration ]
+  		''' 
+  		searchFlag integer (1 implies serch by reference,2 as search by date range and 
+  		3 as search by narration.
+		returns a 2 dimensional list containing one or more records from voucher_master
+		
+		'''
+  		output parameters : 
+  		[vouchercode , refeence_no , reffdate,vouchertype,dramount ,cramount ,
+  		totalamount , narration ]
+  		
+  		''' 
+		description:The function is used to get the list of vouchers on the basis 
+		of either reference number (which can be duplicate),or date range,
+		or some words from narration.
+		
+		This means one or more vouchers could be by the same reference 
+		number or within a given date range.
+		
+		The list thus returned contains all details of a given voucher 
+		except its exact transactions, i.e the records from voucher_master.
+		
+		The function calls 3 definations fron the same class file 
+			1) xmlrpc_searchVouchers
+			2) xmlrpc_getVoucherAmount
+			3) xmlrpc_getVoucherDetails
+		
+		"""
+		
+		vouchers = self.xmlrpc_searchVouchers(queryParams,client_id)
+		voucherView = []
+		for voucherRow in vouchers:
+			
+			amtRow = self.xmlrpc_getVoucherAmount([voucherRow[0]],client_id)
+			voucherAccounts = self.xmlrpc_getVoucherDetails([voucherRow[0]],client_id)
+			drAccount = ""
+			crAccount = ""
+			drCounter = 1
+			crCounter = 1
+			for va in voucherAccounts:
+				if va[1] == "Dr" and drCounter == 2:
+					drAccount = va[0] + "+"
+				if va[1] == "Dr" and drCounter == 1:
+					drAccount = va[0]
+					drCounter = drCounter +1
+				if va[1] == "Cr" and crCounter == 2:
+					crAccount = va[0] + "+"
+				if va[1] == "Cr" and crCounter == 1:
+					crAccount = va[0]
+					crCounter = crCounter +1
+				
+			totalAmount = '%.2f'%(amtRow)
+			
+			voucherView.append([voucherRow[0],voucherRow[1],voucherRow[2],voucherRow[3],\
+			drAccount,crAccount,totalAmount,voucherRow[4]])
+		print "Voucher View"
+		print voucherView
+		return voucherView	
+		
+	def xmlrpc_searchVouchers(self,queryParams,client_id):
+	
+		'''
+		This function will be usefull in the searchVouchers 
+		to get Complete details or information about transaction
+		
+  		input parameters :
+  		[searchFlag , ref_no , from_date , to_date ,narration ]
+  	
+  		output parameters : 
+  			
+  		[vouchercode , refeence_no , reffdate,vouchertype,narration ]
+  		
+  		'''
+ 		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		print "search parameters"
+		print queryParams
+		from_date = datetime.strptime(str(queryParams[2]),"%d-%m-%Y")
+		to_date = datetime.strptime(str(queryParams[3]),"%d-%m-%Y")
+		if queryParams[0] == 1: 
+			result = Session.query(dbconnect.VoucherMaster).\
+						filter(and_(dbconnect.VoucherMaster.reference == queryParams[1],\
+						dbconnect.VoucherMaster.flag == 1)).\
+			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
+			print "search voucher by reference no"
+			print result
+			print result[0].vouchercode    
+		if queryParams[0] == 2:	
+			print from_date
+			print to_date
+			result = Session.query(dbconnect.VoucherMaster).\
+						filter(and_(dbconnect.VoucherMaster.reffdate >= from_date,\
+						dbconnect.VoucherMaster.reffdate <= to_date,\
+						dbconnect.VoucherMaster.flag == 1)).\
+			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
+			print "search by date "
+			print result    
+		if queryParams[0] == 3:	
+			result = Session.query(dbconnect.VoucherMaster).\
+			filter(and_(dbconnect.VoucherMaster.flag == 1,\
+			(or_(dbconnect.VoucherMaster.narration.like(str(queryParams[4])+'%'),\
+			dbconnect.VoucherMaster.narration.like('%'+str(queryParams[4])+'%'),\
+			dbconnect.VoucherMaster.narration.like('%'+str(queryParams[4])))))).\
+			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
+			      		
+		
+		if result == []:
+			return result
+		else:
+			voucherlists = []
+		
+			for row in result:
+				reffdate = str(row.reffdate).split(" ")
+				ref_date = datetime.strptime(reffdate[0],"%Y-%m-%d").strftime("%d-%m-%Y")
+				voucherlists.append([row.vouchercode,row.reference,ref_date,row.vouchertype,row.narration])
+			#Sprint voucherlists  
+			return voucherlists 
+			
+	def xmlrpc_getVoucherAmount(self,queryParams,client_id):
+		'''
+			Input parameters : [voucher_code]
+			Output Parameters : [totalamount]
+		'''
+		statement = "select sum(amount) as totalamount\
+			     		from view_voucherbook\
+			     		where vouchercode = '"+str(queryParams[0])+"'\
+			     		and typeflag ='Cr'"
+			     		
+		result = dbconnect.engines[client_id].execute(statement).fetchone()
+		print result[0]
+		if result[0] == None:
+			return []
+		else:
+			return result[0]
+
+	def xmlrpc_getVoucherDetails(self,queryParams,client_id):
+	
+		"""
+		purpose: gets the transaction related details given a vouchercode.
+		'''
+		Input parameters : [voucher_code]
+		'''
+		returns  2 dimentional list containing rows with 3 columns.
+		takes one parameter vouchercode
+		'''
+		Output Parameters : [accountname , typeflag , amount]
+		'''
+		"""
+		statement = "select account_name,typeflag,amount\
+			     		from view_voucherbook\
+			     		where vouchercode = '"+str(queryParams[0])+"'\
+			     		and flag = 1 "
+			     		
+		result = dbconnect.engines[client_id].execute(statement).fetchall()
+		
+		voucherdetails = []
+		if result == None:
+			return []
+		else:
+			for row in result:
+				voucherdetails.append([row[0],row[1],'%.2f'%float(row[2])])
+		print voucherdetails		
+		return voucherdetails
+		
+		
+		
+	def xmlrpc_getVoucherMaster(self,queryParams,client_id):
+
+		"""
+		purpose: returns a record from the voucher master 
+		containing single row data for a given transaction.
+		
+		Returns list containing data from voucher_master.
+		
+		description:
+		This function is used along with xmlrpc_ getVoucherDetails to 
+		searchVoucher (get complete voucher)
+		Useful while editing or cloning.
+		The function takes one parameter which is a list containing vouchercode.
+		'''
+		Input parameters : [voucher_code]
+		'''
+		This function call defination  xmlrpc_getProjectNameByProjectCode
+		which is in the same file rpc_transaction to get project name 
+		
+		'''
+		Output parameters : [reference,reffdate,vouchertype,projectname,narrartion]
+		'''
+		"""
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+	
+		result = Session.query(dbconnect.VoucherMaster).\
+					filter(and_(dbconnect.VoucherMaster.vouchercode == str(queryParams[0]),\
+					dbconnect.VoucherMaster.flag == 1)).\
+		      	 		order_by(dbconnect.VoucherMaster.reffdate).first()
+		
+		if result == None:
+			return []
+		else :
+			reffdate = str(result.reffdate).split(" ")
+			ref_date = datetime.strptime(reffdate[0],"%Y-%m-%d").strftime("%d-%m-%Y")
+			voucherRow = [result.reference,ref_date,result.vouchertype,result.narration,result.projectcode]
+			projectName = self.xmlrpc_getProjectNameByProjectCode([int(voucherRow[4])],client_id)	
+			if projectName == None:
+				projectName = "No Project"
+			voucherMaster = [voucherRow[0],voucherRow[1],voucherRow[2],voucherRow[3],projectName]
+			
+			return voucherMaster	
+				
+	def xmlrpc_deleteVoucher(self,queryParams,client_id):
+		'''
+		Purpose : This function will not completely delete voucherdetail
+		but it will set the flag 0 instead 1
+		so it will be like disabled for search voucher
+		Input Parameters :[vouchercode]
+		'''
+		try:
+			connection = dbconnect.engines[client_id].connect()
+			Session = dbconnect.session(bind=connection)
+			Session.query(dbconnect.VoucherMaster).\
+				filter(dbconnect.VoucherMaster.vouchercode == queryParams[0]).\
+				update({'flag':0})
+			Session.commit()
+			Session.close()
+			connection.connection.close()
+			return True
+		except:
+			return False			
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				

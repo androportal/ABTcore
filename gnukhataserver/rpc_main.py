@@ -49,22 +49,52 @@ class gnukhata(xmlrpc.XMLRPC):
 		'''
 	
 		orgs = dbconnect.getOrgList() #calling the function for getting list of organisation nodes.
-		#print orgs
+		
 		orgnames = [] #initialising an empty list for organisation names
 		for org in orgs:
 			#print "we r in getOrganisation"
 			orgname=org.find("orgname")
 			if orgname.text not in orgnames:
 				orgnames.append(orgname.text)
-		#print orgnames
+		print orgnames
 		return orgnames
+	
+	def xmlrpc_deleteOrganisation(self,queryParams): 
+		'''
+		def xmlrpc_deleteOrganisationName :
+
+		Purpose: This function is used delete organisation
+		         from existing organisations
+			organsations found in gnukhata.xml located at
+			/opt/gkAakash/. 
+			also delete database details of respective
+			organisation
+			
+		'''
+		tree = et.parse("/opt/gkAakash/gnukhata.xml") # parsing gnukhata.xml file
+		root = tree.getroot() # getting root node.
+		orgs = root.getchildren() 
+		for organisation in orgs:
+		
+			orgname = organisation.find("orgname").text
+			financialyear_from = organisation.find("financial_year_from").text
+			financialyear_to = organisation.find("financial_year_to").text
+			dbname = organisation.find("dbname").text
+			databasename = dbname
+			
+			if orgname == queryParams[0] and financialyear_from == queryParams[1] and financialyear_to == queryParams[2]:
+				
+				root.remove(organisation)
+				tree.write("/opt/gkAakash/gnukhata.xml")
+				os.system("rm /opt/gkAakash/db/"+databasename)
+			return True	
 
 	def xmlrpc_getFinancialYear(self,arg_orgName):
 		"""
 		purpose: This function will return a list of financial
 		years for the given organisation.  Arguements,
 		organisation name of type string.  returns, list of
-		financial years in the format yyyy-mm-dd
+		financial years in the format dd-mm-yyyy
 		"""
 		#get the list of organisations from the /etc/gnukhata.xml file.
 		#we will call the getOrgList function to get the nodes.
@@ -109,7 +139,7 @@ class gnukhata(xmlrpc.XMLRPC):
 			organisation name provided The name of the
 			database is a combination of, First character
 			of organisation name, * time stap as
-			yyyy-mm-dd-hh-MM-ss-ms An entry will be made
+			dd-mm-yyyy-hh-MM-ss-ms An entry will be made
 			in the xml file for the currosponding
 			organisation.
 		'''

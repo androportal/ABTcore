@@ -160,7 +160,7 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		connection.connection.close()
 		print "subgroup exist"
 		print result
-		if result == []:
+		if result == 0:
 			return "0"
 		else:
 			return "1"

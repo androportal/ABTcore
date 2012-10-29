@@ -259,5 +259,29 @@ class account(xmlrpc.XMLRPC):
 			return "0"
 		else:
 			return "1"
+			
+	def xmlrpc_accountCodeExists(self, queryParams, client_id):
+		'''
+		Purpose   : Function for finding if an accountcode already exists with the supplied code. 	
+		Parameters : queryParams which is a list containing one element, accountcode as string.
+		Returns :  1 if account code exists and 0 if not.
+		Description : Querys the account table and sees if an account code similar to one provided 
+		as a parameter exists.
+		We can ensure that no duplicate account is ever entered because if a similar accountcode exists 
+		like the one in queryparams[0] then we won't allow another entry with same code.
+		'''
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(func.count(dbconnect.Account.accountcode)).\
+		      filter(dbconnect.Account.accountcode == queryParams[0]).\
+		      scalar()
+		Session.close()
+		connection.connection.close()
+		print "account result"
+		print result
+		if result == 0:
+			return "0"
+		else:
+			return "1"
 	
 	

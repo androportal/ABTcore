@@ -86,8 +86,11 @@ class reports(xmlrpc.XMLRPC):
 		# create the instance of transaction 
 		transaction = rpc_transaction.transaction()
 		# call getTransactions to get the transaction details for this account.
+		
+		
 		transactions = transaction.xmlrpc_getTransactions([queryParams[0],queryParams[2],queryParams[3],queryParams[4]],client_id)
-
+		print "get Transactions"
+		print transactions
 		# fill up the grid with the rows for transactions.
 		for transactionRow in transactions:
 			ledgerRow = []
@@ -98,11 +101,13 @@ class reports(xmlrpc.XMLRPC):
 			# if the transaction had the amount at Dr side then particulars must have the names of accounts involved in Cr.
 			if transactionRow[1] == "Dr":
 				particulars = transaction.xmlrpc_getParticulars([transactionRow[0],"Cr"],client_id)
+				print "particulars"
+				print particulars
 				#may be more than one account was involved a tthe other side so loop through.
 				particular = []
 				for particularRow in particulars:
 					particular.append(particularRow)
-				ledgerRow.append(particular[0])
+				ledgerRow.append(particular)
 				ledgerRow.append(transactionRow[3])
 				ledgerRow.append('%.2f'%(float(transactionRow[4])))
 				totalDr = totalDr + float(transactionRow[4])
@@ -111,10 +116,12 @@ class reports(xmlrpc.XMLRPC):
 				
 			if transactionRow[1] == "Cr":
 				particulars = transaction.xmlrpc_getParticulars([transactionRow[0],"Dr"],client_id)
+				print "particulars"
+				print particulars
 				particular = []
 				for particularRow in particulars:
 					particular.append(particularRow)
-				ledgerRow.append(particular[0])
+				ledgerRow.append(particular)
 				ledgerRow.append(transactionRow[3])
 				ledgerRow.append("")
 				ledgerRow.append('%.2f'%(float(transactionRow[4])))
@@ -156,11 +163,15 @@ class reports(xmlrpc.XMLRPC):
 		[group_name,bal_brought,curbal,total_DrBal,total_CrBal,opening_baltype,baltype]
 		
 		"""
+		print "cal bal list "
+		print queryParams
 		statement = "select groupname\
 			     from group_subgroup_account\
 			     where accountname = '"+queryParams[0]+"'"
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
-		#print "result"
+		print "result"
+		print result
+		print result[0]
 		group_name = result[0]
 		#print "groupname"
 		#print group_name
