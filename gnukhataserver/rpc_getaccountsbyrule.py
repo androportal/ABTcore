@@ -38,6 +38,7 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 		        where subgroupname \
 		        in ('Cash','Bank') order by accountname"
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
+		print "contra acc"
 		print result
 		
 		

@@ -10,7 +10,7 @@ from datetime import datetime, time
 from sqlalchemy import func , and_ , or_
 from multiprocessing.connection import Client
 from rpc_organisation import organisation
-
+from modules import blankspace
 
 #inherit the class from XMLRPC to make it publishable as an rpc service.
 class transaction(xmlrpc.XMLRPC):
@@ -50,7 +50,10 @@ class transaction(xmlrpc.XMLRPC):
 		* the amount for the respective account.
 		The function returns "success" .
 		"""
-		projectcode = self.xmlrpc_getProjectcodeByProjectName([str(queryParams_master[3])],client_id)
+		queryParams_master = blankspace.remove_whitespaces(queryParams_master)
+		print "queryParams_master"
+		print queryParams_master
+		projectcode = self.xmlrpc_getProjectcodeByProjectName([queryParams_master[3]],client_id)
 		
 		params_master = [queryParams_master[0],queryParams_master[1],queryParams_master[2],projectcode,queryParams_master[4]]
 		print "params master"
@@ -59,7 +62,7 @@ class transaction(xmlrpc.XMLRPC):
 		
 		print "query for masters is successful and voucher code is " + str(vouchercode)
 		for detailRow in queryParams_details:
-			
+			queryParams_details = blankspace.remove_whitespaces(detailRow)
 			account = rpc_account.account();
 			accountcode = account.xmlrpc_getAccountCodeByAccountName([detailRow[1]],client_id);
 			params_details = [vouchercode,str(detailRow[0]),str(accountcode),float(detailRow[2])]
@@ -113,12 +116,15 @@ class transaction(xmlrpc.XMLRPC):
 			else returns 0
 		"""
 		# execute here
+		print "queryParams"
+		print queryParams[0]
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.Projects.projectcode).\
 		      filter(dbconnect.Projects.projectname == queryParams[0]).first()
 		Session.close()
 		connection.connection.close()
+		print result
 		if result == None:
 			return 0
 		else:
@@ -188,6 +194,7 @@ class transaction(xmlrpc.XMLRPC):
 			1 . xmlrpc_getProjectcodeByProjectName  
 		
 		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		print "getTransactions"
 		print queryParams
 		from_date = str(datetime.strptime(str(queryParams[1]),"%d-%m-%Y"))
@@ -287,7 +294,7 @@ class transaction(xmlrpc.XMLRPC):
 			3) xmlrpc_getVoucherDetails
 		
 		"""
-		
+		#queryParams = blankspace.remove_whitespaces(queryParams)
 		vouchers = self.xmlrpc_searchVouchers(queryParams,client_id)
 		voucherView = []
 		for voucherRow in vouchers:
@@ -344,8 +351,7 @@ class transaction(xmlrpc.XMLRPC):
 						dbconnect.VoucherMaster.flag == 1)).\
 			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
 			print "search voucher by reference no"
-			print result
-			print result[0].vouchercode    
+			
 		if queryParams[0] == 2:	
 			print from_date
 			print to_date
@@ -355,7 +361,7 @@ class transaction(xmlrpc.XMLRPC):
 						dbconnect.VoucherMaster.flag == 1)).\
 			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
 			print "search by date "
-			print result    
+			   
 		if queryParams[0] == 3:	
 			result = Session.query(dbconnect.VoucherMaster).\
 			filter(and_(dbconnect.VoucherMaster.flag == 1,\
@@ -382,6 +388,7 @@ class transaction(xmlrpc.XMLRPC):
 			Input parameters : [voucher_code]
 			Output Parameters : [totalamount]
 		'''
+		#queryParams = blankspace.remove_whitespaces(queryParams)
 		statement = "select sum(amount) as totalamount\
 			     		from view_voucherbook\
 			     		where vouchercode = '"+str(queryParams[0])+"'\
@@ -407,6 +414,7 @@ class transaction(xmlrpc.XMLRPC):
 		Output Parameters : [accountname , typeflag , amount]
 		'''
 		"""
+		#queryParams = blankspace.remove_whitespaces(queryParams)
 		statement = "select account_name,typeflag,amount\
 			     		from view_voucherbook\
 			     		where vouchercode = '"+str(queryParams[0])+"'\
@@ -448,6 +456,7 @@ class transaction(xmlrpc.XMLRPC):
 		Output parameters : [reference,reffdate,vouchertype,projectname,narrartion]
 		'''
 		"""
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 	
@@ -476,6 +485,7 @@ class transaction(xmlrpc.XMLRPC):
 		so it will be like disabled for search voucher
 		Input Parameters :[vouchercode]
 		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		try:
 			connection = dbconnect.engines[client_id].connect()
 			Session = dbconnect.session(bind=connection)

@@ -29,6 +29,7 @@ import rpc_getaccountsbyrule
 from sqlalchemy.orm import join
 from decimal import *
 from sqlalchemy import or_
+from modules import blankspace
 #note that all the functions to be accessed by the client must have the xmlrpc_ prefix.
 class gnukhata(xmlrpc.XMLRPC): 
 	
@@ -83,7 +84,7 @@ class gnukhata(xmlrpc.XMLRPC):
 			databasename = dbname
 			
 			if orgname == queryParams[0] and financialyear_from == queryParams[1] and financialyear_to == queryParams[2]:
-				
+				print "we r in"
 				root.remove(organisation)
 				tree.write("/opt/gkAakash/gnukhata.xml")
 				os.system("rm /opt/gkAakash/db/"+databasename)
@@ -118,6 +119,7 @@ class gnukhata(xmlrpc.XMLRPC):
 		def xmlrpc_getConnection: purpose
 			This function is used to return the client_id found in dbconnect.py 
 			Returns the client_id
+		Input parameters : [organisation name]
 		'''
 		#print queryParams
 		self.client_id=dbconnect.getConnection(queryParams)
@@ -125,7 +127,13 @@ class gnukhata(xmlrpc.XMLRPC):
 		return self.client_id
 
 	
-	
+	def xmlrpc_closeConnection(self,client_id):
+		print('closing connection'+str(client_id))
+		dbconnect.engines[client_id].dispose()
+		del dbconnect.engines[client_id]
+		return True
+		
+		
 	def xmlrpc_Deploy(self,queryParams):
 		'''
 		def xmlrpc_Deploy 
@@ -143,7 +151,9 @@ class gnukhata(xmlrpc.XMLRPC):
 			in the xml file for the currosponding
 			organisation.
 		'''
-		
+		print queryParams
+		queryParams = blankspace.remove_whitespaces(queryParams)
+		print queryParams
 		gnukhataconf=et.parse("/opt/gkAakash/gnukhata.xml")
 		gnukhataroot = gnukhataconf.getroot()	
 		org = et.SubElement(gnukhataroot,"organisation") #creating an organisation tag

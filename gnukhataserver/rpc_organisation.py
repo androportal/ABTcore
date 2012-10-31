@@ -10,7 +10,9 @@ from twisted.web import xmlrpc, server
 #reactor from the twisted library starts the server with a published object and listens on a given port.
 from twisted.internet import reactor
 #inherit the class from XMLRPC to make it publishable as an rpc service.
+from modules import blankspace
 class organisation(xmlrpc.XMLRPC):
+
 	"""
 	Performs all the operations related to organisation details
 	and setting up preferences
@@ -38,6 +40,7 @@ class organisation(xmlrpc.XMLRPC):
 				flag value as either "mandatory" or
 				"optional"
 		"""
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		Session.query(dbconnect.Flags).\
@@ -57,6 +60,7 @@ class organisation(xmlrpc.XMLRPC):
 			      accountcode flag value. If flag no is
 			      "1" then will return refeno flag value
 		"""
+		#queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		print queryParams[0]
@@ -80,6 +84,7 @@ class organisation(xmlrpc.XMLRPC):
 		organisation i/p parameters: projectname
 		(datatype:text) o/p parameter : Boolean True
 		"""
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		Session.add_all([dbconnect.Projects(None,queryParams[0])])
@@ -126,6 +131,7 @@ class organisation(xmlrpc.XMLRPC):
 					 
 		o/p parameter : true or false
 		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		print queryParams

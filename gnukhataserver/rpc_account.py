@@ -10,7 +10,7 @@ from decimal import *
 from sqlalchemy import or_
 import rpc_groups
 import dbconnect
-
+from modules import blankspace
 class account(xmlrpc.XMLRPC):
 	
 	"""class name is aacount which having different store procedures"""
@@ -30,6 +30,7 @@ class account(xmlrpc.XMLRPC):
 		""" 
 		group = rpc_groups.groups()
 		print queryParams
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		sp_params = [queryParams[0], queryParams[3]] # create sp_params list contain  groupname , accountname 
 		if queryParams[2] == "": # check for the new-subgroupname if blank then 
 
@@ -179,6 +180,7 @@ class account(xmlrpc.XMLRPC):
 		"""	
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		SuggestedAccountCode = Session.query(func.count(dbconnect.Account.accountcode)).\
 		filter(dbconnect.Account.accountcode.like(str(queryParams[0])+'%')).scalar()
 		print "suggested code"
@@ -246,6 +248,7 @@ class account(xmlrpc.XMLRPC):
 		We can ensure that no duplicate account is ever entered because if a similar account exists 
 		like the one in queryparams[0] then we won't allow another entry with same name.
 		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(func.count(dbconnect.Account.accountname)).\
@@ -270,6 +273,7 @@ class account(xmlrpc.XMLRPC):
 		We can ensure that no duplicate account is ever entered because if a similar accountcode exists 
 		like the one in queryparams[0] then we won't allow another entry with same code.
 		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(func.count(dbconnect.Account.accountcode)).\

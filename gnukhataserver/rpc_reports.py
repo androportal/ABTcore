@@ -17,10 +17,10 @@ published object and listens on a given port.'''
 from twisted.internet import reactor
 from datetime import datetime
 from time import strftime
-
+from modules import blankspace
 
 class reports(xmlrpc.XMLRPC):
-	"""class name is aacount which having different store procedures"""
+	
 	def __init__(self):
 		xmlrpc.XMLRPC.__init__(self)
 	
@@ -51,7 +51,7 @@ class reports(xmlrpc.XMLRPC):
 		#point in displaying opening balance.
 		#if all transactions are to be searched then project 
 		#(queryparams[4]) will be "No Project".
-		
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		balanceRow = self.xmlrpc_calculateBalance([queryParams[0],queryParams[1],queryParams[2],queryParams[3]],client_id)
 		
 		if queryParams[4] == "No Project":
@@ -74,10 +74,10 @@ class reports(xmlrpc.XMLRPC):
 				#this makes the first row of the grid.
 				#note that the total Dr is also set.  Same will happen in the next condition for Cr.
 				openingdate = datetime.strptime(str(queryParams[1]),"%d-%m-%Y").strftime("%d-%m-%Y")
-				ledgerGrid.append([openingdate,"Opening Balance b/f","",'%.2f'%(openingBalance),"","",""])
+				ledgerGrid.append([openingdate,["Opening Balance b/f"],"",'%.2f'%(openingBalance),"","",""])
 			if balanceRow[5] == "Cr":
 				openingdate = datetime.strptime(str(queryParams[1]),"%d-%m-%Y").strftime("%d-%m-%Y")
-				ledgerGrid.append([openingdate,"Opening Balance b/f","","",'%.2f'%(openingBalance),"",""])
+				ledgerGrid.append([openingdate,["Opening Balance b/f"],"","",'%.2f'%(openingBalance),"",""])
 				
 		else:
 			#its 0 so will be set to 0.
@@ -131,22 +131,22 @@ class reports(xmlrpc.XMLRPC):
 			ledgerGrid.append(ledgerRow)
 		#the transactions have been filled up duly.
 		#now for the total dRs and Crs, we have added them up nicely during the grid loop.
-		ledgerGrid.append(["","Total of Transactions","",'%.2f'%(totalDr),'%.2f'%(totalCr),"",""])
+		ledgerGrid.append(["",["Total of Transactions"],"",'%.2f'%(totalDr),'%.2f'%(totalCr),"",""])
 		if queryParams[4] == "No Project":
-			ledgerGrid.append(["","","","","","",""])
+			ledgerGrid.append(["",[""],"","","","",""])
 			grandTotal = 0.00
 			closingdate = datetime.strptime(str(queryParams[3]),"%d-%m-%Y").strftime("%d-%m-%Y")
 			if balanceRow[6] == "Dr":
 			#this is a Dr balance which will be shown at Cr side.
 			#Difference will be also added to Cr for final balancing.
-				ledgerGrid.append([closingdate,"Closing Balance c/f","","",'%.2f'%(balanceRow[2]),"",""])
+				ledgerGrid.append([closingdate,["Closing Balance c/f"],"","",'%.2f'%(balanceRow[2]),"",""])
 				grandTotal =float(balanceRow[4])  + float(balanceRow[2])
 			if balanceRow[6] == "Cr":
 			#now exactly the opposit, see the explanation in the if condition preceding this one.
 
-				ledgerGrid.append([closingdate,"Closing Balance c/f","",'%.2f'%(balanceRow[2]),"","",""])
+				ledgerGrid.append([closingdate,["Closing Balance c/f"],"",'%.2f'%(balanceRow[2]),"","",""])
 				grandTotal =float(balanceRow[3])  + float(balanceRow[2])
-			ledgerGrid.append(["","Grand Total","",'%.2f'%(grandTotal),'%.2f'%(grandTotal),"",""])
+			ledgerGrid.append(["",["Grand Total"],"",'%.2f'%(grandTotal),'%.2f'%(grandTotal),"",""])
 		#we are ready with the complete ledger, so lets send it out!
 		return ledgerGrid
 			
@@ -389,6 +389,7 @@ class reports(xmlrpc.XMLRPC):
 		leaving the 4th as blank.
 		   
 		"""
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		account = rpc_account.account()
 		accounts = account.xmlrpc_getAllAccountNames(client_id)
 		trialBalance = []

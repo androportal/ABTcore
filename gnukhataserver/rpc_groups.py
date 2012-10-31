@@ -6,6 +6,7 @@ from sqlalchemy.orm import join
 from decimal import *
 from sqlalchemy import or_ , func
 import rpc_main
+from modules import blankspace
 #note that all the functions to be accessed by the client must have the xmlrpc_ prefix.
 #the client however will not use the prefix to call the functions. 
 
@@ -22,6 +23,7 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		Description : Adds new subgroup to the database. 
 			When successful it returns 1 otherwise it returns 0. 
 		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		# call getGroupCodeByGroupName func to get groupcode
 		result = self.xmlrpc_getGroupCodeByGroupName([queryParams[0]],client_id) 
 		# call getSubGroupCodeBySubGroupName fun to get subgroupcode
@@ -54,6 +56,7 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			      in which each list contain each row that are retrived from groups table 
 			      otherwise it returns false.
 		'''
+		
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.Groups).order_by(dbconnect.Groups.groupname).all()
@@ -81,7 +84,7 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			      it returns list in which two default subgroup strings. 
 		
 		'''
-		
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		statement = "select subgroupname\
 			from view_group_subgroup\
 			where groupname ='"+queryParams[0]+"'\
@@ -111,6 +114,7 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			output : returns list containing groupcode if its not None else will return false.
 			Description : query to retrive groupcode requested groupname  by client
 		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.Groups).\
@@ -131,6 +135,7 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			output : returns list containing subgroupcode if its not None else will return false.
 			Description : query the subgroup table to retrive subgroupcode for reuested subgroupname 
 		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.subGroups).\
@@ -151,7 +156,8 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		output : Returns True if the subgroup exists and False otherwise
 		Description: This will validate and prevent any duplication.
 		The function takes queryParams as its parameter and contains one element, the subgroupname as string.
-		'''	
+		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)	
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(func.count(dbconnect.subGroups.subgroupname)).\

@@ -5,6 +5,7 @@ from twisted.web import xmlrpc, server
 #reactor from the twisted library starts the server with a published object and listens on a given port.
 from twisted.internet import reactor
 from sqlalchemy.orm.exc import NoResultFound
+from modules import blankspace
 #inherit the class from XMLRPC to make it publishable as an rpc service.
 class user(xmlrpc.XMLRPC):
 	def __init__(self):
@@ -23,6 +24,7 @@ class user(xmlrpc.XMLRPC):
 		username and password return list containing useename
 		, userrole if condition is true else return false
 		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		res = Session.query(dbconnect.Users).\
