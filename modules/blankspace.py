@@ -2,10 +2,12 @@ import re
 def remove_whitespaces(queryParams):
 	params_list = []
 	print queryParams
-	for q in queryParams:
-		print q
-		a = q.strip()
-		s = re.sub(r'\s+',' ',a)
-		params_list.append(s)
+	for param in queryParams:
+		if type(param)==int:
+			params_list.append(param)
+		else:
+			st = param.strip()
+			substr = re.sub(r'\s+',' ',st)
+			params_list.append(substr)
 		
 	return params_list
