@@ -88,7 +88,7 @@ class gnukhata(xmlrpc.XMLRPC):
 				root.remove(organisation)
 				tree.write("/opt/gkAakash/gnukhata.xml")
 				os.system("rm /opt/gkAakash/db/"+databasename)
-			return True	
+		return True	
 
 	def xmlrpc_getFinancialYear(self,arg_orgName):
 		"""

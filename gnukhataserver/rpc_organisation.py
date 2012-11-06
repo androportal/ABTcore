@@ -60,7 +60,7 @@ class organisation(xmlrpc.XMLRPC):
 			      accountcode flag value. If flag no is
 			      "1" then will return refeno flag value
 		"""
-		#queryParams = blankspace.remove_whitespaces(queryParams)
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		print queryParams[0]

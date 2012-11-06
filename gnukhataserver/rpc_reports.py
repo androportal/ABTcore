@@ -34,14 +34,17 @@ class reports(xmlrpc.XMLRPC):
 		
 		Output parameters : 
 		Returns a grid (2 dimentional list ) with columns as 
-		[Date, Particulars, Reference number, Dr, Cr , vouchercode.]
+		[Date, Particulars, Reference number, Dr, Cr , vouchercode]
 		
-		Description : Note that last 3 rows have the narration column blank.
+		Description : Note that last 3 rows have the narration 
+		column blank.
 		The 3rd last row contains just the total Dr and total Cr.
 		the second last row contains the closing balance.
-		If the closing balance (carried forward ) is Dr then it will be shown at Cr side.
+		If the closing balance (carried forward ) is Dr then it 
+		will be shown at Cr side.
 		The C/F balance if Cr will be shown at Dr side.
-		The last row will just contain the grand total which will be equal at credit and debit side.
+		The last row will just contain the grand total which will
+		be equal at credit and debit side.
 		'''
 		#first let's get the details of the given account regarding the
 		#Balance and its Dr/Cr side.
@@ -165,6 +168,7 @@ class reports(xmlrpc.XMLRPC):
 		"""
 		print "cal bal list "
 		print queryParams
+		# get the groupname accourding to ac
 		statement = "select groupname\
 			     from group_subgroup_account\
 			     where accountname = '"+queryParams[0]+"'"

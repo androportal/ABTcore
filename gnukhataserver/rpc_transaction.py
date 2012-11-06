@@ -294,7 +294,7 @@ class transaction(xmlrpc.XMLRPC):
 			3) xmlrpc_getVoucherDetails
 		
 		"""
-		#queryParams = blankspace.remove_whitespaces(queryParams)
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		vouchers = self.xmlrpc_searchVouchers(queryParams,client_id)
 		voucherView = []
 		for voucherRow in vouchers:
@@ -388,7 +388,7 @@ class transaction(xmlrpc.XMLRPC):
 			Input parameters : [voucher_code]
 			Output Parameters : [totalamount]
 		'''
-		#queryParams = blankspace.remove_whitespaces(queryParams)
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		statement = "select sum(amount) as totalamount\
 			     		from view_voucherbook\
 			     		where vouchercode = '"+str(queryParams[0])+"'\
@@ -414,7 +414,7 @@ class transaction(xmlrpc.XMLRPC):
 		Output Parameters : [accountname , typeflag , amount]
 		'''
 		"""
-		#queryParams = blankspace.remove_whitespaces(queryParams)
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		statement = "select account_name,typeflag,amount\
 			     		from view_voucherbook\
 			     		where vouchercode = '"+str(queryParams[0])+"'\
