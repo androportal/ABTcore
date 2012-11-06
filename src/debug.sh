@@ -1,11 +1,12 @@
 #!/system/bin/sh
 # /data/local/debug.sh
+# to debug chroot of 'gkAakash'
 
 export bin=/system/bin
 export PATH=$bin:/usr/bin:/usr/sbin:/bin:$PATH
 export TERM=linux
 export HOME=/root
-export MNT=/data/local/linux
+export MNT=/data/local/gkaakash
 
 if [ ! -d $MNT ]
 then
