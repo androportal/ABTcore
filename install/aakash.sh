@@ -29,29 +29,6 @@ do
         busybox  chroot  $MNT /bin/bash -c "mount /dev/pts" 
         busybox  chroot  $MNT /bin/bash -c "chown -R www-data.www-data /var/www/"
         busybox  chroot  $MNT /bin/bash -c "chmod -R a+x /usr/lib/cgi-bin"
- 
- 
-        # mounting essential file systems to chroot for gkaakash
-	if [ -f /mnt/sdcard/gkaakash.img ] && [ $SD -eq 1 ]
-	then
-	    busybox mount -o loop /mnt/sdcard/gkaakash.img $MNTG
-            busybox mount -t proc proc $MNTG/proc
-            busybox mount -o bind /dev $MNTG/dev
-            busybox mount -t sysfs sysfs $MNTG/sys
-            busybox  chroot  $MNTG /bin/bash -c "mount /dev/pts" 
-            #busybox chroot $MNTG /bin/bash -c "source /root/.bashrc"
-            busybox chroot /data/local/gkaakash /bin/bash -c "python /root/gkAakashCore/gkstart &>'/dev/null'&"
-		
-	elif [ -f /mnt/extsd/gkaakash.img ] && [ $SD -eq 1 ]
-	then
-	    busybox mount -o loop /mnt/extsd/gkaakash.img $MNTG
-            busybox mount -t proc proc $MNTG/proc
-            busybox mount -o bind /dev $MNTG/dev
-            busybox mount -t sysfs sysfs $MNTG/sys
-            busybox  chroot  $MNTG /bin/bash -c "mount /dev/pts" 
-            #busybox chroot $MNTG /bin/bash -c "source /root/.bashrc"
-            busybox chroot /data/local/gkaakash /bin/bash -c "python /root/gkAakashCore/gkstart &>'/dev/null'&"
-	fi
 
         # cleaning and starting apache 
         busybox  chroot  $MNT /bin/bash -c "rm /dev/null"
@@ -85,11 +62,33 @@ do
         busybox mount -o loop /mnt/extsd/apl.img /data/local/linux 
         startServices
         SD=0
+
+    elif [ -f /mnt/sdcard/gkaakash.img ] && [ $SD -eq 1 ]
+	then
+        # mounting essential file systems to chroot for gkaakash
+	busybox mount -o loop /mnt/sdcard/gkaakash.img $MNTG
+        busybox mount -t proc proc $MNTG/proc
+        busybox mount -o bind /dev $MNTG/dev
+        busybox mount -t sysfs sysfs $MNTG/sys
+        busybox  chroot  $MNTG /bin/bash -c "mount /dev/pts" 
+        #busybox chroot $MNTG /bin/bash -c "source /root/.bashrc"
+        busybox chroot /data/local/gkaakash /bin/bash -c "python /root/gkAakashCore/gkstart &>'/dev/null'&"
+        SD=0
+		
+    elif [ -f /mnt/extsd/gkaakash.img ] && [ $SD -eq 1 ]
+    then
+	busybox mount -o loop /mnt/extsd/gkaakash.img $MNTG
+        busybox mount -t proc proc $MNTG/proc
+        busybox mount -o bind /dev $MNTG/dev
+        busybox mount -t sysfs sysfs $MNTG/sys
+        busybox  chroot  $MNTG /bin/bash -c "mount /dev/pts" 
+        #busybox chroot $MNTG /bin/bash -c "source /root/.bashrc"
+        busybox chroot /data/local/gkaakash /bin/bash -c "python /root/gkAakashCore/gkstart &>'/dev/null'&"
+        SD=0
     fi
     
     
     while [ $(ps|busybox grep com.aakash.lab |busybox wc -l) -eq 1 ]
-    
     do
 #        	busybox  chroot  $MNT /bin/bash -c "mkdir /proc"
 #        	busybox  chroot  $MNT /bin/bash -c "mkdir /sys"
