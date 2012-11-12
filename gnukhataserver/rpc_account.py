@@ -19,13 +19,15 @@ class account(xmlrpc.XMLRPC):
 		
 	def xmlrpc_setAccount(self, queryParams, client_id):
 		"""
-		Purpose: Adds an account in the account table, under a selected group and optionally a subgroup.  
-			account code is either auto generated or entered by the user
-			Depending on the preference choosen by the user.
+		Purpose: Adds an account in the account table, under a selected 
+		group and optionally a subgroup.  
+		account code is either auto generated or entered by the user
+		Depending on the preference choosen by the user.
 		description: This function inserts a row in the account table.
 		          
 		Function takes one parameter named queryParams which is a list containing,
-		* queryParams[groupname,subgroupname,newsubgroupname,accountname,accountcodetype,openingbalance,currentBalance,suggestedcode]
+		* queryParams[groupname,subgroupname,newsubgroupname,accountname,
+		accountcodetype,openingbalance,currentBalance,suggestedcode]
 		Returns True
 		""" 
 		group = rpc_groups.groups()
@@ -114,11 +116,14 @@ class account(xmlrpc.XMLRPC):
 		
 	def xmlrpc_getCrOpeningBalance(self, client_id):
 		"""
-		Purpose: calculates the total credit opening balance for all accounts with Cr opening balance.  
+		Purpose: calculates the total credit opening balance for 
+		all accounts with Cr opening balance.  
 		Functions takes no arguement and returns a float value.
 		Description:
-		when adding an account we tend to know what is the total of all debit and credit opening balances.
-		This function calculates the total for all accounts with Cr as opening balance.
+		when adding an account we tend to know what is the total of 
+		all debit and credit opening balances.
+		This function calculates the total for all accounts with Cr as 
+		opening balance.
 		function executes `stmt` for the expected result as float.
 		refer rpc_mai.py for the said group_subgroup_account view.
 		"""
@@ -137,11 +142,14 @@ class account(xmlrpc.XMLRPC):
 	
 	def xmlrpc_getDrOpeningBalance(self, client_id):
 		"""
-		Purpose: calculates the total debit opening balance for all accounts with Dr opening balance. 
+		Purpose: calculates the total debit opening balance for all 
+		accounts with Dr opening balance. 
 		Functions takes no arguement and returns a float value.
 		Description:
-		when adding an account we tend to know what is the total of all debit and credit opening balances.
-		This function calculates the total for all accounts with Dr as opening balance.
+		when adding an account we tend to know what is the total of 
+		all debit and credit opening balances.
+		This function calculates the total for all accounts with Dr 
+		as opening balance.
 		function executes the `stmt` for the expected result as float.
 		refer rpc_main.py for the said group_subgroup_account view
 		"""
@@ -167,11 +175,11 @@ class account(xmlrpc.XMLRPC):
 		The 2 characters of the selected group are determined in the front end.
 		The first character of the entered account is then appended to the former.
 		For example,
-			an account SBI in group Current Asset will send CAS as the 3 characters as queryParams[0]
-			The function then executes a stored procedure getSuggestedCode and checks 
-			if an account exists with a code starting with the given 3 characters.
-			if an account did exist then the given 3 characters will be postfixed 
-			with total count of existing similar account codes + 100.
+		an account SBI in group Current Asset will send CAS as the 3 characters as queryParams[0]
+		The function then executes a stored procedure getSuggestedCode and checks 
+		if an account exists with a code starting with the given 3 characters.
+		if an account did exist then the given 3 characters will be postfixed 
+		with total count of existing similar account codes + 100.
 		If no such account is found then 100 will be concatinated to the first 3 chars.
 		for example if no account exists with an account code starting with CAS, 
 		then the suggested code will be CAS100.
@@ -232,21 +240,47 @@ class account(xmlrpc.XMLRPC):
 		print result    		
 		accountnames = []
 		if result == None:
-			return result
+			return []
 		for row in result:
 			accountnames.append(row.accountname)
 		print accountnames 
 		return accountnames
 	
+	def xmlrpc_getAllAccountCodes(self,client_id):
+		"""
+		purpose: returns the list of all accountcode in the database.
+		Input Parameters : It will take any i/p parameters
+		description: returns the list of code of all accounts.
+		if there are no accounts to return then returns 0.
+		"""
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Account.accountcode).\
+		      	 		order_by(dbconnect.Account.accountcode).\
+		      		all()
+		print result    		
+		accountcodes = []
+		if result == None:
+			return []
+		for row in result:
+			accountcodes.append(row.accountcode)
+		print accountcodes 
+		return accountcodes
+	
 	def xmlrpc_accountExists(self, queryParams, client_id):
 		'''
-		Purpose   : Function for finding if an account already exists with the supplied name. 	
-		Parameters : queryParams which is a list containing one element, accountname as string.
+		Purpose   : Function for finding if an account already exists 
+		with the supplied name. 	
+		Parameters : queryParams which is a list containing one element, 
+		accountname as string.
 		Returns :  1 if account name exists and 0 if not.
-		Description : Querys the account table and sees if an account name similar to one provided 
+		Description : Querys the account table and sees if an account 
+		name similar to one provided 
 		as a parameter exists.
-		We can ensure that no duplicate account is ever entered because if a similar account exists 
-		like the one in queryparams[0] then we won't allow another entry with same name.
+		We can ensure that no duplicate account is ever entered because 
+		if a similar account exists 
+		like the one in queryparams[0] then we won't allow another 
+		entry with same name.
 		'''
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
@@ -265,13 +299,18 @@ class account(xmlrpc.XMLRPC):
 			
 	def xmlrpc_accountCodeExists(self, queryParams, client_id):
 		'''
-		Purpose   : Function for finding if an accountcode already exists with the supplied code. 	
-		Parameters : queryParams which is a list containing one element, accountcode as string.
+		Purpose   : Function for finding if an accountcode already 
+		exists with the supplied code. 	
+		Parameters : queryParams which is a list containing one element, 
+		accountcode as string.
 		Returns :  1 if account code exists and 0 if not.
-		Description : Querys the account table and sees if an account code similar to one provided 
+		Description : Querys the account table and sees if an account 
+		code similar to one provided 
 		as a parameter exists.
-		We can ensure that no duplicate account is ever entered because if a similar accountcode exists 
-		like the one in queryparams[0] then we won't allow another entry with same code.
+		We can ensure that no duplicate account is ever entered because 
+		if a similar accountcode exists 
+		like the one in queryparams[0] then we won't allow another 
+		entry with same code.
 		'''
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
@@ -287,5 +326,102 @@ class account(xmlrpc.XMLRPC):
 			return "0"
 		else:
 			return "1"
+			
+	def xmlrpc_editAccount(self, queryParams, client_id):
+		"""
+		purpose: modifies an account based on account code.  
+		alters account name and opening balance.
+		function takes one parameter queryParams
+		
+		Input parameters :
+		[accountname, accountcode, groupname and new_opening_balance]
+		
+		Output parametres :
+		[Current_balance]
+		
+		description: This function will edit an account and change 
+		either account name, oepning balance or both.
+		the account is fetched internally by the software on the basis 
+		of account code, even if it was searched by client using account
+		name. If the function is successful,it will return the newly 
+		updated current balance.If the groupname sent in the queryParams
+		is direct or indirect income, or direct or indirect expence, 
+		then the oepning balance is sent as 0.
+		
+		"""
+		queryParams = blankspace.remove_whitespaces(queryParams)
+		spQueryParams = [queryParams[0], queryParams[1]]
+		if queryParams[2] == "Direct Income" or \
+			queryParams[2] == "Indirect Income" \
+			or queryParams[2] == "Direct Expense" \
+			or queryParams[2] == "Indirect Expense":
+			
+			print "sending openingbalance as 0"
+			spQueryParams.append(0)
+		else: 
+			spQueryParams.append(float(queryParams[3]))
+			
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Account).\
+			filter(dbconnect.Account.accountcode == spQueryParams[1]).first()
+		print "edit account"
+		
+		resultParams = [float(result.openingbalance),float(result.balance)]
+		if resultParams[0] == spQueryParams[2]:
+		
+			result = Session.query(dbconnect.Account).\
+				filter(dbconnect.Account.accountcode == spQueryParams[1]).\
+				update({'accountname': spQueryParams[0]})
+		else:
+			final_balance = (spQueryParams[2] - resultParams[0]) + resultParams[1]; 
+			result = Session.query(dbconnect.Account).\
+				filter(dbconnect.Account.accountcode == spQueryParams[1]).\
+				update({'accountname': spQueryParams[0],'openingbalance': spQueryParams[2],'balance': final_balance})
+			
+		Session.commit()
+		Session.close()
+		connection.connection.close()
+		print spQueryParams
+		
+		print "current balance"
+		return final_balance
+		
+		
+	def xmlrpc_getAccount(self, queryParams, client_id):
+		"""
+		purpose: Searches and returns account details.  
+		Search is based on either accountcode or account name.
+		function takes one parameter queryParams of type list containing,
+		* searchFlag as integer (1 means search by account code and 2 means account name )
+		* searchValue as text (value depends on the searchFlag)
+		description:This function queries the group_subgroup_account 
+		view and fetches the following.
+		* groupname
+		* subgroupname (if any )
+		* accountcode
+		* accountname
+		* openingbalance
+		
+		"""
+		
+		if queryParams[0] == 1:
+			statement = "select groupname,subgroupname,accountcode,accountname,openingbalance\
+			     		from group_subgroup_account\
+			     		where accountcode = '"+queryParams[1]+"'"
+		else:	     	
+			statement = "select groupname,subgroupname,accountcode,accountname,openingbalance\
+			     		from group_subgroup_account\
+			     		where accountname = '"+queryParams[1]+"'"	
+		result = dbconnect.engines[client_id].execute(statement).fetchone()
+		
+		print 
+		print "groupname getaccount"
+		
+		if result[1] == None:
+			return [result[2], result[0],"No subgroup", result[3], result[4]]
+		else:
+			return [result[2], result[0], result[1], result[3], result[4]]
+		
 	
 	

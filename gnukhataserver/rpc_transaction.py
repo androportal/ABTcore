@@ -46,7 +46,7 @@ class transaction(xmlrpc.XMLRPC):
 		queryParams_details list will contain :
 		
 		* DrCr flag,
-		* AccountName (from which account code will be procured by the getProjectcodeByProjectName )
+		* AccountName
 		* the amount for the respective account.
 		The function returns "success" .
 		"""
@@ -480,7 +480,7 @@ class transaction(xmlrpc.XMLRPC):
 				
 	def xmlrpc_deleteVoucher(self,queryParams,client_id):
 		'''
-		Purpose : This function will not completely delete voucherdetail
+		Purpose : This function will not completely delete voucherdetails
 		but it will set the flag 0 instead 1
 		so it will be like disabled for search voucher
 		Input Parameters :[vouchercode]
@@ -500,14 +500,117 @@ class transaction(xmlrpc.XMLRPC):
 			return False			
 				
 				
+	def xmlrpc_editVoucher(self,queryParams_master,queryParams_details,client_id):
+		'''
+		Purpose: adds a new voucher in the database given its reference number 
+		and transaction details (dr and cr), along with narration and the date.
+		This function is used to create a new voucher.  
+		The entire transaction is recorded in terms of Dr and Cr and the respected amounts.
+		The function call 3 funtions from same file rpc_transation.py
+		1 . xmlrpc_getProjectcodeByProjectName  
+		2 . xmlrpc_editVoucherMaster
+		3 . xmlrpc_deleteVoucherDetails
+		4 . xmlrpc_editVoucherDetails
+		
+		and call 1 function from rpc_account.py "to get accountcode by accountname"
+		1 . xmlrpc_getAccountCodeByAccountName
+		
+		queryParams_master list will contain :
+		* vouchercode
+		* reffdate
+		* project name
+		* Narration
+		
+		queryParams_details list will contain :
+		
+		
+		* AccountName
+		* dr amount
+		* cr amount
+		The function returns "success" .
+		'''
+		projectCode = self.xmlrpc_getProjectcodeByProjectName([queryParams_master[2]],client_id)
+		
+		if projectCode == None:
+			projectCode = 0 
+		del queryParams_master[2]
+		queryParams_master.insert(2,projectCode)
+		editParams=[queryParams_master[0],queryParams_master[1],queryParams_master[2],queryParams_master[3]]
+		successRow = self.xmlrpc_editVoucherMaster(editParams,client_id)
+		if successRow == "success":
+			delete = self.xmlrpc_deleteVoucherDetails([queryParams_master[0]],client_id)
+			print delete
+			print "delete voucher details"
+			for detailRow in queryParams_details:
+				sp_details = []
+				sp_details.append(queryParams_master[0])
+				sp_details.append(detailRow[0])
+				if float(detailRow[2]) == 0:
+					sp_details.append("Dr")
+					sp_details.append(float(detailRow[1]))
+				if float(detailRow[1]) == 0:
+					sp_details.append("Cr")
+					sp_details.append((detailRow[2]))
+				'''
+				voucher , accountname , type_flag [dr , cr], amount
+				'''
+				result = self.xmlrpc_editVoucherDetails(sp_details,client_id)
+		return result			
 				
 				
-				
-				
-				
-				
-				
-				
-				
+	def xmlrpc_editVoucherMaster(self,queryParams,client_id):	
+		'''
+		Input Parameters : [vouchercode,reffdate,projectcode,narration]
+		Output : String "success"
+		'''
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		reff_date = datetime.strptime(str(queryParams[1]),"%d-%m-%Y")
+		result = Session.query(dbconnect.VoucherMaster ).\
+				filter(dbconnect.VoucherMaster.vouchercode == queryParams[0]).\
+				update({'reffdate': reff_date,'projectcode': queryParams[2],'narration':  queryParams[3]})
+		Session.commit()
+		Session.close()
+		connection.connection.close()
+		print result 
+		print "editVoucherMaster"
+		return "success"
+			
+	def xmlrpc_editVoucherDetails(self,queryParams,client_id):
+		'''
+		Input Parameters : [vouchercode,accountname,amount,narration]
+		Output : String "success"
+		'''
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Account.accountcode).\
+				filter(dbconnect.Account.accountname == queryParams[1]).\
+				first()
+		account_code = result.accountcode
+		Session.add(dbconnect.VoucherDetails(\
+			vouchercode = queryParams[0],\
+			accountcode = account_code,\
+			typeflag = queryParams[2],\
+			amount = queryParams[3]\
+		))
+		Session.commit()
+		Session.close()
+		connection.connection.close()
+		return "success"
+			
+	def xmlrpc_deleteVoucherDetails(self,queryParams,client_id):
+		'''
+		Input Parameters : [vouchercode]
+		Output : String "deleted"
+		'''
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		Session.query(dbconnect.VoucherDetails).\
+		filter(dbconnect.VoucherDetails.vouchercode==queryParams[0]).\
+		delete()
+		Session.commit()
+		Session.close()
+		connection.connection.close()
+		return "deleted"
 				
 				

@@ -424,6 +424,40 @@ class reports(xmlrpc.XMLRPC):
 		trialBalance.append(total_balances)
 	
 		return trialBalance	
+	
+	def xmlrpc_getGrossTrialBalance(self,queryParams,client_id):
+		'''
+		purpose:
+		just like the getTrialBalance, this function too returns list of balances of all accounts.
+		However it has a difference in that it provides the total Dr and total Cr for all accounts, instead of the difference.
+		description:
+		Similar to the getTrial balance function this one returns a grid, but instead of current balance, it returns total Dr and total Cr in the grid.
+		This function too uses the calculateBalance stored procedure after getting list of accounts.
+		
+		'''
+		accounts = dbconnect.execproc("getAllAccounts", dbconnect.engines[client_id],[])
+		trialBalance = []
+		srno =1
+		total_dr = 0.00
+		total_cr = 0.00
+		for account in accounts:
+			
+			closingBalance = dbconnect.execproc("calculateBalance", dbconnect.engines[client_id], [str(account[0]),queryParams[0],queryParams[1],queryParams[2]])
+			closingRow = closingBalance.fetchone()
+			if float(closingRow["total_DrBal"]) != 0 or float(closingRow["total_CrBal"]) != 0:
+				trialRow = []
+				trialRow.append(srno)
+				trialRow.append(account["accountname"])
+				trialRow.append(closingRow["group_name"])
+				trialRow.append('%.2f'%float(closingRow["total_DrBal"]))
+				trialRow.append('%.2f'%float(closingRow["total_CrBal"]))
+				total_dr = total_dr + float(closingRow["total_DrBal"])
+				total_cr = total_cr + float(closingRow["total_CrBal"])
+				srno = srno +1
+				trialBalance.append(trialRow)
+		total_balances = ['%.2f'%total_dr,'%.2f'%total_cr]
+		trialBalance.append(total_balances)
+		return trialBalance
 		
 		
 		
