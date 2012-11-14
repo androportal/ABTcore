@@ -422,6 +422,31 @@ class account(xmlrpc.XMLRPC):
 			return [result[2], result[0],"No subgroup", result[3], result[4]]
 		else:
 			return [result[2], result[0], result[1], result[3], result[4]]
+			
+	
+	def xmlrpc_getAccountNamesByGroupCode(self,queryParams,client_id):
+		'''
+		Purpose : get accouname accoding to groupcode
+		Input parameters : [groupcode]
+		Output Parameters : [accountname]
+		'''
+		print queryParams[0]
+		print "groupcode"
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)	
+		result = Session.query(dbconnect.Account.accountname).\
+				filter(dbconnect.Account.groupcode == queryParams[0]).\
+				order_by(dbconnect.Account.accountname).all()
+		print result
+		print "account name based on groupname"
+		accountnames = []
+		if result == []:
+			return result
+		else:
+			for account in result:
+				accountnames.append(str(account[0]))
+			print accountnames
+			return accountnames
 		
 	
 	
