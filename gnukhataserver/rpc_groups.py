@@ -4,7 +4,7 @@ from twisted.web import xmlrpc, server #import the twisted modules for executing
 from twisted.internet import reactor #reactor from the twisted library starts the server with a published object and listens on a given port.
 from sqlalchemy.orm import join
 from decimal import *
-from sqlalchemy import or_ , func
+from sqlalchemy import or_ , func , and_
 import rpc_main
 from modules import blankspace
 #note that all the functions to be accessed by the client must have the xmlrpc_ prefix.
@@ -149,6 +149,26 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		else:
 			return []
 			
+	def xmlrpc_getGroupNameByAccountName(self,queryParams,client_id):
+		'''
+		xmlrpc_getGroupNameByAccountName :purpose 
+			function for extracting groupname from group table by account name
+			i/p parameters : accountname
+			o/p parameters : groupname
+		'''	
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Groups).select_from(join(dbconnect.Groups,dbconnect.Account)).\
+			filter(and_(dbconnect.Account.accountname == queryParams[0],\
+			dbconnect.Groups.groupcode == dbconnect.Account.groupcode)).\
+			first()
+		Session.close()
+		connection.connection.close()
+		if result != None:
+			return [result.groupname]
+		else:
+			return []
+			
 	def xmlrpc_subgroupExists(self,queryParams,client_id):	
 		'''
 		purpose: Checks if the new subgroup typed by the user already exists.
@@ -193,23 +213,7 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 	
 
 	
-	def xmlrpc_getGroupNameByAccountName(self,queryParams,client_id):
-		
-		xmlrpc_getGroupNameByAccountName :purpose 
-			function for extracting groupname from group table by account name
-			i/p parameters : accountname
-			o/p parameters : groupname
-			
-		connection = dbconnect.engines[client_id].connect()
-		Session = dbconnect.session(bind=connection)
-		result = Session.query(dbconnect.Groups).select_from(join(dbconnect.Groups,dbconnect.Account)).\
-		filter(dbconnect.Account.accountname == queryParams[0]).first()
-		Session.close()
-		connection.connection.close()
-		if result != None:
-			return [result.groupname]
-		else:
-			return False
+	
 	
 
 	def xmlrpc_getSubGroupByName(self,queryParams,client_id):

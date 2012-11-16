@@ -90,14 +90,14 @@ should be
 
 assuming ``$USER`` is **andro** in this case. Please remember that
 currently adb only supports 32-bit system, if your system is 64-bit,
-you have to install ``ia32-libs`` library to support
+you have to install ``ia32-libs-multiarch`` library to support
 multi-architechture.
 
-On ubuntu system, install ia32-libs using
+On ubuntu system, install ia32-libs-multiarch using
 
 ::
 
-     sudo apt-get install ia32-libs
+     sudo apt-get install ia32-libs-multiarch
 
 Once adb is in place, you can ``push`` entire ``gkAakashCore``
 directory inside Aakash in PATH

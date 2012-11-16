@@ -9,6 +9,7 @@ from sqlalchemy import func
 from decimal import *
 from sqlalchemy import or_
 import rpc_groups
+import rpc_transaction
 import dbconnect
 from modules import blankspace
 class account(xmlrpc.XMLRPC):
@@ -198,6 +199,7 @@ class account(xmlrpc.XMLRPC):
 		else:
 			SuggestedAccount = SuggestedAccountCode + 100 
 			return str(queryParams[0]) + str(SuggestedAccount)
+		Session.commit()
 		Session.close()
 		connection.connection.close()
 	
@@ -217,8 +219,9 @@ class account(xmlrpc.XMLRPC):
 		result = Session.query(dbconnect.Account.accountcode).\
 		      	 	filter(dbconnect.Account.accountname == queryParams[0]).\
 		      		first()
+		Session.commit()
 		Session.close()
-		connection.connection.close()	
+		connection.connection.close()
 		print result
 		if result == None:
 			return []
@@ -237,6 +240,9 @@ class account(xmlrpc.XMLRPC):
 		result = Session.query(dbconnect.Account.accountname).\
 		      	 		order_by(dbconnect.Account.accountname).\
 		      		all()
+		Session.commit()
+		Session.close()
+		connection.connection.close()
 		print result    		
 		accountnames = []
 		if result == None:
@@ -258,6 +264,9 @@ class account(xmlrpc.XMLRPC):
 		result = Session.query(dbconnect.Account.accountcode).\
 		      	 		order_by(dbconnect.Account.accountcode).\
 		      		all()
+		Session.commit()
+		Session.close()
+		connection.connection.close()
 		print result    		
 		accountcodes = []
 		if result == None:
@@ -288,6 +297,8 @@ class account(xmlrpc.XMLRPC):
 		result = Session.query(func.count(dbconnect.Account.accountname)).\
 		      filter(dbconnect.Account.accountname == queryParams[0]).\
 		      scalar()
+		      
+		Session.commit()
 		Session.close()
 		connection.connection.close()
 		print "account result"
@@ -437,6 +448,9 @@ class account(xmlrpc.XMLRPC):
 		result = Session.query(dbconnect.Account.accountname).\
 				filter(dbconnect.Account.groupcode == queryParams[0]).\
 				order_by(dbconnect.Account.accountname).all()
+		Session.commit()
+		Session.close()
+		connection.connection.close()
 		print result
 		print "account name based on groupname"
 		accountnames = []
@@ -448,5 +462,25 @@ class account(xmlrpc.XMLRPC):
 			print accountnames
 			return accountnames
 		
+	def xmlrpc_getAccountNamesByProjectName(self,queryParams,client_id):
+		'''
+		Purpose : This function will return list of accountnames
+		for particular projectname
+		Input parameters: projectname
+		output : list of accountnames
 	
+		'''
+		transaction = rpc_transaction.transaction()
+		projectcode = transaction.xmlrpc_getProjectcodeByProjectName(queryParams,client_id)
+		statement = "select distinct(account_name)\
+		     		from view_voucherbook\
+		     		where projectcode = '"+str(projectcode)+"'\
+				and flag = 1\
+				order by account_name"  
+		result = dbconnect.engines[client_id].execute(statement).fetchall()
+		accountname = []
+		for Row in result:
+			accountname.append(Row[0])
+		print accountname	
+		return accountname       
 	

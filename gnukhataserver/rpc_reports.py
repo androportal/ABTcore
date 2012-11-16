@@ -6,6 +6,7 @@ import the database connector and functions for stored procedure.
 import dbconnect
 import rpc_account
 import rpc_transaction
+import rpc_groups
 '''
 import the twisted modules for executing rpc calls and 
 also to implement the server
@@ -544,6 +545,77 @@ class reports(xmlrpc.XMLRPC):
 		total_balances = ['','','','','%.2f'%total_dr,'%.2f'%total_cr,'%.2f'%total_ExtendedDr,'%.2f'%total_ExtendedCr]
 		trialBalance.append(total_balances)
 		return trialBalance
+		
+	def xmlrpc_getProjectStatementReport(self,queryParams,client_id):
+		'''
+		Input parameters:[projectname,accountname,financial_fromdate,fromdate,todate]
+		Output:list of list [serialno,accountname,groupname,totalDr,totalCr]
+		'''
+		account = rpc_account.account()
+		group = rpc_groups.groups()
+		projectAccounts =account.xmlrpc_getAccountNamesByProjectName([str(queryParams[0])],client_id)
+		totalDr = 0.00
+		totalCr = 0.00
+		srno = 1
+		projectStatement = []
+		for accountRow in projectAccounts:
+			
+			groupRow = group.xmlrpc_getGroupNameByAccountName([accountRow],client_id)
+			accountGroup = groupRow[0]
+			resultRow = self.xmlrpc_getProjectStatement(\
+			[queryParams[0],accountRow,queryParams[1],queryParams[2],queryParams[3]],client_id)
+			print '%.2f'%float(resultRow[0])
+			print '%.2f'%float(resultRow[1])
+			if(('%.2f'%float(resultRow[0])!= "0.00" )or('%.2f'%float(resultRow[1])!="0.00")):
+				statementRow = [srno,accountRow,accountGroup,'%.2f'%float(resultRow[0]),'%.2f'%float(resultRow[1])]
+				totalDr = totalDr + resultRow[0]
+				totalCr = totalCr + resultRow[1]
+				srno = srno +1
+				projectStatement.append(statementRow)
+		projectStatement.append(["","","",'%.2f'%float(totalDr),'%.2f'%float(totalCr)])
+		print "getProjectStatementReport"
+		print projectStatement
+		return projectStatement
+	
+	def xmlrpc_getProjectStatement(self,queryParams,client_id):
+		'''
+		Input parameters:[projectname,accountname,financial_fromdate,fromdate,todate]
+		Output :[total_debit,total_credit]
+		'''
+		print "getProjectStatement"
+		financial_fromdate = str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
+		report_fromdate =  str(datetime.strptime(str(queryParams[3]),"%d-%m-%Y"))
+		report_todate =  str(datetime.strptime(str(queryParams[4]),"%d-%m-%Y"))
+		transaction = rpc_transaction.transaction()
+		projectcode = transaction.xmlrpc_getProjectcodeByProjectName([queryParams[0]],client_id)
+		statement = "select sum(amount)\
+			     		from view_voucherbook\
+			     		where projectcode = '"+str(projectcode)+"'\
+			     		and account_name = '"+str(queryParams[1])+"'\
+			     		and reffdate >= '"+report_fromdate+"'\
+					and reffdate <= '"+report_todate+"' \
+			     		and typeflag = 'Dr'\
+					and flag = 1"  	
+		totalDr = dbconnect.engines[client_id].execute(statement).fetchone()
+		total_dr = totalDr[0]
+		statement = "select sum(amount)\
+			     		from view_voucherbook\
+			     		where projectcode = '"+str(projectcode)+"'\
+			     		and account_name = '"+str(queryParams[1])+"'\
+			     		and reffdate >= '"+report_fromdate+"'\
+					and reffdate <= '"+report_todate+"' \
+			     		and typeflag = 'Cr'\
+					and flag = 1"  	
+		totalCr = dbconnect.engines[client_id].execute(statement).fetchone()
+		total_cr = totalCr[0]
+		print [total_dr,total_dr]
+		if total_dr == None:
+			total_dr = 0.00
+		
+		if total_cr == None:
+			total_cr = 0.00	
+				
+		return [total_dr,total_cr]
 	
 	def xmlrpc_getBalancesheet(self,queryParams,client_id):
 		"""
@@ -564,9 +636,17 @@ class reports(xmlrpc.XMLRPC):
 		liabilitiesGrpCodes = [1,3,11,12]
 		balancesheet = []
 		assetSrno = 1; liabilitiesSrno = 1
-		total_asset_balances = 0.00; total_liabilities_balances = 0.00
-		tot_capital = 0.00; tot_currliabilities = 0.00; tot_loansliabilities = 0.00; tot_reserves = 0.00
-		tot_fixedasset = 0.00; tot_currentasset = 0.00; tot_loansasset = 0.00; tot_investment = 0.00; tot_miscExpense = 0.00
+		total_asset_balances = 0.00; 
+		total_liabilities_balances = 0.00
+		tot_capital = 0.00 
+		tot_currliabilities = 0.00 
+		tot_loansliabilities = 0.00
+		tot_reserves = 0.00
+		tot_fixedasset = 0.00
+		tot_currentasset = 0.00
+		tot_loansasset = 0.00
+		tot_investment = 0.00
+		tot_miscExpense = 0.00
 		account = rpc_account.account()
 		for grpCode in liabilitiesGrpCodes:
 			print grpCode

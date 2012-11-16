@@ -409,9 +409,9 @@ class transaction(xmlrpc.XMLRPC):
 		Input parameters : [voucher_code]
 		'''
 		returns  2 dimentional list containing rows with 3 columns.
-		takes one parameter vouchercode
+		takes one parameter vouchercode+
 		'''
-		Output Parameters : [accountname , typeflag , amount]
+		Output Parameters : [accountname,typeflag,amount]
 		'''
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
