@@ -292,7 +292,87 @@ class account(xmlrpc.XMLRPC):
 			bankaccount = []
 			for row in getallbankaccounts:
 				bankaccount.append(row[0])
-			return bankaccount 	
+			return bankaccount 
+			
+	def xmlrpc_getCashFlowOpening(self,client_id):
+		'''
+		output parameters:accountname,openingbalance
+		Purpose: to get all accountnames which is not in 
+		under Bank and cash subgroup
+		'''
+		statement = "select accountname,openingbalance\
+				from group_subgroup_account\
+				where subgroupname \
+				in ('Bank','Cash') order by accountname"
+		result = dbconnect.engines[client_id].execute(statement).fetchall()
+		cashflow = []
+		for row in result:
+			cashflow.append([row[0],row[1]])
+		
+		return cashflow 
+		
+	def xmlrpc_getCashFlowReceivedAccounts(self,queryParams,client_id):
+		'''
+		input parameters: cfaccountname,cbaccountname,startdate,enddate
+		output parameters: cfamount
+		Purpose: to get sum of amount which in startdate and todate
+		
+		'''
+		financial_fromdate = str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
+		financial_enddate =  str(datetime.strptime(str(queryParams[3]),"%d-%m-%Y"))
+		statement = "select sum(amount)\
+				from view_voucherbook\
+				where account_name = '"+queryParams[0]+"' \
+				and vouchercode \
+				in(select vouchercode from view_voucherbook \
+				where typeflag = 'Dr' \
+				and account_name = '"+queryParams[1]+"'\
+				and reffdate >= '"+financial_fromdate+"'\
+				and reffdate <= '"+financial_enddate+"'\
+				and flag = 1)\
+				group by account_name"
+		result = dbconnect.engines[client_id].execute(statement).fetchone()
+		
+		CashFlowReceived = []
+		if result == None:
+			return result
+		else:
+			for row in result:
+				CashFlowReceived.append(row)
+			return CashFlowReceived 			
+	
+	def xmlrpc_getCashFlowPaidAccounts(self,queryParams,client_id):
+		'''
+		input parameters: cfaccountname,cbaccountname,startdate,enddate
+		output parameters: cfamount
+		Purpose: to get sum of amount which in startdate and todate
+		
+		'''
+		financial_fromdate = str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
+		financial_enddate =  str(datetime.strptime(str(queryParams[3]),"%d-%m-%Y"))
+		
+		statement = "select sum(amount)\
+				from view_voucherbook\
+				where account_name ='"+queryParams[0]+"'\
+				and vouchercode \
+				in(select vouchercode from view_voucherbook \
+				where typeflag = 'Cr' \
+				and account_name = '"+queryParams[1]+"'\
+				and reffdate >= '"+financial_fromdate+"' \
+				and reffdate <= '"+financial_enddate+"'\
+				and flag = 1)\
+				group by account_name"
+		result = dbconnect.engines[client_id].execute(statement).fetchone()
+		
+		getCashFlowPaid = []
+		if result == None:
+			return result
+		else:
+			for row in result:
+				getCashFlowPaid.append(row)
+			
+			return getCashFlowPaid 
+		
 	
 	def xmlrpc_accountExists(self, queryParams, client_id):
 		'''

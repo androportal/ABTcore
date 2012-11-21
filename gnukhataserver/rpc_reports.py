@@ -7,6 +7,7 @@ import dbconnect
 import rpc_account
 import rpc_transaction
 import rpc_groups
+import rpc_getaccountsbyrule
 '''
 import the twisted modules for executing rpc calls and 
 also to implement the server
@@ -1224,5 +1225,165 @@ class reports(xmlrpc.XMLRPC):
 			
 		return ReconGrid	
 		
-	
+	def xmlrpc_getCashFlow(self,queryParams,client_id):
+		""" Purpose: Returns the data for CashFlow in a grid format
+		Input parameters : *financial_from ,startdate and end date
+		description:This function takes one arguement queryParams 
+		which is a list containing
+		The function will return a grid with 4 columns.
+		first 2 columns will have the account name and its sum of
+		received amount, while next 2 columns will have the same 
+		for amount paid.first we make a call to get CashFlowAccounts 
+		for the list of accounts falling under Bank or Cash subgroups.
+		Then a loop will run through the list and get the list of 
+		payment and receipts as mentioned above.
+		every row will contain a pair of 
+		account:amount for payment and receipt each.
+		"""
+		#declare the cashFlowGrid, rlist, plist as a blank list.
+		#we will fill up cashFlowGrid by appending rlist and plist.
+		#rlist will contain the cashflow of received accounts.
+		#plist will contain the cashflow of paid accounts.
+		cashFlowGrid = []
+		rlist = []
+		plist = []
+		account = rpc_account.account()
+		getjournal = rpc_getaccountsbyrule.getaccountsbyrule()
+		rlist.append(["Opening Balance","",""])
+		#Let's start with 0 for totalreceivedamount and totalpaid amounts.
+		totalreceivedamount = 0.00
+		totalpaidamount = 0.00
+		#first let's get the list of all accounts coming under cash or 
+		#bank subgroup and their respective opening balance.
+		cashBankAccounts=account.xmlrpc_getCashFlowOpening(client_id)
+		#fill up the rlist with the rows for cashFlowAccounts.
+		#also maintaining a list of cash and bank accounts will facilitate 
+		#the loop for getting actual cash flow.
+		cbAccounts = []
+		for acc in cashBankAccounts:
+			openingRow = []
+			openingRow.append("ob")
+			openingRow.append(acc[0])
+			cbAccounts.append(acc[0])
+			
+			openinglist = closingRow = self.xmlrpc_calculateBalance(\
+						[str(acc[0]),queryParams[0],queryParams[1],queryParams[2]],client_id)
+			openingRow.append('%.2f'%float(openinglist[1]))
+			totalreceivedamount = totalreceivedamount + float(openinglist[1])
+			rlist.append(openingRow)
+		
+		
+		cfAccountsRows = getjournal.xmlrpc_getJournalAccounts(client_id)
+		#now we will run a nested loop for getting cash flow for all non-cash/bank accounts
+		# the outer loop will run through the list of all the cfAccounts 
+		#and check for any transactions on them involving bank or 
+		#cash based accounts for which we have a list of cbAccounts
+		#needless to say this process will happen once for recieved and one for paid transactions.
+		for acc in cfAccountsRows:
+			receivedAmount = 0.00
+			for cb in cbAccounts:
+				#print "checking with account " + str(account[0]) + " against " + cb
+				
+				receivedRow = account.xmlrpc_getCashFlowReceivedAccounts([\
+					str(acc),str(cb),queryParams[1],queryParams[2]],client_id)
+				#print"the amount for given combination is " + str(receivedRow["cfamount"]) 
+				if receivedRow != None:
+					receivedAmount = receivedAmount + float(str(receivedRow[0]))
+			if receivedAmount != 0:
+				rlist.append([acc,'%.2f'% receivedAmount,""])	
+				totalreceivedamount = totalreceivedamount + float(receivedAmount)
+				#print rlist	
+		#print "received samapt hue"
+		#print "finally the total of received with opening is " + str(totalreceivedamount)
+		#print "now into the payed loop "
+		for acc in cfAccountsRows:
+			paidAmount = 0.00
+			for cb in cbAccounts:
+				#print "checking with account " + str(account[0]) + " against " + cb
+				
+				paidRow =account.xmlrpc_getCashFlowPaidAccounts([\
+					str(acc),str(cb),queryParams[1],queryParams[2]],client_id)
+				if paidRow!= None:
+					paidAmount = paidAmount + float(str(paidRow[0]))  
+			if paidAmount != 0:
+				plist.append([acc,'%.2f'% paidAmount,""])
+				
+				totalpaidamount = totalpaidamount + float(paidAmount)
+		plist.append(["Closing Balance","",""])
+				#print plist
+			#fill up the rlist with the rows for cashFlowAccounts only if receivedRow is not none.
+				#now sum up the totalreceived amounts.
+		for closingcb in cbAccounts:
+			closingCbRow = []
+			
+			closinglist=self.xmlrpc_calculateBalance(\
+						[str(closingcb),queryParams[0],queryParams[1],queryParams[2]],client_id)
+			closingCbRow.append("cb")
+			closingCbRow.append(closingcb)
+			closingCbRow.append('%.2f'%float(closinglist[2]))
+			print closingCbRow
+			totalpaidamount = totalpaidamount + float(closinglist[2])
+			plist.append(closingCbRow)
+		# fill up the plist with the rows for cashFlowAccounts only if paidRow is not none.
+		# now sum up the totalpaid amounts.
+		# Now lets equate the row of rlist and plist.
+		rlength = len(rlist)
+		plength = len(plist)
+		# if length of rlist is greater than plist then append the blank lists 
+		# times of difference in rlist and plist into the plist or vice versa.
+		if rlength > plength:
+			diflength = rlength - plength
+			for d in range(0,diflength):
+				plist.append(["","",""])
+		if rlength < plength:
+			diflength = plength - rlength
+			for d in range(0,diflength):
+				rlist.append(["","",""])
+		#now append the total receivedamount and total paidamount in respective lists i.e. rlist and plist
+		rlist.append(["Total",'%.2f'% totalreceivedamount,""])
+		plist.append(["Total",'%.2f'% totalpaidamount,""])
+		
+		#now append rlist and plist to cashFlowGrid
+		cashFlowGrid.append(rlist)
+		cashFlowGrid.append(plist)
+		return cashFlowGrid
+		'''
+		rlength = len(cashFlowGrid[0])
+		plength = len(cashFlowGrid[1])
+		finalList =[]
+		if rlength > plength:
+			difflength = rlength
+		else:
+			difflength = plength
+		for i in range (0, difflength):
+			if cashFlowGrid[0][i][0] == "ob" :
+				if cashFlowGrid[1][i][0] != "cb" :
+			
+					finalList.append([cashFlowGrid[0][i][1],\
+							cashFlowGrid[0][i][2],\
+							cashFlowGrid[1][i][0],\
+							cashFlowGrid[1][i][1]])
+				
+
+			elif cashFlowGrid[0][i][0] == "ob" :
+				if cashFlowGrid[1][i][0] == "cb" :
+					finalList.append([cashFlowGrid[0][i][1],\
+							cashFlowGrid[0][i][2],\
+							cashFlowGrid[1][i][1],\
+							cashFlowGrid[1][i][2]])
+					
+			
+			elif cashFlowGrid[1][i][0] == "cb" :
+				finalList.append([cashFlowGrid[0][i][0],\
+						cashFlowGrid[0][i][1],\
+						cashFlowGrid[1][i][1],\
+						cashFlowGrid[1][i][2]])
+			else:
+				finalList.append([cashFlowGrid[0][i][0],\
+						cashFlowGrid[0][i][1],\
+						cashFlowGrid[1][i][0],\
+						cashFlowGrid[1][i][1]])	
+		
+		return finalList
+		'''
 		
