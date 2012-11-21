@@ -275,6 +275,24 @@ class account(xmlrpc.XMLRPC):
 			accountcodes.append(row.accountcode)
 		print accountcodes 
 		return accountcodes
+		
+	def xmlrpc_getAllBankAccounts(self,client_id):
+		'''
+		Purpose: To get all accountnames which is under Bank subgroup
+		'''
+		statement = "select accountname\
+			     		from group_subgroup_account\
+			     		where subgroupname ='Bank'\
+					order by accountname"  
+		getallbankaccounts = dbconnect.engines[client_id].execute(statement).fetchall()
+		
+		if getallbankaccounts == []:
+			return []
+		else:
+			bankaccount = []
+			for row in getallbankaccounts:
+				bankaccount.append(row[0])
+			return bankaccount 	
 	
 	def xmlrpc_accountExists(self, queryParams, client_id):
 		'''
@@ -495,7 +513,7 @@ class account(xmlrpc.XMLRPC):
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.Account).\
 		      	 	filter(dbconnect.Account.accountname == queryParams[0]).\
-		      		delete()
+		      		update({'accountcode':0})
 		Session.commit()
 		Session.close()
 		connection.connection.close()	
@@ -523,9 +541,13 @@ class account(xmlrpc.XMLRPC):
 	
 	def xmlrpc_hasTransactions(self, queryParams, client_id):
 		'''
-		Purpose   : Function to find out whether the given account has any transactions or not
-		Parameters : queryParams is a account name as string.
-		Returns :  if there is any voucher entry of that account name return 1 or else return 0
+		Purpose : Function to find out whether the given account 
+		has any transactions or not
+		
+		Parameters: queryParams is a account name as string.
+		
+		Returns : if there is any voucher entry of that accountname 
+		return 1 or else return 0
 		'''
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
@@ -546,25 +568,42 @@ class account(xmlrpc.XMLRPC):
 	def xmlrpc_deleteAccountNameMaster(self,queryParams,client_id):
 		'''
 		Purpose   : Function for deleting accounts. 
-		For this we have used hasOpeningBalance,hasTransactions & deleteAccount rpc functions. 
-		With the 	help of hasTransactions we are able to find out whether the given account has any transactions or not. 
-		It tells that if there is any voucher entry of that account name return true or else return false
-		The function hasOpeningBalance returns true if opening balance for that account exists or else returns false
+		
+		For this we have used hasOpeningBalance,hasTransactions & deleteAccount 
+		rpc functions. 
+		With the help of hasTransactions we are able to find out whether 
+		the given account has any transactions or not. 
+		It tells that if there is any voucher entry of that accountname 
+		return 1 or else return 0
+		
+		The function hasOpeningBalance returns 1 if opening balance 
+		for that account exists or else returns 0
 		and third function deleteAccount deletes that particular accountname
 		Parameters : queryParams is a account name as string.
-		Returns :  returns 1 when account name is deleted else returns 0
+		
+		Returns :  if hasOpenibalance is 0 and hasTransaction is 0
+		returns string "account deleted"
+		
+		if hasOpenibalance is 1 and hasTransaction is 1
+		returns string "has both opening balance and trasaction" 
+		
 		'''
 		connection = dbconnect.engines[client_id].connect()
-		Session = dbconnect.session(bind=connection)
+        	Session = dbconnect.session(bind=connection)
 
-		hasOpeningBalance = self.xmlrpc_hasOpeningBalance([str(queryParams[0])],client_id)
-		hasTransactions = self.xmlrpc_hasTransactions([str(queryParams[0])],client_id)
-		Session.close()
-		connection.connection.close()
+        	hasOpeningBalance = self.xmlrpc_hasOpeningBalance([str(queryParams[0])],client_id)
+        	hasTransactions = self.xmlrpc_hasTransactions([str(queryParams[0])],client_id)
+        	Session.close()
+        	connection.connection.close()
 		if(str(hasOpeningBalance) == "0" and str(hasTransactions) == "0"):
-			self.xmlrpc_deleteAccount([str(queryParams[0])],client_id)
-			return "1"
-		else:
-			return "0"
+		    self.xmlrpc_deleteAccount([str(queryParams[0])],client_id)
+		    return "account deleted"
+		elif(str(hasOpeningBalance) == "1" and str(hasTransactions) == "1"):
+		    self.xmlrpc_deleteAccount([str(queryParams[0])],client_id)
+		    return "has both opening balance and trasaction"
+		elif(str(hasOpeningBalance) == "1"):
+		    return "has opening balance"
+		elif(str(hasTransactions) == "1"):
+		    return "has transaction"
 		
 		

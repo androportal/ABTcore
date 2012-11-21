@@ -16,9 +16,9 @@ from twisted.web import xmlrpc, server
 reactor from the twisted library starts the server with a 
 published object and listens on a given port.'''
 from twisted.internet import reactor
-from datetime import datetime
-from time import strftime
+from datetime import datetime,time
 from modules import blankspace
+from sqlalchemy import or_ , func , and_
 
 class reports(xmlrpc.XMLRPC):
 	
@@ -92,9 +92,9 @@ class reports(xmlrpc.XMLRPC):
 		# call getTransactions to get the transaction details for this account.
 		
 		
-		transactions = transaction.xmlrpc_getTransactions([queryParams[0],queryParams[2],queryParams[3],queryParams[4]],client_id)
-		print "get Transactions"
-		print transactions
+		transactions = transaction.xmlrpc_getTransactions([\
+					queryParams[0],queryParams[2],queryParams[3],queryParams[4]],client_id)
+		
 		# fill up the grid with the rows for transactions.
 		for transactionRow in transactions:
 			ledgerRow = []
@@ -105,8 +105,6 @@ class reports(xmlrpc.XMLRPC):
 			# if the transaction had the amount at Dr side then particulars must have the names of accounts involved in Cr.
 			if transactionRow[1] == "Dr":
 				particulars = transaction.xmlrpc_getParticulars([transactionRow[0],"Cr"],client_id)
-				print "particulars"
-				print particulars
 				#may be more than one account was involved a tthe other side so loop through.
 				particular = []
 				for particularRow in particulars:
@@ -167,16 +165,13 @@ class reports(xmlrpc.XMLRPC):
 		[group_name,bal_brought,curbal,total_DrBal,total_CrBal,opening_baltype,baltype]
 		
 		"""
-		print "cal bal list "
-		print queryParams
+		
 		# get the groupname accourding to ac
 		statement = "select groupname\
 			     from group_subgroup_account\
 			     where accountname = '"+queryParams[0]+"'"
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
-		print "result"
-		print result
-		print result[0]
+		
 		group_name = result[0]
 		#print "groupname"
 		#print group_name
@@ -255,8 +250,6 @@ class reports(xmlrpc.XMLRPC):
 				
 			result = dbconnect.engines[client_id].execute(statement).fetchone()
 			total_cr_upto_from = result[0]
-			#print total_dr_upto_from
-			#print total_cr_upto_from
 			
 			if total_dr_upto_from == None: 
 				total_dr_upto_from = 0
@@ -319,8 +312,7 @@ class reports(xmlrpc.XMLRPC):
 				and flag = 1"
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		total_DrBal = result[0]
-		print "total_DrBal"
-		print total_DrBal
+		
 		statement = "select sum(amount) as cr_amount\
 				from view_voucherbook\
 				where typeflag ='Cr'\
@@ -330,8 +322,6 @@ class reports(xmlrpc.XMLRPC):
 				and flag = 1"
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		total_CrBal = result[0]
-		print "total_CrBal"
-		print total_CrBal
 		
 		if total_CrBal == None: 
 			total_CrBal = 0 
@@ -351,8 +341,6 @@ class reports(xmlrpc.XMLRPC):
 			baltype = 'Cr'
 
 		calculate_balancelist = [group_name,bal_brought,curbal,total_DrBal,total_CrBal,opening_baltype,baltype]
-		print "calculate_balancelist"
-		print calculate_balancelist
 		return calculate_balancelist
 		
 		
@@ -404,9 +392,9 @@ class reports(xmlrpc.XMLRPC):
 		total_cr = 0.00
 		
 		for account in accounts:
-			print account
+			
 			closingRow = self.xmlrpc_calculateBalance([account,queryParams[0],queryParams[1],queryParams[2]],client_id)
-			print closingRow[2]
+			
 			if float(closingRow[2])!= 0:
 				trialRow = []
 				trialRow.append(srno)
@@ -452,7 +440,7 @@ class reports(xmlrpc.XMLRPC):
 			
 			closingRow = self.xmlrpc_calculateBalance(\
 						[acc,queryParams[0],queryParams[1],queryParams[2]],client_id)
-			print closingRow
+			
 			if float(closingRow[3]) != 0 or float(closingRow[4]) != 0:
 				trialRow = []
 				trialRow.append(srno)
@@ -508,7 +496,7 @@ class reports(xmlrpc.XMLRPC):
 			
 			closingRow = self.xmlrpc_calculateBalance(\
 						[acc,queryParams[0],queryParams[1],queryParams[2]],client_id)
-			print closingRow
+			
 			if float(closingRow[1]) != 0 or float(closingRow[3]) != 0 or float(closingRow[4]) != 0:
 				trialRow = []
 				trialRow.append(srno)
@@ -564,8 +552,7 @@ class reports(xmlrpc.XMLRPC):
 			accountGroup = groupRow[0]
 			resultRow = self.xmlrpc_getProjectStatement(\
 			[queryParams[0],accountRow,queryParams[1],queryParams[2],queryParams[3]],client_id)
-			print '%.2f'%float(resultRow[0])
-			print '%.2f'%float(resultRow[1])
+			
 			if(('%.2f'%float(resultRow[0])!= "0.00" )or('%.2f'%float(resultRow[1])!="0.00")):
 				statementRow = [srno,accountRow,accountGroup,'%.2f'%float(resultRow[0]),'%.2f'%float(resultRow[1])]
 				totalDr = totalDr + resultRow[0]
@@ -573,8 +560,6 @@ class reports(xmlrpc.XMLRPC):
 				srno = srno +1
 				projectStatement.append(statementRow)
 		projectStatement.append(["","","",'%.2f'%float(totalDr),'%.2f'%float(totalCr)])
-		print "getProjectStatementReport"
-		print projectStatement
 		return projectStatement
 	
 	def xmlrpc_getProjectStatement(self,queryParams,client_id):
@@ -582,7 +567,7 @@ class reports(xmlrpc.XMLRPC):
 		Input parameters:[projectname,accountname,financial_fromdate,fromdate,todate]
 		Output :[total_debit,total_credit]
 		'''
-		print "getProjectStatement"
+		
 		financial_fromdate = str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
 		report_fromdate =  str(datetime.strptime(str(queryParams[3]),"%d-%m-%Y"))
 		report_todate =  str(datetime.strptime(str(queryParams[4]),"%d-%m-%Y"))
@@ -608,7 +593,7 @@ class reports(xmlrpc.XMLRPC):
 					and flag = 1"  	
 		totalCr = dbconnect.engines[client_id].execute(statement).fetchone()
 		total_cr = totalCr[0]
-		print [total_dr,total_dr]
+		
 		if total_dr == None:
 			total_dr = 0.00
 		
@@ -649,7 +634,6 @@ class reports(xmlrpc.XMLRPC):
 		tot_miscExpense = 0.00
 		account = rpc_account.account()
 		for grpCode in liabilitiesGrpCodes:
-			print grpCode
 			
 			accounts = account.xmlrpc_getAccountNamesByGroupCode([grpCode],client_id)
 			if accounts != []:
@@ -723,7 +707,7 @@ class reports(xmlrpc.XMLRPC):
 		balancesheet.append('%.2f'%(float(tot_reserves)))
 		balancesheet.append('%.2f'%(float(total_liabilities_balances)))
 		balancesheet.append('%.2f'%(float(total_asset_balances)))
-		print balancesheet
+		
 		return balancesheet
 		
 		
@@ -813,15 +797,10 @@ class reports(xmlrpc.XMLRPC):
 		profitloss.append('%.2f'%(float(total_dirExp_balances)))
 		profitloss.append('%.2f'%(float(total_indirInc_balances)))
 		profitloss.append('%.2f'%(float(total_indirExp_balances)))
-		print "we are in profit and loss"
-		print total_dirInc_balances
-		print total_dirExp_balances
-		print total_indirInc_balances 
-		print total_indirExp_balances
+		
 		if (total_dirInc_balances > total_dirExp_balances):
 			grossProfit = total_dirInc_balances - total_dirExp_balances
-			print "gross proftt"
-			print grossProfit
+			
 			profitloss.append("grossProfit")
 			profitloss.append('%.2f'%(float(grossProfit)))
 			totalnetprofit = total_indirInc_balances + grossProfit
@@ -844,8 +823,7 @@ class reports(xmlrpc.XMLRPC):
 			profitloss.append("grossLoss")
 			profitloss.append('%.2f'%(float(grossLoss)))
 			totalnetloss = total_indirExp_balances + grossLoss
-			print "totalnetloss"
-			print totalnetloss
+			
 			if(totalnetloss > total_indirInc_balances):
 				netLoss = totalnetloss - total_indirInc_balances
 				grandTotal = netLoss+totalnetloss 
@@ -860,13 +838,391 @@ class reports(xmlrpc.XMLRPC):
 				profitloss.append('%.2f'%(float(netProfit)))
 				profitloss.append('%.2f'%(float(totalnetloss)))
 				profitloss.append('%.2f'%(float(grandTotal)))
-		print "profit and loss"
+		
+		return profitloss
+		
+	def xmlrpc_getReconLedger(self,queryParams,client_id):
+		'''
+		Purpose : returns a complete ledger for given bank account.
+		Information taken from view_voucherbook	
+					
+		Parameters : For getting ledger it takes the result of rpc_getLedger.
+		It expects a list of queryParams which contains
+		Input parameters : 
+		[accountname,financialStart,fromdate,todate,projectname]
+		
+		description: Returns a grid (2 dimentional list ) with columns as 
+		Date, Particulars, Reference number, Dr amount, Cr amount, 
+		narration, Clearance Date and Memo.
+		
+		Note that It will display the value of clearance date and memo 
+		for only those transactions which are cleared.
+		The last row will just contain the grand total which will 
+		be equal at credit and debit side.
+		2nd last row contains the closing balance.
+		3rd last row contains just the total Dr and total Cr.
+		If the closing balance (carried forward ) is debit 
+		then it will be shown at credit side and 
+		if it is credit will be shown at debit side.
+		
+		'''
+		
+		# create the instance of transaction 
+		transaction = rpc_transaction.transaction()
+		#first let's get the details of the given account regarding the 
+		#Balance and its Dr/Cr side by calling getLedger function.
+		#note that we use the getClearanceDate function which gives us 
+		#the clearance date and memo for each account in the ledger.
+		ledgerResult = self.xmlrpc_getLedger(queryParams,client_id)
+		reconResult =[]
+		#lets declare vouchercounter to zero
+		voucherCounter = 0
+		vouchercodeRecords= transaction.xmlrpc_getTransactions([\
+					queryParams[0],queryParams[2],queryParams[3],\
+					queryParams[4]],client_id)
+		
+		# following delete operations are done for avoiding clearance date 
+		#and memo in opening balance, totaldr, totalcr and grand total rows.
+		del ledgerResult[0] #opening balance row
+		del ledgerResult[len(ledgerResult)-1] #grand total row
+		del ledgerResult[len(ledgerResult)-1] #closing balance row
+		del ledgerResult[len(ledgerResult)-1] #total Dr and Cr row
+		del ledgerResult[len(ledgerResult)-1] # empty row
+		voucherCodes = []
+		for vc in vouchercodeRecords:
+			voucherCodes.append(int(vc[0]))
+		
+		#lets append required rows in new list.
+		for ledgerRow in ledgerResult:
+			reconRow = []
+			reconRow.append(ledgerRow[0]) #voucher date
+			if (len(ledgerRow[1])==1):
+				for acc in ledgerRow[1]:
+					reconRow.append(acc) #particular
+			reconRow.append(ledgerRow[2]) #ref no
+			reconRow.append(voucherCodes[voucherCounter]) #voucher code
+			reconRow.append(ledgerRow[3]) #Dr amount
+			reconRow.append(ledgerRow[4]) #Cr amount
+			reconRow.append(ledgerRow[5]) #narration
 			
-		print profitloss
-		return profitloss	
+			clearanceDates =self.xmlrpc_getClearanceDate([\
+						str(ledgerRow[1][0]),voucherCodes[voucherCounter]],client_id)
+			if clearanceDates == None:
+				reconRow.append("")
+				reconRow.append("")
+			else:
+				for datesRow in clearanceDates:
+					clrdate = str(datesRow.clearancedate).split(" ")
+					clrDate = datetime.strptime(clrdate[0],"%Y-%m-%d").strftime("%d-%m-%Y")
+					clrMemo = datesRow.memo
+					reconRow.append(clrDate)
+					reconRow.append(clrMemo)
+				
+			voucherCounter = voucherCounter + 1
+			reconResult.append(reconRow)
+		return reconResult
 		
+	def xmlrpc_setBankReconciliation(self,queryParams,client_id):
+		'''
+		Purpose : Sets the bankrecon table in database as saves 
+		transaction details of those transactions which are
+		cleared with clearance date and memo in table bankrecon
 		
+		Also sets the reconcode(reconciliation code) for the respective 
+		transaction.
+				 
+		Parameters : It expects a list of queryParams which contains
+		[vouchercode(datatype:integer),reffdate(datatype:timestamp),
+		accountname(datatype:varchar),dramount(datatype:numeric),
+		cramount(datatype:numeric),clearancedate(datatype:timestamp),
+		memo(datatype:text)] 
+		'''
+		# lets create a list containing vouchercode,reffdate,accountname. 
+		for clearRow in queryParams:
+			sp_params = [clearRow[0],clearRow[1],clearRow[2]]
+			
+			#if dr_amount is blank, append 0 as dr_amount and respective cr_amount.
+			if clearRow[3] == "":
+				sp_params.append(0)
+				sp_params.append(clearRow[4])
+			#if cr_amount is blank, append 0 as cr_amount and respective dr_amount.
+			if clearRow[4] == "":
+				sp_params.append(clearRow[3])
+				sp_params.append(0)
+			#Now, lets append respective clearance date and memo				
+			sp_params.append(clearRow[5])
+			sp_params.append(clearRow[6])
+			
+			#Finally we are ready to set the bankrecon table.
+			success = self.xmlrpc_setBankRecon(sp_params,client_id)
+		return success	
 		
+	def xmlrpc_setBankRecon(self,queryParams,client_id):
+		'''
+		Input parameters: 
+		[vouchercode,reffdate,accountname,dramount,cramount,clearencedate,memo]
+		output : String success
+		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
+		reffdate =  datetime.strptime(str(queryParams[1]),"%d-%m-%Y")
+		clearencedate =  datetime.strptime(str(queryParams[5]),"%d-%m-%Y")
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		reconcode = Session.query(func.count(dbconnect.BankRecon.reconcode)).scalar()
+		if reconcode == None:
+			reconcode = 0
+			reconcode = reconcode + 1
+		else:
+			reconcode = reconcode + 1
 		
+		result = Session.query(dbconnect.BankRecon).\
+					filter(and_(dbconnect.BankRecon.accountname == queryParams[2],\
+					dbconnect.BankRecon.vouchercode == queryParams[0])).\
+					first()
+
+		if result == None:
+			if queryParams[3] == 0:
+				# add all values in the bankrecon table
+				Session.add(dbconnect.BankRecon(reconcode,queryParams[0],reffdate,queryParams[2],\
+							0,queryParams[4],clearencedate,queryParams[6]))
+				Session.commit()
+			else:	
+				# add all values in the bankrecon table
+				Session.add(dbconnect.BankRecon(reconcode,queryParams[0],reffdate,queryParams[2],\
+							queryParams[3],0,clearencedate,queryParams[6]))
+				Session.commit()
+		else:
+			Session.query(dbconnect.BankRecon).\
+			filter(and_(dbconnect.BankRecon.accountname == queryParams[2],\
+					dbconnect.BankRecon.vouchercode == queryParams[1])).\
+			delete()
+			Session.commit()
+			if queryParams[3] == 0:
+				# add all values in the bankrecon table
+				Session.add(dbconnect.BankRecon(reconcode,queryParams[0],reffdate,queryParams[2],\
+							0,queryParams[4],clearencedate,queryParams[6]))
+				Session.commit()
+			else:
+				# add all values in the bankrecon table
+				Session.add(dbconnect.BankRecon(reconcode,queryParams[0],reffdate,queryParams[2],\
+							queryParams[3],0,clearencedate,queryParams[6]))
+				Session.commit()
+			 
+		Session.close()
+		connection.connection.close()
+		return "success"
 		
+	def xmlrpc_getClearanceDate(self,queryParams,client_id):
+		
+		'''
+		input parameters :
+		[accountname ,vouchercode]
+		output :
+		[clearance date , memo]	
+		'''	
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.BankRecon).\
+				filter(and_(dbconnect.BankRecon.accountname==queryParams[0],\
+					dbconnect.BankRecon.vouchercode==queryParams[1])).\
+					all()
+		
+		return result
+			
+	def xmlrpc_deleteClearedRecon(self,queryParams,client_id):
+		'''
+		Purpose: To uncleared the cleared trasaction and
+		delete cleared entry from bankrecon table 
+		
+		Input parametes:[accountname,vouchercode,todate]
+		'''
+		clearencedate =  str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.BankRecon).\
+			filter(and_(dbconnect.BankRecon.accountname==queryParams[0],\
+			dbconnect.BankRecon.vouchercode==queryParams[1],\
+			dbconnect.BankRecon.clearancedate < clearencedate)).delete()
+		
+		Session.commit()
+		Session.close()
+		connection.connection.close()
+		
+		if result == True:
+			return True
+		else:
+			return False
+			
+			
+	
+	def xmlrpc_updateBankRecon(self,queryParams,client_id):
+		"""
+		Purpose: Returns all uncleared transactions from the starting of 
+		financial year to the end date of given period with 
+		Bank Reconciliation Statement for the given period of time.
+		 
+		Input Parameters: 
+		[account name, financial start, fromdate and todate,projectname]
+		
+		Description:This function returns a grid of 7 columns and number 
+		of rows depending on number of uncleared transactions in the database. 
+		After appending uncleared transactions in grid, 
+		it appends Bank Reconciliation statement.
+		
+		A grid of 7 columns contains:
+		transaction date, accountname, vouchercode, reference number, 
+		dramount, cramount and narration.
+		
+		The function first makes a call to the previous function "getLedger" 
+		and passes the account as a parameter along with the 
+		financial start, Calculate_from and calculate_to.
+		
+		Note that balance is always calculated from the starting of the financial year.
+		Then, on every iteration it calls following functions 
+		1. getTransactions: to get trnsactions from starting date of 
+			financial year to the end date of given period
+		2. getParticulars: to get all particulars(account names) 
+			for that period
+		3. getOnlyClearedTransactions: to filter out all uncleared 
+			transactions and their details.
+		"""
+		ReconGrid = []
+		totalDbt = 0.00
+		totalCdt = 0.00
+		# create the instance of transaction 
+		transaction = rpc_transaction.transaction()
+		#now lets get  te transaction details for this account.
+		transactions =transaction.xmlrpc_getTransactions([\
+					queryParams[0],queryParams[2],queryParams[3],queryParams[4]],client_id)
+		
+					
+		# [vouchercode , voucherflag , reff_date , voucher_reference,transaction_amount,show_narration]			
+		# fill up the grid with the rows for transactions.
+		for transactionRow in transactions:
+			
+			# if the transaction had the amount at Dr side then particulars
+			# must have the names of accounts involved in Cr.
+			if transactionRow[1] == "Dr":
+				particulars = transaction.xmlrpc_getParticulars([transactionRow[0],"Cr"],client_id)
+				# [voucher_code,type_flag]
+				
+				ledgerRow = []
+				#may be more than one account was involved at the other side so loop through.
+				for particularRow in particulars:
+					
+					cleared =transaction.xmlrpc_getOnlyClearedTransactions([\
+							str(particularRow),int(transactionRow[0]),\
+							queryParams[2],queryParams[3]],client_id)
+
+					if cleared == False:
+						ledgerRow.append(transactionRow[2])
+						ledgerRow.append(particularRow)
+						ledgerRow.append(transactionRow[3])
+						ledgerRow.append(transactionRow[0])
+						ledgerRow.append('%.2f'%(float(transactionRow[4])))
+						totalDbt = totalDbt + float(transactionRow[4])
+						ledgerRow.append("")
+						ledgerRow.append(transactionRow[5])
+						ReconGrid.append(ledgerRow)
+					
+			if transactionRow[1] == "Cr":
+				particulars = transaction.xmlrpc_getParticulars([transactionRow[0],"Dr"],client_id)
+				# [voucher_code,type_flag]
+				ledgerRow = []
+				#may be more than one account was involved a tthe other side so loop through.
+				for particularRow in particulars:
+					cleared =transaction.xmlrpc_getOnlyClearedTransactions(\
+							[str(particularRow),int(transactionRow[0]),\
+								queryParams[2],queryParams[3]],client_id)
+					
+					if cleared == False:
+						ledgerRow.append(transactionRow[2])
+						ledgerRow.append(particularRow)
+						ledgerRow.append(transactionRow[3])
+						ledgerRow.append(transactionRow[0])
+						ledgerRow.append("")
+						ledgerRow.append('%.2f'%(float(transactionRow[4])))
+						ledgerRow.append(transactionRow[5])
+						totalCdt = totalCdt + float(transactionRow[4])
+						ReconGrid.append(ledgerRow)
+					
+		ReconGrid.append(["","","Total","",'%.2f'%(totalDbt),'%.2f'%(totalCdt)])
+		#lets start making Reconcilition Statement,
+		ReconGrid.append(["","RECONCILIATION STATEMENT","","","","AMOUNT"])
+		#get the ledger Grid result,
+		ledgerResult = self.xmlrpc_getLedger(queryParams,client_id)
+		
+		BankBal = 0.00
+		closingBal = 0.00		
+		midTotal = 0.00
+		
+		#lets get the closing row for closing balance
+		closingBalRow = ledgerResult[len(ledgerResult)-2]
+		#total of Dr and Cr
+		TotalDrCrRow = ledgerResult[len(ledgerResult)-4]
+		
+		# if opening balance is debit then add opening balance to 
+		# total debit amount else to total credit amount
+		if ledgerResult[0][2] =="":
+			openingBalRow = ledgerResult[0]
+			if openingBalRow[3] != "":
+				TotalDrCrRow[3] = float(TotalDrCrRow[3]) + float(openingBalRow[3])
+			else:
+				TotalDrCrRow[4] = float(TotalDrCrRow[4]) + float(openingBalRow[4])
+		
+		balancedate = str(queryParams[2])
+		
+		ClosingBalance = float(TotalDrCrRow[3]) - float(TotalDrCrRow[4])
+		
+		if closingBalRow[3] != "":
+			ReconGrid.append([balancedate,"Balance as per our book (Credit) on "+balancedate,"","","",closingBalRow[3]])
+			closingBal = float(closingBalRow[3])
+			
+		if closingBalRow[4] != "":
+			ReconGrid.append([balancedate,"Balance as per our book (Debit) on "+balancedate,"","","",closingBalRow[4]])
+			closingBal = float(closingBalRow[4])
+			
+		if ClosingBalance == 0:
+			ReconGrid.append([balancedate,"Balance as per our book on "+balancedate,"","","",closingBalRow[3]])
+			closingBal = float(closingBalRow[3])
+		
+		if  ClosingBalance >= 0:
+			if totalCdt != 0:
+				ReconGrid.append(["","Add: Cheques issued but not presented","","","","+ "+'%.2f'%(totalCdt)])
+			else:
+				ReconGrid.append(["","Add: Cheques issued but not presented","","","",'%.2f'%(totalCdt)])
+			midTotal = closingBal + totalCdt
+			ReconGrid.append(["","","","","",""+'%.2f'%(midTotal)])
+			if totalDbt != 0:
+				ReconGrid.append(["","Less: Cheques deposited but not cleared","","","","- "+'%.2f'%(totalDbt)])
+			else:
+				ReconGrid.append(["","Less: Cheques deposited but not cleared","","","",'%.2f'%(totalDbt)])
+			BankBal = midTotal - totalDbt
+			
+			
+		if  ClosingBalance < 0:
+			if totalCdt != 0:
+				ReconGrid.append(["","Add: Cheques issued but not presented","","","","+ "+'%.2f'%(totalCdt)])
+			else:
+				ReconGrid.append(["","Add: Cheques issued but not presented","","","",'%.2f'%(totalCdt)])
+			midTotal = totalCdt - closingBal
+			ReconGrid.append(["","","","","",""+'%.2f'%(abs(midTotal))])
+			if totalDbt != 0:
+				ReconGrid.append(["","Less: Cheques deposited but not cleared","","","","- "+'%.2f'%(totalDbt)])
+			else:
+				ReconGrid.append(["","Less: Cheques deposited but not cleared","","","",'%.2f'%(totalDbt)])
+			BankBal = midTotal - totalDbt
+
+		if BankBal < 0:
+			ReconGrid.append(["","Balance as per Bank (Debit)","","","",'%.2f'%(abs(BankBal))])
+
+		if BankBal > 0:
+			ReconGrid.append(["","Balance as per Bank (Credit)","","","",'%.2f'%(abs(BankBal))])
+			
+		if BankBal == 0:
+			ReconGrid.append(["","Balance as per Bank","","","",'%.2f'%(abs(BankBal))])
+			
+		return ReconGrid	
+		
+	
 		

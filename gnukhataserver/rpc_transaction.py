@@ -438,23 +438,19 @@ class transaction(xmlrpc.XMLRPC):
 		"""
 		purpose: returns a record from the voucher master 
 		containing single row data for a given transaction.
-		
 		Returns list containing data from voucher_master.
 		
-		description:
-		This function is used along with xmlrpc_ getVoucherDetails to 
-		searchVoucher (get complete voucher)
-		Useful while editing or cloning.
+		description: This function is used along with getVoucherDetails 
+		to searchVoucher (get complete voucher) useful while editing orcloning.
 		The function takes one parameter which is a list containing vouchercode.
 		'''
 		Input parameters : [voucher_code]
 		'''
 		This function call defination  xmlrpc_getProjectNameByProjectCode
 		which is in the same file rpc_transaction to get project name 
-		
-		'''
-		Output parameters : [reference,reffdate,vouchertype,projectname,narrartion]
-		'''
+		Output parameters :
+		[reference,reffdate,vouchertype,projectname,narrartion]
+	
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
@@ -522,8 +518,6 @@ class transaction(xmlrpc.XMLRPC):
 		* Narration
 		
 		queryParams_details list will contain :
-		
-		
 		* AccountName
 		* dr amount
 		* cr amount
@@ -588,10 +582,10 @@ class transaction(xmlrpc.XMLRPC):
 				first()
 		account_code = result.accountcode
 		Session.add(dbconnect.VoucherDetails(\
-			vouchercode = queryParams[0],\
-			accountcode = account_code,\
-			typeflag = queryParams[2],\
-			amount = queryParams[3]\
+				vouchercode = queryParams[0],\
+				accountcode = account_code,\
+				typeflag = queryParams[2],\
+				amount = queryParams[3]\
 		))
 		Session.commit()
 		Session.close()
@@ -612,5 +606,29 @@ class transaction(xmlrpc.XMLRPC):
 		Session.close()
 		connection.connection.close()
 		return "deleted"
+		
+	def xmlrpc_getOnlyClearedTransactions(self,queryParams,client_id):
+		
+		'''
+		Purpose: This function will check for cleared transactions
+		Input Parameters :[accountname,vouchercode,financialstart,todate]
+		Output: if transaction is exist in bankrecon table it will
+		return true else false
+		'''
+		from_date = str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
+		to_date = str(datetime.strptime(str(queryParams[3]),"%d-%m-%Y"))
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.BankRecon).filter(and_(dbconnect.BankRecon.accountname==queryParams[0],\
+				dbconnect.BankRecon.vouchercode==queryParams[1],\
+				dbconnect.BankRecon.clearancedate >= from_date,\
+				dbconnect.BankRecon.clearancedate <= to_date)).\
+				first()
+		Session.close()
+		connection.connection.close()
+		if result != None:
+			return True
+		else:
+			return False
 				
 				
