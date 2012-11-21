@@ -484,3 +484,87 @@ class account(xmlrpc.XMLRPC):
 		print accountname	
 		return accountname       
 	
+	
+	def xmlrpc_deleteAccount(self, queryParams, client_id):
+		'''
+		Purpose   : Function for deleting account name
+		Parameters : queryParams is a account name as string.
+		Returns :  returns 1 when account is deleted
+		'''
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Account).\
+		      	 	filter(dbconnect.Account.accountname == queryParams[0]).\
+		      		delete()
+		Session.commit()
+		Session.close()
+		connection.connection.close()	
+		return "1"
+		
+		
+	def xmlrpc_hasOpeningBalance(self, queryParams, client_id):
+		'''
+		Purpose   : Function to find out whether the given account has opening balance or not
+		Parameters : queryParams is a account name as string.
+		Returns :  if opening balance of that account name is equal to 0 then return 0 or else return 1
+		'''
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Account.openingbalance).\
+	      	 		filter(dbconnect.Account.accountname == queryParams[0]).\
+	      			scalar()
+		Session.close()
+		connection.connection.close()
+		if result == 0:
+			return "0"
+		else:	
+			return "1"
+			
+	
+	def xmlrpc_hasTransactions(self, queryParams, client_id):
+		'''
+		Purpose   : Function to find out whether the given account has any transactions or not
+		Parameters : queryParams is a account name as string.
+		Returns :  if there is any voucher entry of that account name return 1 or else return 0
+		'''
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		
+		statement = "select count(vouchercode) as vouchercodeCount\
+			     		from view_voucherbook\
+			     		where account_name ='"+str(queryParams[0])+"'"
+		
+		result = dbconnect.engines[client_id].execute(statement).fetchone()
+		Session.close()
+		connection.connection.close()
+		if result[0] == 0:
+			return 0
+		if result[0]  > 0:
+			return 1
+		
+		
+	def xmlrpc_deleteAccountNameMaster(self,queryParams,client_id):
+		'''
+		Purpose   : Function for deleting accounts. 
+		For this we have used hasOpeningBalance,hasTransactions & deleteAccount rpc functions. 
+		With the 	help of hasTransactions we are able to find out whether the given account has any transactions or not. 
+		It tells that if there is any voucher entry of that account name return true or else return false
+		The function hasOpeningBalance returns true if opening balance for that account exists or else returns false
+		and third function deleteAccount deletes that particular accountname
+		Parameters : queryParams is a account name as string.
+		Returns :  returns 1 when account name is deleted else returns 0
+		'''
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+
+		hasOpeningBalance = self.xmlrpc_hasOpeningBalance([str(queryParams[0])],client_id)
+		hasTransactions = self.xmlrpc_hasTransactions([str(queryParams[0])],client_id)
+		Session.close()
+		connection.connection.close()
+		if(str(hasOpeningBalance) == "0" and str(hasTransactions) == "0"):
+			self.xmlrpc_deleteAccount([str(queryParams[0])],client_id)
+			return "1"
+		else:
+			return "0"
+		
+		
