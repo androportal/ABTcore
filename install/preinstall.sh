@@ -3,11 +3,11 @@
 # now 'aakash.sh' can be executed from either location
 if [ -e /data/data/com.aakash.lab/files/aakash.sh ]; 
 then
-    /system/bin/sh /data/data/com.aakash.lab/files/aakash.sh &
+    /system/bin/sh /data/data/com.aakash.lab/files/aakash.sh
 else
-    /system/bin/sh /data/local/aakash.sh &
+    /system/bin/sh /data/local/aakash.sh
 fi
-    
+# 
 echo "do preinstall job"
 BUSYBOX="/system/bin/busybox"
 
