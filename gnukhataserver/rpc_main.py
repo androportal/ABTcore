@@ -202,10 +202,6 @@ class gnukhata(xmlrpc.XMLRPC):
 		except:
 			print "not work"
 		Session = scoped_session(sessionmaker(bind=dbconnect.engines[self.client_id]))
-		
-		dbconnect.engines[self.client_id].execute(\
-			"insert into users(username,userpassword,userrole)\
-			values('admin','admin',0);")
 			
 		dbconnect.engines[self.client_id].execute(\
 			"create view view_account as \
@@ -230,7 +226,7 @@ class gnukhata(xmlrpc.XMLRPC):
 		dbconnect.engines[self.client_id].execute(\
 			"create view group_subgroup_account as select groups.groupname,\
 			subgroups.subgroupname,account.accountcode,account.accountname,account.openingbalance,\
-			account.balance \
+			account.balance\
 			from groups join account on (groups.groupcode = account.groupcode)\
 			left outer join subgroups\
 			on (account.subgroupcode = subgroups.subgroupcode) order by groupname;")
