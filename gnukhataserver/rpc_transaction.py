@@ -637,6 +637,9 @@ class transaction(xmlrpc.XMLRPC):
 		Output parameters:[reffno]
 	
 		'''
+		print "reff"
+		print queryParams[0]
+		
 		statement = "select count(vouchercode)\
 				from view_voucherbook\
 				where vouchertype = '"+queryParams[0]+"'"
@@ -652,8 +655,9 @@ class transaction(xmlrpc.XMLRPC):
 			reffno = dbconnect.engines[client_id].execute(statement).fetchone()
 			reffno = reffno.reference
 		else :
-			reffno = maxcode[0]+1
-			
+			reffno = str(maxcode[0]+1)
+		print reffno
+		print "reffno"	
 		return reffno
 		
 	def xmlrpc_getLastReffDate(self,queryParams,client_id):
@@ -681,7 +685,7 @@ class transaction(xmlrpc.XMLRPC):
 			reff_date = datetime.strptime(reff_date[0],"%Y-%m-%d").strftime("%d-%m-%Y")
 			
 		else :
-			reff_date = queryParams[0];
+			reff_date = str(queryParams[0])
 			
 		return reff_date
 		

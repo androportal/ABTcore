@@ -719,6 +719,8 @@ class reports(xmlrpc.XMLRPC):
 		balancesheet_type = queryParams[5]
 		orgtype = queryParams[4]
 		finallist = []
+		corpuslist = []
+		assetslist = []
 		if balancesheet_type == "Conventional Balance Sheet": 
 			
 			trialdata = self.xmlrpc_getBalancesheet(queryParams,client_id)
@@ -776,7 +778,7 @@ class reports(xmlrpc.XMLRPC):
 			if (orgtype == "Profit Making"):
 				groupname = "CAPITAL & LIABILITIES"
 			
-			finallist.append([groupname,"AMOUNT","TOTAL AMOUNT"])	
+			corpuslist.append([groupname,"AMOUNT","TOTAL AMOUNT"])	
 					
 				
 			if (orgtype == "NGO"):
@@ -786,44 +788,44 @@ class reports(xmlrpc.XMLRPC):
 				
 				groupname="CAPITAL"
 				
-			finallist.append([groupname,"",""])	
+			corpuslist.append([groupname,"",""])	
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 1):
 					
 					accountname = baltrialdata[i][2]
 					amount = baltrialdata[i][3]
-					finallist.append([accountname,amount,""])
-			finallist.append(["","Total",tot_capital])	
+					corpuslist.append([accountname,amount,""])
+			corpuslist.append(["","Total",tot_capital])	
 			
 			
-			finallist.append(["RESERVES","",""])	
+			corpuslist.append(["RESERVES","",""])	
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 12):
 					accountname=baltrialdata[i][2]
 					amount=baltrialdata[i][3]
 							
-					finallist.append([accountname,amount,""])
-			finallist.append(["","Total",tot_reserves])	
+					corpuslist.append([accountname,amount,""])
+			corpuslist.append(["","Total",tot_reserves])	
 		
-			finallist.append(["LOANS","",""])
+			corpuslist.append(["LOANS","",""])
 				
 				
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 11):
 					accountname=baltrialdata[i][2]
 					amount=baltrialdata[i][3]
-					finallist.append([accountname,amount,""])
-			finallist.append(["","Total",tot_loanlia])		
+					corpuslist.append([accountname,amount,""])
+			corpuslist.append(["","Total",tot_loanlia])		
 			
-			finallist.append(["CURRENT LIABILITIES","",""])
+			corpuslist.append(["CURRENT LIABILITIES","",""])
 				
 				
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 3):
 					accountname=baltrialdata[i][2]
 					amount=baltrialdata[i][3]
-					finallist.append([accountname,amount,""])
-			finallist.append(["","Total",tot_currlia])					
+					corpuslist.append([accountname,amount,""])
+			corpuslist.append(["","Total",tot_currlia])					
 			if (Flag != "netLoss"):
 				
 				if (orgtype != "NGO"):
@@ -831,17 +833,18 @@ class reports(xmlrpc.XMLRPC):
 				else:
 					flag = "NET SURPLUS"
 				
-				finallist.append(["",flag,profitloss[1]])		
+				corpuslist.append(["",flag,profitloss[1]])		
 			else:
-				finallist.append(["","",""])	
+				corpuslist.append(["","",""])	
 			
 			if (rowFlag == "liabilities"):
 				for i in range (0, rows):
-					finallist.append(["","",""])	
+					corpuslist.append(["","",""])	
 
-			finallist.append(["PROPERTY & ASSETS","AMOUNT","TOTAL AMOUNT"])	
+			finallist.append(corpuslist)
+			assetslist.append(["PROPERTY & ASSETS","AMOUNT","TOTAL AMOUNT"])	
 		
-			finallist.append(["FIXED ASSETS","",""])	
+			assetslist.append(["FIXED ASSETS","",""])	
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 6):
 					
@@ -849,52 +852,52 @@ class reports(xmlrpc.XMLRPC):
 					amount = baltrialdata[i][3]
 					
 			
-					finallist.append([accountname,amount,""])
-			finallist.append(["","Total",tot_fixedasset])	
+					assetslist.append([accountname,amount,""])
+			assetslist.append(["","Total",tot_fixedasset])	
 			groupname="CURRENT ASSETS"
 			
-			finallist.append([groupname,"",""])	
+			assetslist.append([groupname,"",""])	
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 2):
 					accountname=baltrialdata[i][2]
 					amount=baltrialdata[i][3]
 							
-					finallist.append([accountname,amount,""])
-			finallist.append(["","Total",tot_currentasset])	
+					assetslist.append([accountname,amount,""])
+			assetslist.append(["","Total",tot_currentasset])	
 			
 			groupname="LOANS"
-			finallist.append([groupname,"",""])
+			assetslist.append([groupname,"",""])
 				
 				
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 10):
 					accountname=baltrialdata[i][2]
 					amount=baltrialdata[i][3]
-					finallist.append([accountname,amount,""])
-			finallist.append(["","Total",tot_loansasset])	
+					assetslist.append([accountname,amount,""])
+			assetslist.append(["","Total",tot_loansasset])	
 			
 			groupname="INVESTMENTS"
-			finallist.append([groupname,"",""])
+			assetslist.append([groupname,"",""])
 				
 				
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 9):
 					accountname=baltrialdata[i][2]
 					amount=baltrialdata[i][3]
-					finallist.append([accountname,amount,""])
-			finallist.append(["","Total",tot_investment])	
+					assetslist.append([accountname,amount,""])
+			assetslist.append(["","Total",tot_investment])	
 			
 			groupname="MISCELLANEOUS EXPENSES(ASSET)"	
 			
-			finallist.append([groupname,"",""])
+			assetslist.append([groupname,"",""])
 				
 				
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 13):
 					accountname=baltrialdata[i][2]
 					amount=baltrialdata[i][3]
-					finallist.append([accountname,amount,""])
-			finallist.append(["","Total",tot_miscellaneous])	
+					assetslist.append([accountname,amount,""])
+			assetslist.append(["","Total",tot_miscellaneous])	
 					
 			if (Flag == "netLoss"):
 				
@@ -903,44 +906,47 @@ class reports(xmlrpc.XMLRPC):
 				else:
 					flag = "NET DEFICIT"
 					
-				finallist.append(["",flag,profitloss[1]])# net surplus or net profit
+				assetslist.append(["",flag,profitloss[1]])# net surplus or net profit
 			else:
-				finallist.append(["","",""])	
-			
+				assetslist.append(["","",""])	
+			finallist.append(assetslist)
+			Totallist = []
 			if (Flag == "netLoss"):
 				if (difamount != "0.00"):
 					totalCr
 				else:
 					totalCr
 					
-				finallist.append(["TOTAL:","",totalCr])	
+				Totallist.append(["TOTAL:","",totalCr])	
 					
 				if (difamount != "0.00"):
 					pnl2
 				else:
 					pnl2
-				finallist.append(["TOTAL:","",pnl2])			
+				Totallist.append(["TOTAL:","",pnl2])			
 				
 			else:	
 				if (difamount != "0.00"):
 					pnl1
 				else:
 					pnl1
-				finallist.append(["TOTAL:","",pnl1])	
+				Totallist.append(["TOTAL:","",pnl1])	
 					
 				if (difamount != "0.00"):
 					totalDr
 				else:
 					totalDr
-				finallist.append(["TOTAL:","",totalDr])	
-			
+				Totallist.append(["TOTAL:","",totalDr])	
+				finallist.append(Totallist)
+				difflist = []
 				if (difamount != "0.00"):
 					flag = "Difference In Opening balance : "+difamount
 				
 				else:
 					flag =""
 					
-				finallist.append([flag])	
+				difflist.append(flag)	
+				finallist.append(difflist)
 			return finallist
 		
 		if balancesheet_type == "Sources & Application of Funds": 
@@ -1312,21 +1318,24 @@ class reports(xmlrpc.XMLRPC):
 		netFlag = trialdata[len(trialdata) - int(4)]
 		netProfitloss = trialdata[len(trialdata) - int(3)]
 		fianalList =[]
-		
+		DEList=[]
+		DIList=[]
+		IEList=[]
+		IIList=[]
 		if queryParams[3] == "balancesheet":
 			return [netFlag, netProfitloss]
 		else:
-			fianalList.append(["","ACCOUNT NAME","AMOUNT"])
+			DEList.append(["","ACCOUNT NAME","AMOUNT"])
 			for i in range (0, length):
 				if (trialdata[i][1] == 5):
 					if (trialdata[i][4] == "Dr"):
 						if (trialdata[i][3]!="0.00"):
-							fianalList.append(["To,",trialdata[i][2],trialdata[i][3]])
+							DEList.append(["To,",trialdata[i][2],trialdata[i][3]])
 						
 				if (trialdata[i][1] == 4):
 					if (trialdata[i][4] == "Dr"):
 						if (trialdata[i][3]!="0.00"):
-							fianalList.append(["To,",trialdata[i][2],trialdata[i][3]])
+							DEList.append(["To,",trialdata[i][2],trialdata[i][3]])
 							
 			if (grossFlag == "grossProfit"):
 				To = "To,"
@@ -1340,25 +1349,26 @@ class reports(xmlrpc.XMLRPC):
 				To = ""
 				flag =""
 				grossProfitloss =""
-			fianalList.append([To,flag,grossProfitloss])
+			DEList.append([To,flag,grossProfitloss])
 			if (grossFlag == "grossProfit"):
 				amount = dirincm
 				
 			if (grossFlag == "grossLoss"):
 				amount= direxp
-			fianalList.append(["","Total of Amounts",amount])
-			fianalList.append(["","ACCOUNT NAME","AMOUNT"])
+			DEList.append(["","Total of Amounts",amount])
+			fianalList.append(DEList)
+			DIList.append(["","ACCOUNT NAME","AMOUNT"])
 					
 			for i in range (0, length):
 				if (trialdata[i][1] == 4):
 					if (trialdata[i][4] == "Cr"):
 						if (trialdata[i][3]!="0.00"):
-							fianalList.append(["By,",trialdata[i][2],trialdata[i][3]])
+							DIList.append(["By,",trialdata[i][2],trialdata[i][3]])
 							
 				if (trialdata[i][1] == 5):
 					if (trialdata[i][4] == "Cr"):
 						if (trialdata[i][3]!="0.00"):
-							fianalList.append(["By,",trialdata[i][2],trialdata[i][3]])
+							DIList.append(["By,",trialdata[i][2],trialdata[i][3]])
 			
 			if (grossFlag == "grossProfit"):
 				By = ""
@@ -1372,7 +1382,7 @@ class reports(xmlrpc.XMLRPC):
 				if (orgtype == "NGO"):
 					flag="Gross Deficit C/O"
 			
-			fianalList.append([By,flag,grossProfitloss])	
+			DIList.append([By,flag,grossProfitloss])	
 			if (grossFlag == "grossProfit"):
 				amount= dirincm
 				
@@ -1380,8 +1390,9 @@ class reports(xmlrpc.XMLRPC):
 			if (grossFlag == "grossLoss"):
 				amount= direxp
 				
-			fianalList.append(["","Total of Amounts",amount])
-			fianalList.append(["","ACCOUNT NAME","AMOUNT"])
+			DIList.append(["","Total of Amounts",amount])
+			fianalList.append(DIList)
+			IEList.append(["","ACCOUNT NAME","AMOUNT"])
 			
 			if (grossFlag == "grossProfit"):
 				To = ""
@@ -1394,16 +1405,16 @@ class reports(xmlrpc.XMLRPC):
 				if (orgtype == "NGO"):
 					flag ="Gross Deficit B/F"
 				
-			fianalList.append([To,flag,grossProfitloss])
+			IEList.append([To,flag,grossProfitloss])
 			for i in range (0, length):
 				if (trialdata[i][1] == 8):
 					if (trialdata[i][4] == "Dr"):
 						if (trialdata[i][3]!="0.00"):
-							fianalList.append(["To,",trialdata[i][2],trialdata[i][3]])
+							IEList.append(["To,",trialdata[i][2],trialdata[i][3]])
 				if (trialdata[i][1] == 7):
 					if (trialdata[i][4] == "Dr"):
 						if (trialdata[i][3]!="0.00"):
-							fianalList.append(["To,",trialdata[i][2],trialdata[i][3]])
+							IEList.append(["To,",trialdata[i][2],trialdata[i][3]])
 			if (grossFlag == "grossProfit" and netFlag == "netProfit"):
 				To = "To,"
 				if (orgtype == "Profit Making"):
@@ -1429,7 +1440,7 @@ class reports(xmlrpc.XMLRPC):
 				To = ""
 				flag = ""
 				netProfitloss=""
-			fianalList.append([To,flag,netProfitloss])
+			IEList.append([To,flag,netProfitloss])
 			if (netFlag == "netLoss"):
 			
 				amount=netTotal
@@ -1437,8 +1448,9 @@ class reports(xmlrpc.XMLRPC):
 			if (netFlag == "netProfit"):
 			
 				amount=grandTotal
-			fianalList.append(["","Total of Amounts",amount])
-			fianalList.append(["","ACCOUNT NAME","AMOUNT"])
+			IEList.append(["","Total of Amounts",amount])
+			fianalList.append(IEList)
+			IIList.append(["","ACCOUNT NAME","AMOUNT"])
 				
 			if (grossFlag == "grossProfit"):
 				By = "By,"
@@ -1455,16 +1467,16 @@ class reports(xmlrpc.XMLRPC):
 				flag = ""
 				grossProfitloss = ""
 				
-			fianalList.append([By,flag,grossProfitloss])
+			IIList.append([By,flag,grossProfitloss])
 			for i in range (0, length):
 				if (trialdata[i][1] == 7):
 					if (trialdata[i][4] == "Cr"):
 						if (trialdata[i][3]!="0.00"):
-							fianalList.append(["By,",trialdata[i][2],trialdata[i][3]])
+							IIList.append(["By,",trialdata[i][2],trialdata[i][3]])
 				if (trialdata[i][1] == 8):
 					if (trialdata[i][4] == "Cr"):
 						if (trialdata[i][3]!="0.00"):
-							fianalList.append(["By,",trialdata[i][2],trialdata[i][3]])
+							IIList.append(["By,",trialdata[i][2],trialdata[i][3]])
 						
 			if (grossFlag == "grossProfit" and netFlag == "netProfit"):
 				By = ""
@@ -1491,7 +1503,7 @@ class reports(xmlrpc.XMLRPC):
 				if (orgtype == "NGO"):
 					flag = "Net Deficit"
 					
-			fianalList.append([By,flag,netProfitloss])
+			IIList.append([By,flag,netProfitloss])
 			
 	
 			
@@ -1502,7 +1514,8 @@ class reports(xmlrpc.XMLRPC):
 				amount=grandTotal
 			
 			
-			fianalList.append(["","Total of Amounts",amount])
+			IIList.append(["","Total of Amounts",amount])
+			fianalList.append(IIList)
 		return fianalList
 
 	

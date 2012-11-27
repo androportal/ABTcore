@@ -72,12 +72,23 @@ class account(xmlrpc.XMLRPC):
 		# check for accountcode if null
 		
  		if sp_params[6] == 'null': # then
- 			maxcode = Session.query(func.max(dbconnect.Account.accountcode)).scalar() # query on accountcode to get count
  			
- 			if maxcode == None:
+ 			result = Session.query(dbconnect.Account.accountcode).\
+		      	 		order_by(dbconnect.Account.accountcode).\
+		      		all()
+		      	accountcode = []
+			if result == None:
+				maxcode = []
+			for row in result:
+				accountcode.append(int(row.accountcode))
+				maxcode = accountcode
+ 			
+ 			
+ 			if maxcode == []:
 				maxcode = 0
 				sp_params[6] = int(maxcode) + 1;
 			else:
+				maxcode = max(maxcode)
 				sp_params[6] = int(maxcode) + 1;
 		# check for new-subgropname if null	
 		if sp_params[2] == 'null': # then 
