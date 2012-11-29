@@ -150,7 +150,32 @@ class organisation(xmlrpc.XMLRPC):
 		connection.connection.close()
 		return True 
 	
-
+	def xmlrpc_getorgTypeByname(self, queryParams, client_id):   
+		'''
+		Purpose   : Function for getting if an orgtype with supplied
+		        orgname.    
+		Parameters : queryParams which is a list containing one element,
+		        orgname as string.
+		Returns :  orgtype if orgname match else eturn false string
+		Description : Querys the Organisation table and sees if an orgname
+		    similar to one provided as a parameter.
+		    if it exists then it will return orgtype related orgname
+		'''
+		print  queryParams[0]
+		queryParams = blankspace.remove_whitespaces(queryParams)
+		connection = dbconnect.engines[client_id].connect()
+	        Session = dbconnect.session(bind=connection)
+	        result = Session.query(dbconnect.Organisation).\
+	           		 filter(dbconnect.Organisation.orgname == queryParams[0]).\
+	               		 first()
+		Session.close()
+	        connection.connection.close()
+		
+		if result == None:
+		    return "0"   
+		else:
+		    return result.orgtype
+            
 	def xmlrpc_getOrganisation(self,client_id):
 		'''
 		Purpose : function to get all the details of organisation from database					
@@ -160,9 +185,10 @@ class organisation(xmlrpc.XMLRPC):
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.Organisation).all()
-		Session.commit()
+		Session.close()
+		connection.connection.close()
 		if result == []:
-			return False
+			return result
 		else:
 			orgdetail_list = []
 			for l in result:
@@ -174,11 +200,7 @@ class organisation(xmlrpc.XMLRPC):
 						l.orgregdate,l.orgfcrano,l.orgfcradate\
 						])
 			return orgdetail_list
-			print orgdetail_list
-		Session.close()
-		connection.connection.close()
-		return True	
-	
+			
 	def xmlrpc_updateOrg(self,queryParams_org,client_id):
 		'''
 		Purpose: updating the orgdetails after edit organisation

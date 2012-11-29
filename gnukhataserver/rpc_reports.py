@@ -761,6 +761,8 @@ class reports(xmlrpc.XMLRPC):
 			pnldr = float(totalDr) + float(profitloss[1])
 			pnl1 = '%.2f'%float(pnlcr)
 			pnl2 = '%.2f'%float(pnldr)
+			Rcount = 0 
+			Lcount = 0 
 			if Flag =="netProfit":
 				if float(totalDr) > float(pnlcr):
 					difamount ='%.2f'%(float(totalDr) - float(pnlcr))
@@ -779,7 +781,7 @@ class reports(xmlrpc.XMLRPC):
 				groupname = "CAPITAL & LIABILITIES"
 			
 			corpuslist.append([groupname,"AMOUNT","TOTAL AMOUNT"])	
-					
+			Lcount = Lcount+1		
 				
 			if (orgtype == "NGO"):
 				groupname="CORPUS"
@@ -788,44 +790,51 @@ class reports(xmlrpc.XMLRPC):
 				
 				groupname="CAPITAL"
 				
-			corpuslist.append([groupname,"",""])	
+			corpuslist.append([groupname,"",""])
+			Lcount = Lcount+1		
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 1):
 					
 					accountname = baltrialdata[i][2]
 					amount = baltrialdata[i][3]
 					corpuslist.append([accountname,amount,""])
+					Lcount = Lcount+1	
 			corpuslist.append(["","Total",tot_capital])	
-			
+			Lcount = Lcount+1	
 			
 			corpuslist.append(["RESERVES","",""])	
+			Lcount = Lcount+1	
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 12):
 					accountname=baltrialdata[i][2]
 					amount=baltrialdata[i][3]
 							
 					corpuslist.append([accountname,amount,""])
+					Lcount = Lcount+1	
 			corpuslist.append(["","Total",tot_reserves])	
-		
+			Lcount = Lcount+1	
 			corpuslist.append(["LOANS","",""])
-				
+			Lcount = Lcount+1		
 				
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 11):
 					accountname=baltrialdata[i][2]
 					amount=baltrialdata[i][3]
 					corpuslist.append([accountname,amount,""])
+					Lcount = Lcount+1	
 			corpuslist.append(["","Total",tot_loanlia])		
-			
+			Lcount = Lcount+1	
 			corpuslist.append(["CURRENT LIABILITIES","",""])
-				
+			Lcount = Lcount+1		
 				
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 3):
 					accountname=baltrialdata[i][2]
 					amount=baltrialdata[i][3]
 					corpuslist.append([accountname,amount,""])
-			corpuslist.append(["","Total",tot_currlia])					
+					Lcount = Lcount+1	
+			corpuslist.append(["","Total",tot_currlia])
+			Lcount = Lcount+1						
 			if (Flag != "netLoss"):
 				
 				if (orgtype != "NGO"):
@@ -833,18 +842,21 @@ class reports(xmlrpc.XMLRPC):
 				else:
 					flag = "NET SURPLUS"
 				
-				corpuslist.append(["",flag,profitloss[1]])		
+				corpuslist.append(["",flag,profitloss[1]])	
+				Lcount = Lcount+1		
 			else:
 				corpuslist.append(["","",""])	
+				Lcount = Lcount+1	
 			
 			if (rowFlag == "liabilities"):
 				for i in range (0, rows):
 					corpuslist.append(["","",""])	
-
-			finallist.append(corpuslist)
+				Lcount = Lcount+1	
+			
 			assetslist.append(["PROPERTY & ASSETS","AMOUNT","TOTAL AMOUNT"])	
-		
-			assetslist.append(["FIXED ASSETS","",""])	
+			Rcount = Rcount+1	
+			assetslist.append(["FIXED ASSETS","",""])
+			Rcount = Rcount+1	
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 6):
 					
@@ -853,10 +865,13 @@ class reports(xmlrpc.XMLRPC):
 					
 			
 					assetslist.append([accountname,amount,""])
+					Rcount = Rcount+1
 			assetslist.append(["","Total",tot_fixedasset])	
+			Rcount = Rcount+1
 			groupname="CURRENT ASSETS"
 			
-			assetslist.append([groupname,"",""])	
+			assetslist.append([groupname,"",""])
+			Rcount = Rcount+1	
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 2):
 					accountname=baltrialdata[i][2]
@@ -864,41 +879,44 @@ class reports(xmlrpc.XMLRPC):
 							
 					assetslist.append([accountname,amount,""])
 			assetslist.append(["","Total",tot_currentasset])	
-			
+			Rcount = Rcount+1
 			groupname="LOANS"
 			assetslist.append([groupname,"",""])
-				
+			Rcount = Rcount+1	
 				
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 10):
 					accountname=baltrialdata[i][2]
 					amount=baltrialdata[i][3]
 					assetslist.append([accountname,amount,""])
+					Rcount = Rcount+1
 			assetslist.append(["","Total",tot_loansasset])	
-			
+			Rcount = Rcount+1
 			groupname="INVESTMENTS"
 			assetslist.append([groupname,"",""])
-				
+			Rcount = Rcount+1	
 				
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 9):
 					accountname=baltrialdata[i][2]
 					amount=baltrialdata[i][3]
 					assetslist.append([accountname,amount,""])
+					Rcount = Rcount+1
 			assetslist.append(["","Total",tot_investment])	
-			
+			Rcount = Rcount+1
 			groupname="MISCELLANEOUS EXPENSES(ASSET)"	
 			
 			assetslist.append([groupname,"",""])
-				
+			Rcount = Rcount+1	
 				
 			for i in range (0, ballength):
 				if (baltrialdata[i][1] == 13):
 					accountname=baltrialdata[i][2]
 					amount=baltrialdata[i][3]
 					assetslist.append([accountname,amount,""])
+					Rcount = Rcount+1
 			assetslist.append(["","Total",tot_miscellaneous])	
-					
+			Rcount = Rcount+1		
 			if (Flag == "netLoss"):
 				
 				if (orgtype != "NGO"):
@@ -907,8 +925,20 @@ class reports(xmlrpc.XMLRPC):
 					flag = "NET DEFICIT"
 					
 				assetslist.append(["",flag,profitloss[1]])# net surplus or net profit
+				Rcount = Rcount+1
 			else:
 				assetslist.append(["","",""])	
+				Rcount = Rcount+1
+				
+			if (Lcount > Rcount):
+				diff = Lcount - Rcount	
+				for i in range(0,diff):
+					assetslist.append(["","",""])
+			else:
+				diff = Rcount - Lcount	
+				for i in range(0,diff):
+					corpuslist.append(["","",""])
+			finallist.append(corpuslist)
 			finallist.append(assetslist)
 			Totallist = []
 			if (Flag == "netLoss"):
@@ -924,7 +954,7 @@ class reports(xmlrpc.XMLRPC):
 				else:
 					pnl2
 				Totallist.append(["TOTAL:","",pnl2])			
-				
+				finallist.append(Totallist)
 			else:	
 				if (difamount != "0.00"):
 					pnl1
@@ -938,16 +968,16 @@ class reports(xmlrpc.XMLRPC):
 					totalDr
 				Totallist.append(["TOTAL:","",totalDr])	
 				finallist.append(Totallist)
-				difflist = []
-				if (difamount != "0.00"):
-					flag = "Difference In Opening balance : "+difamount
-				
-				else:
-					flag =""
+			difflist = []
+			if (difamount != "0.00"):
+				flag = "Difference In Opening balance : "+difamount
+			
+			else:
+				flag =""
 					
-				difflist.append(flag)	
-				finallist.append(difflist)
-			return finallist
+			difflist.append(flag)	
+			finallist.append(difflist)
+		return finallist
 		
 		if balancesheet_type == "Sources & Application of Funds": 
 			
@@ -1216,7 +1246,7 @@ class reports(xmlrpc.XMLRPC):
 					profitlossrow = []
 					closingRow = self.xmlrpc_calculateBalance(\
 						[acc,queryParams[0],queryParams[1],queryParams[2]],client_id)
-					
+					print "closingRow"
 					print closingRow
 					profitlossrow.append(srno)
 					profitlossrow.append(grpCode)
@@ -1225,25 +1255,25 @@ class reports(xmlrpc.XMLRPC):
 					profitlossrow.append(str(closingRow[6]))
 					srno = srno + 1
 					profitloss.append(profitlossrow)
-				
+					# Direct Expense
 					if grpCode == 5:
 						if str(closingRow[6]) == "Dr":
 							total_dirExp_balances = total_dirExp_balances + float(closingRow[2])
 						else:
 							total_dirInc_balances = total_dirInc_balances + float(closingRow[2])
-						
+					# Indirect Expense 	
 					if grpCode == 8:
 						if str(closingRow[6]) == "Dr":
 							total_indirExp_balances = total_indirExp_balances + float(closingRow[2])
 						else:
 							total_indirInc_balances = total_indirInc_balances + float(closingRow[2])
-					
+					# Direct Income
 					if grpCode == 4:
 						if str(closingRow[6]) == "Cr":
 							total_dirInc_balances = total_dirInc_balances + float(closingRow[2])
 						else:
 							total_dirExp_balances = total_dirExp_balances + float(closingRow[2])
-				
+					# Indirect Income
 					if grpCode == 7:
 						if str(closingRow[6]) == "Cr":
 							total_indirInc_balances = total_indirInc_balances + float(closingRow[2])
@@ -1255,27 +1285,37 @@ class reports(xmlrpc.XMLRPC):
 		profitloss.append('%.2f'%(float(total_dirExp_balances)))
 		profitloss.append('%.2f'%(float(total_indirInc_balances)))
 		profitloss.append('%.2f'%(float(total_indirExp_balances)))
-		
+		print "total_dirInc_balances"; print total_dirInc_balances
+   		print "total_dirExp_balances"; print total_dirExp_balances
+  		print "total_indirInc_balances"; print total_indirInc_balances
+  		print "total_indirExp_balances"; print total_indirExp_balances
 		if (total_dirInc_balances > total_dirExp_balances):
 			grossProfit = total_dirInc_balances - total_dirExp_balances
 			
 			profitloss.append("grossProfit")
-			profitloss.append('%.2f'%(float(grossProfit)))
-			totalnetprofit = total_indirInc_balances + grossProfit
+			# gross profit C/O
+			profitloss.append('%.2f'%(float(grossProfit))) 
+			# add gross profit C/o to Total amount of II 
+			totalnetprofit = total_indirInc_balances + grossProfit 
+			# Total Net Profit Check with the Total amount of IE 
 			if(totalnetprofit > total_indirExp_balances):
 				netProfit = totalnetprofit - total_indirExp_balances
 				grandTotal = netProfit+total_indirExp_balances
 				profitloss.append("netProfit")
-				profitloss.append('%.2f'%(float(netProfit)))
-				profitloss.append('%.2f'%(float(totalnetprofit)))
-				profitloss.append('%.2f'%(float(grandTotal)))
+				profitloss.append('%.2f'%(float(netProfit))) #
+				profitloss.append('%.2f'%(float(totalnetprofit))) 
+				profitloss.append('%.2f'%(float(grandTotal))) # final total amount 
+				print "grossprofitGrid"
+				print profitloss
 			else:
 				netLoss = total_indirExp_balances - totalnetprofit
-				grandTotal = netLoss+totalnetprofit
+				grandTotal = netLoss + totalnetprofit
 				profitloss.append("netLoss")
 				profitloss.append('%.2f'%(float(netLoss)))
-				profitloss.append('%.2f'%(float(totalnetprofit)))
+				profitloss.append('%.2f'%(float(total_indirExp_balances)))
 				profitloss.append('%.2f'%(float(grandTotal)))
+				print "grossLossGrid"
+				print profitloss
 		else:
 			grossLoss = total_dirExp_balances - total_dirInc_balances
 			profitloss.append("grossLoss")
@@ -1294,8 +1334,10 @@ class reports(xmlrpc.XMLRPC):
 				grandTotal = netProfit+total_indirInc_balances
 				profitloss.append("netProfit")
 				profitloss.append('%.2f'%(float(netProfit)))
-				profitloss.append('%.2f'%(float(totalnetloss)))
+				profitloss.append('%.2f'%(float(total_indirInc_balances)))
 				profitloss.append('%.2f'%(float(grandTotal)))
+		print "profit and loss"
+		print profitloss
 		
 		return profitloss
 		
@@ -1306,8 +1348,12 @@ class reports(xmlrpc.XMLRPC):
 		'''
 		orgtype=queryParams[4]
 		trialdata = self.xmlrpc_getProfitLossReport(queryParams,client_id)
+		print "trialdata"
+		print trialdata
 		length = len(trialdata) - int(10)
 		grandTotal =trialdata[len(trialdata) - int(1)]
+		print "grandToatal"
+		print grandTotal
 		netTotal = trialdata[len(trialdata) - int(2)]
 		dirincm = trialdata[len(trialdata) - int(10)]
 		direxp = trialdata[len(trialdata) - int(9)]
@@ -1315,28 +1361,42 @@ class reports(xmlrpc.XMLRPC):
 		indirexp = trialdata[len(trialdata) - int(7)]
 		grossFlag = trialdata[len(trialdata) - int(6)]
 		grossProfitloss = trialdata[len(trialdata) - int(5)]
+		print "grossProfitloss"
+		print grossProfitloss
 		netFlag = trialdata[len(trialdata) - int(4)]
 		netProfitloss = trialdata[len(trialdata) - int(3)]
+		print "trialdata"
+		print trialdata
 		fianalList =[]
 		DEList=[]
 		DIList=[]
 		IEList=[]
 		IIList=[]
+		DE = "DE"
+		DEcount = 0
+		DIcount = 0
+		IEcount = 0
+		IIcount = 0
 		if queryParams[3] == "balancesheet":
 			return [netFlag, netProfitloss]
 		else:
+		
+			############### Direct Expense Accounts ##########################
 			DEList.append(["","ACCOUNT NAME","AMOUNT"])
 			for i in range (0, length):
+				# groupcode 5 is Direct Expense
 				if (trialdata[i][1] == 5):
 					if (trialdata[i][4] == "Dr"):
 						if (trialdata[i][3]!="0.00"):
+							
 							DEList.append(["To,",trialdata[i][2],trialdata[i][3]])
-						
+							DEcount = DEcount+1
+				# groupcode 5 is Direct Income
 				if (trialdata[i][1] == 4):
 					if (trialdata[i][4] == "Dr"):
 						if (trialdata[i][3]!="0.00"):
 							DEList.append(["To,",trialdata[i][2],trialdata[i][3]])
-							
+							DEcount = DEcount + 1
 			if (grossFlag == "grossProfit"):
 				To = "To,"
 				if (orgtype == "Profit Making"):
@@ -1345,35 +1405,37 @@ class reports(xmlrpc.XMLRPC):
 				if (orgtype == "NGO"):
 					flag ="Gross Surplus C/O"
 					
+				DEcount = DEcount+1
+				DEList.append([To,flag,grossProfitloss])
+					
 			if (grossFlag == "grossLoss"):
-				To = ""
-				flag =""
-				grossProfitloss =""
-			DEList.append([To,flag,grossProfitloss])
-			if (grossFlag == "grossProfit"):
-				amount = dirincm
-				
-			if (grossFlag == "grossLoss"):
-				amount= direxp
-			DEList.append(["","Total of Amounts",amount])
-			fianalList.append(DEList)
+				DEcount = DEcount+1
+				DEList.append(["","",""])
+			
+			####################### Direct Income Accounts #############################		
+			
 			DIList.append(["","ACCOUNT NAME","AMOUNT"])
 					
 			for i in range (0, length):
+				# groupcode 5 is Direct Income
 				if (trialdata[i][1] == 4):
 					if (trialdata[i][4] == "Cr"):
 						if (trialdata[i][3]!="0.00"):
 							DIList.append(["By,",trialdata[i][2],trialdata[i][3]])
-							
+							DIcount = DIcount+1
+				# groupcode 5 is Direct Expense			
 				if (trialdata[i][1] == 5):
 					if (trialdata[i][4] == "Cr"):
 						if (trialdata[i][3]!="0.00"):
 							DIList.append(["By,",trialdata[i][2],trialdata[i][3]])
+							DIcount = DIcount+1
+				
 			
 			if (grossFlag == "grossProfit"):
-				By = ""
-				flag =""
-				grossProfitloss =""
+				
+				DIList.append(["","",""])
+				DIcount = DIcount+1
+				
 			if (grossFlag == "grossLoss"):
 				By = "By,"
 				if (orgtype == "Profit Making"):
@@ -1381,40 +1443,80 @@ class reports(xmlrpc.XMLRPC):
 			
 				if (orgtype == "NGO"):
 					flag="Gross Deficit C/O"
+				DIcount = DIcount+1
+				DIList.append([By,flag,grossProfitloss])
+				
+			############### for empty coloum in Direct Expense ####################
+	
+			if (DIcount > DEcount):
+				diff = DIcount - DEcount
+				for i in range(0,diff):
+					DEList.append(["","",""])
 			
-			DIList.append([By,flag,grossProfitloss])	
+					
+			###########################  Total amount for direct expense  ##########
+			
+			if (grossFlag == "grossProfit"):
+				amount = dirincm
+				
+			if (grossFlag == "grossLoss"):
+				amount= direxp
+				
+			DEList.append(["","Total of Amounts",amount])
+			fianalList.append(DEList)
+			
+			############### for empty coloum in Direct Income ####################
+	
+			if (DEcount > DIcount):
+				diff = DEcount - DIcount
+				for i in range(0,diff):
+					DIList.append(["","",""])
+	
+						
+			#################### Total of DI ammount ##############################
+			
 			if (grossFlag == "grossProfit"):
 				amount= dirincm
-				
-			
+		
 			if (grossFlag == "grossLoss"):
 				amount= direxp
 				
 			DIList.append(["","Total of Amounts",amount])
+			
 			fianalList.append(DIList)
+			
+			#######################  Indirect Income Accounts #####################
+			
 			IEList.append(["","ACCOUNT NAME","AMOUNT"])
 			
 			if (grossFlag == "grossProfit"):
-				To = ""
-				flag =""
-				grossProfitloss =""
+				IEList.append(["","",""])
+				IEcount = IEcount+1
+				
 			if (grossFlag == "grossLoss"):
 				To = "To,"
 				if (orgtype == "Profit Making"):
 					flag ="Gross Loss B/F"
 				if (orgtype == "NGO"):
 					flag ="Gross Deficit B/F"
+				IEcount = IEcount+1
+				IEList.append([To,flag,grossProfitloss])
 				
-			IEList.append([To,flag,grossProfitloss])
 			for i in range (0, length):
+				# groupcode 8 for Indirect Expense
 				if (trialdata[i][1] == 8):
 					if (trialdata[i][4] == "Dr"):
 						if (trialdata[i][3]!="0.00"):
 							IEList.append(["To,",trialdata[i][2],trialdata[i][3]])
+							IEcount = IEcount+1
+				# groupcode 7 for Indirect Income			
 				if (trialdata[i][1] == 7):
 					if (trialdata[i][4] == "Dr"):
 						if (trialdata[i][3]!="0.00"):
 							IEList.append(["To,",trialdata[i][2],trialdata[i][3]])
+							IEcount = IEcount+1
+							
+							
 			if (grossFlag == "grossProfit" and netFlag == "netProfit"):
 				To = "To,"
 				if (orgtype == "Profit Making"):
@@ -1422,12 +1524,13 @@ class reports(xmlrpc.XMLRPC):
 					
 				if (orgtype == "NGO"):
 					flag = "Net Surplus"
-					
+				IEcount = IEcount+1
+				IEList.append([To,flag,netProfitloss])		
 				
 			if (grossFlag == "grossProfit" and netFlag == "netLoss"):
-				To = ""
-				flag = ""
-				netProfitloss=""
+				IEcount = IEcount+1
+				IEList.append(["","",""])
+				
 			if (grossFlag == "grossLoss" and netFlag == "netProfit"):
 				To = "To,"
 				if (orgtype == "Profit Making"):
@@ -1435,21 +1538,15 @@ class reports(xmlrpc.XMLRPC):
 					
 				if (orgtype == "NGO"):
 					flag = "Net Surplus"
+				IEcount = IEcount+1
+				IEList.append([To,flag,netProfitloss])
 					
 			if (grossFlag == "grossLoss" and netFlag == "netLoss"):
-				To = ""
-				flag = ""
-				netProfitloss=""
-			IEList.append([To,flag,netProfitloss])
-			if (netFlag == "netLoss"):
+				IEcount = IEcount+1
+				IEList.append(["","",""])
+		
+			################### Indirect Income Accounts ################
 			
-				amount=netTotal
-			
-			if (netFlag == "netProfit"):
-			
-				amount=grandTotal
-			IEList.append(["","Total of Amounts",amount])
-			fianalList.append(IEList)
 			IIList.append(["","ACCOUNT NAME","AMOUNT"])
 				
 			if (grossFlag == "grossProfit"):
@@ -1459,29 +1556,32 @@ class reports(xmlrpc.XMLRPC):
 				
 				if (orgtype == "NGO"):
 					flag = "Gross Surplus B/F"
-					
-					
+				IIcount = IIcount+1	
+				IIList.append([By,flag,grossProfitloss])
 			
 			if (grossFlag == "grossLoss"):
-				By = ""
-				flag = ""
-				grossProfitloss = ""
+				IIcount = IIcount+1	
+				IIList.append(["","",""])
 				
-			IIList.append([By,flag,grossProfitloss])
 			for i in range (0, length):
+				# groupcode 7 is for Indirect Income 
 				if (trialdata[i][1] == 7):
 					if (trialdata[i][4] == "Cr"):
 						if (trialdata[i][3]!="0.00"):
 							IIList.append(["By,",trialdata[i][2],trialdata[i][3]])
+							IIcount = IIcount+1	
+				# groupcode 8 is for Indirect Expense			
 				if (trialdata[i][1] == 8):
+				
 					if (trialdata[i][4] == "Cr"):
 						if (trialdata[i][3]!="0.00"):
 							IIList.append(["By,",trialdata[i][2],trialdata[i][3]])
+							IIcount = IIcount+1	
 						
 			if (grossFlag == "grossProfit" and netFlag == "netProfit"):
-				By = ""
-				flag =""
-				netProfitloss =""
+				IIcount = IIcount+1	
+				IIList.append(["","",""])
+				
 			if (grossFlag == "grossProfit" and netFlag == "netLoss"):
 				By = "By,"
 				if (orgtype == "Profit Making"):
@@ -1489,12 +1589,13 @@ class reports(xmlrpc.XMLRPC):
 			
 				if (orgtype == "NGO"):
 					flag = "Net Deficit"
+				IIcount = IIcount+1	
+				IIList.append([By,flag,netProfitloss])
 				
 			if (grossFlag == "grossLoss" and netFlag == "netProfit"):
-				By = ""
-				flag =""
-				netProfitloss =""
-		
+				IIcount = IIcount+1	
+				IIList.append(["","",""])
+				
 			if (grossFlag == "grossLoss" and netFlag == "netLoss"):
 				By = "By,"
 				if (orgtype == "Profit Making"):
@@ -1502,17 +1603,42 @@ class reports(xmlrpc.XMLRPC):
 			
 				if (orgtype == "NGO"):
 					flag = "Net Deficit"
+				IIcount = IIcount+1		
+				IIList.append([By,flag,netProfitloss])
+				
+			
+	 		############## for empty coloum in Indirect Expense #############
+			
+			if (IIcount > IEcount):
+				diff = IIcount - IEcount
+				for i in range(0,diff):
+					IEList.append(["","",""])
 					
-			IIList.append([By,flag,netProfitloss])
-			
-	
-			
+			############# Total of IE amount ##################
 			if (netFlag == "netLoss"):
 				amount=netTotal
+			
 			if (netFlag == "netProfit"):
-			
 				amount=grandTotal
+				
+			IEList.append(["","Total of Amounts",amount])
+			fianalList.append(IEList)
 			
+			############## for empty coloum in Indirect Income #############
+			
+			if (IEcount > IIcount):
+				diff = int(IEcount - IIcount)
+				
+				for i in range(0,diff):
+					
+					IIList.append(["","",""])
+		
+			################ Total of II amount ###################
+			
+			if (netFlag == "netLoss"):
+				amount= netTotal
+			if (netFlag == "netProfit"):
+				amount= grandTotal
 			
 			IIList.append(["","Total of Amounts",amount])
 			fianalList.append(IIList)
@@ -1553,8 +1679,8 @@ class reports(xmlrpc.XMLRPC):
 		#the clearance date and memo for each account in the ledger.
 		ledgerResult = self.xmlrpc_getLedger(queryParams,client_id)
 		reconResult =[]
-		#lets declare vouchercounter to zero
-		voucherCounter = 0
+		#lets declare voucheLcounter to zero
+		voucheLcounter = 0
 		vouchercodeRecords= transaction.xmlrpc_getTransactions([\
 					queryParams[0],queryParams[2],queryParams[3],\
 					queryParams[4]],client_id)
@@ -1578,13 +1704,13 @@ class reports(xmlrpc.XMLRPC):
 				for acc in ledgerRow[1]:
 					reconRow.append(acc) #particular
 			reconRow.append(ledgerRow[2]) #ref no
-			reconRow.append(voucherCodes[voucherCounter]) #voucher code
+			reconRow.append(voucherCodes[voucheLcounter]) #voucher code
 			reconRow.append(ledgerRow[3]) #Dr amount
 			reconRow.append(ledgerRow[4]) #Cr amount
 			reconRow.append(ledgerRow[5]) #narration
 			
 			clearanceDates =self.xmlrpc_getClearanceDate([\
-						str(ledgerRow[1][0]),voucherCodes[voucherCounter]],client_id)
+						str(ledgerRow[1][0]),voucherCodes[voucheLcounter]],client_id)
 			if clearanceDates == None:
 				reconRow.append("")
 				reconRow.append("")
@@ -1596,7 +1722,7 @@ class reports(xmlrpc.XMLRPC):
 					reconRow.append(clrDate)
 					reconRow.append(clrMemo)
 				
-			voucherCounter = voucherCounter + 1
+			voucheLcounter = voucheLcounter + 1
 			reconResult.append(reconRow)
 		return reconResult
 		
