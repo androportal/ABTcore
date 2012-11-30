@@ -77,11 +77,14 @@ class account(xmlrpc.XMLRPC):
 		      	 		order_by(dbconnect.Account.accountcode).\
 		      		all()
 		      	accountcode = []
-			if result == None:
+		      	print "result"
+		      	print result
+			if result == []:
 				maxcode = []
-			for row in result:
-				accountcode.append(int(row.accountcode))
-				maxcode = accountcode
+			else:
+				for row in result:
+					accountcode.append(int(row.accountcode))
+					maxcode = accountcode
  			
  			
  			if maxcode == []:
