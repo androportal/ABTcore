@@ -79,10 +79,10 @@ class reports(xmlrpc.XMLRPC):
 				#this makes the first row of the grid.
 				#note that the total Dr is also set.  Same will happen in the next condition for Cr.
 				openingdate = datetime.strptime(str(queryParams[1]),"%d-%m-%Y").strftime("%d-%m-%Y")
-				ledgerGrid.append([openingdate,["Opening Balance b/f"],"",'%.2f'%(openingBalance),"","",""])
+				ledgerGrid.append([openingdate,"Opening Balance b/f","",'%.2f'%(openingBalance),"","",""])
 			if balanceRow[5] == "Cr":
 				openingdate = datetime.strptime(str(queryParams[1]),"%d-%m-%Y").strftime("%d-%m-%Y")
-				ledgerGrid.append([openingdate,["Opening Balance b/f"],"","",'%.2f'%(openingBalance),"",""])
+				ledgerGrid.append([openingdate,"Opening Balance b/f","","",'%.2f'%(openingBalance),"",""])
 				
 		else:
 			#its 0 so will be set to 0.
@@ -102,54 +102,107 @@ class reports(xmlrpc.XMLRPC):
 			date = str(transactionRow[2]).split(" ")
 			#print type(str(transactionRow[2]).split(""))
 			transactionDate = datetime.strptime(date[0],"%Y-%m-%d").strftime("%d-%m-%Y")
-			ledgerRow.append(transactionDate)
+			
 			# if the transaction had the amount at Dr side then particulars must have the names of accounts involved in Cr.
 			if transactionRow[1] == "Dr":
 				particulars = transaction.xmlrpc_getParticulars([transactionRow[0],"Cr"],client_id)
-				#may be more than one account was involved a tthe other side so loop through.
+				#may be more than one account was involved at the other side so loop through.
 				particular = []
 				for particularRow in particulars:
 					particular.append(particularRow)
-				ledgerRow.append(particular)
-				ledgerRow.append(transactionRow[3])
-				ledgerRow.append('%.2f'%(float(transactionRow[4])))
-				totalDr = totalDr + float(transactionRow[4])
-				ledgerRow.append("")
-				ledgerRow.append(transactionRow[5])
+					
+				if len(particular) == 1:
+					ledgerRow.append(transactionDate)
+					ledgerRow.append(particular[0])
+					ledgerRow.append(transactionRow[3])
+					ledgerRow.append('%.2f'%(float(transactionRow[4])))
+					totalDr = totalDr + float(transactionRow[4])
+					ledgerRow.append("")
+					ledgerRow.append(transactionRow[5])
+				else:
+					accountNames = ""
+					refno = transactionRow[3]
+					drAmount = '%.2f'%(float(transactionRow[4]))
+					crAmount = ""
+					narration = transactionRow[5]
+					for i in range (0, len(particular)):
+						if (i == len(particular)-1):
+							accountNames = accountNames + particular[i]
+						else:
+							transactionDate = transactionDate + "\n"
+							accountNames = accountNames + particular[i] + "\n"
+							refno = refno + "\n"
+							drAmount = drAmount + "\n"
+							crAmount = crAmount + "\n"
+							narration = narration + "\n"
+						
+					ledgerRow.append(transactionDate)
+					ledgerRow.append(accountNames)
+					ledgerRow.append(refno)
+					ledgerRow.append(drAmount)
+					ledgerRow.append(crAmount)
+					ledgerRow.append(narration)
+					
 				
 			if transactionRow[1] == "Cr":
 				particulars = transaction.xmlrpc_getParticulars([transactionRow[0],"Dr"],client_id)
-				print "particulars"
-				print particulars
 				particular = []
+				
 				for particularRow in particulars:
 					particular.append(particularRow)
-				ledgerRow.append(particular)
-				ledgerRow.append(transactionRow[3])
-				ledgerRow.append("")
-				ledgerRow.append('%.2f'%(float(transactionRow[4])))
-				totalCr = totalCr + float(transactionRow[4])
-				ledgerRow.append(transactionRow[5])
+					
+				if len(particular) == 1:
+					ledgerRow.append(transactionDate)
+					ledgerRow.append(particular[0])
+					ledgerRow.append(transactionRow[3])
+					ledgerRow.append("")
+					ledgerRow.append('%.2f'%(float(transactionRow[4])))
+					totalCr = totalCr + float(transactionRow[4])
+					ledgerRow.append(transactionRow[5])
+				else:
+					accountNames = ""
+					refno = transactionRow[3]
+					drAmount = ""
+					crAmount = '%.2f'%(float(transactionRow[4]))
+					narration = transactionRow[5]
+					for i in range (0, len(particular)):
+						if (i == len(particular)-1):
+							accountNames = accountNames + particular[i]
+						else:
+							transactionDate = transactionDate + "\n"
+							accountNames = accountNames + particular[i] + "\n"
+							refno = refno + "\n"
+							drAmount = drAmount + "\n"
+							crAmount = crAmount + "\n"
+							narration = narration + "\n"
+						
+					ledgerRow.append(transactionDate)
+					ledgerRow.append(accountNames)
+					ledgerRow.append(refno)
+					ledgerRow.append(drAmount)
+					ledgerRow.append(crAmount)
+					ledgerRow.append(narration)
+				
 			ledgerRow.append(transactionRow[0])
 			ledgerGrid.append(ledgerRow)
 		#the transactions have been filled up duly.
 		#now for the total dRs and Crs, we have added them up nicely during the grid loop.
-		ledgerGrid.append(["",["Total of Transactions"],"",'%.2f'%(totalDr),'%.2f'%(totalCr),"",""])
+		ledgerGrid.append(["","Total of Transactions","",'%.2f'%(totalDr),'%.2f'%(totalCr),"",""])
 		if queryParams[4] == "No Project":
-			ledgerGrid.append(["",[""],"","","","",""])
+			ledgerGrid.append(["","","","","","",""])
 			grandTotal = 0.00
 			closingdate = datetime.strptime(str(queryParams[3]),"%d-%m-%Y").strftime("%d-%m-%Y")
 			if balanceRow[6] == "Dr":
 			#this is a Dr balance which will be shown at Cr side.
 			#Difference will be also added to Cr for final balancing.
-				ledgerGrid.append([closingdate,["Closing Balance /f"],"","",'%.2f'%(balanceRow[2]),"",""])
+				ledgerGrid.append([closingdate,"Closing Balance /f","","",'%.2f'%(balanceRow[2]),"",""])
 				grandTotal =float(balanceRow[4])  + float(balanceRow[2])
 			if balanceRow[6] == "Cr":
 			#now exactly the opposit, see the explanation in the if condition preceding this one.
 
-				ledgerGrid.append([closingdate,["Closing Balance /f"],"",'%.2f'%(balanceRow[2]),"","",""])
+				ledgerGrid.append([closingdate,"Closing Balance /f","",'%.2f'%(balanceRow[2]),"","",""])
 				grandTotal =float(balanceRow[3])  + float(balanceRow[2])
-			ledgerGrid.append(["",["Grand Total"],"",'%.2f'%(grandTotal),'%.2f'%(grandTotal),"",""])
+			ledgerGrid.append(["","Grand Total","",'%.2f'%(grandTotal),'%.2f'%(grandTotal),"",""])
 		#we are ready with the complete ledger, so lets send it out!
 		return ledgerGrid
 			
