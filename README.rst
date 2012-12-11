@@ -64,7 +64,7 @@ variant of GNU/Linux as long as all the package dependencies are met.
 #. and execute ``install.sh`` 
    ::
       
-      sudo sh ./install.sh
+      sudo ./install.sh
 
 Wait for the script to copy all necessary files to Aakash. After
 successful installation the device will reboot for changes to take
