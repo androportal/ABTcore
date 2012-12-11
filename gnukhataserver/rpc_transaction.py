@@ -360,7 +360,7 @@ class transaction(xmlrpc.XMLRPC):
 						dbconnect.VoucherMaster.flag == 1)).\
 			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
 			print "search by date "
-			   
+			 
 		if queryParams[0] == 3:	
 			result = Session.query(dbconnect.VoucherMaster).\
 			filter(and_(dbconnect.VoucherMaster.flag == 1,\
@@ -379,7 +379,7 @@ class transaction(xmlrpc.XMLRPC):
 				reffdate = str(row.reffdate).split(" ")
 				ref_date = datetime.strptime(reffdate[0],"%Y-%m-%d").strftime("%d-%m-%Y")
 				voucherlists.append([row.vouchercode,row.reference,ref_date,row.vouchertype,row.narration])
-			#Sprint voucherlists  
+			print voucherlists  
 			return voucherlists 
 			
 	def xmlrpc_getVoucherAmount(self,queryParams,client_id):

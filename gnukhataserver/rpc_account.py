@@ -304,7 +304,7 @@ class account(xmlrpc.XMLRPC):
 	def xmlrpc_getCashFlowOpening(self,client_id):
 		'''
 		output parameters:accountname,openingbalance
-		Purpose: to get all accountnames which is not in 
+		Purpose: to get all accountnames which is in 
 		under Bank and cash subgroup
 		'''
 		statement = "select accountname,openingbalance\
