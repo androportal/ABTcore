@@ -1800,18 +1800,17 @@ class reports(xmlrpc.XMLRPC):
 		#lets append required rows in new list.
 		for ledgerRow in ledgerResult:
 			reconRow = []
-			reconRow.append(ledgerRow[0]) #voucher date
-			if (len(ledgerRow[1])==1):
-				for acc in ledgerRow[1]:
-					reconRow.append(acc) #particular
-			reconRow.append(ledgerRow[2]) #ref no
 			reconRow.append(voucherCodes[voucheLcounter]) #voucher code
+			reconRow.append(ledgerRow[0]) #voucher date
+			reconRow.append(str(ledgerRow[1])) #particular
+			reconRow.append(ledgerRow[2]) #ref no
+			
 			reconRow.append(ledgerRow[3]) #Dr amount
 			reconRow.append(ledgerRow[4]) #Cr amount
 			reconRow.append(ledgerRow[5]) #narration
 			
 			clearanceDates =self.xmlrpc_getClearanceDate([\
-						str(ledgerRow[1][0]),voucherCodes[voucheLcounter]],client_id)
+						str(ledgerRow[1]),voucherCodes[voucheLcounter]],client_id)
 			if clearanceDates == None:
 				reconRow.append("")
 				reconRow.append("")
@@ -1822,12 +1821,13 @@ class reports(xmlrpc.XMLRPC):
 					clrMemo = datesRow.memo
 					reconRow.append(clrDate)
 					reconRow.append(clrMemo)
-				
+			
 			voucheLcounter = voucheLcounter + 1
 			reconResult.append(reconRow)
+		
 		return reconResult
 		
-	def xmlrpc_BankReconciliation(self,queryParams,client_id):
+	def xmlrpc_setBankReconciliation(self,queryParams,client_id):
 		'''
 		Purpose : Sets the bankrecon table in database as saves 
 		transaction details of those transactions which are
@@ -1941,6 +1941,7 @@ class reports(xmlrpc.XMLRPC):
 		
 		Input parametes:[accountname,vouchercode,todate]
 		'''
+		
 		clearencedate =  str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
@@ -1960,23 +1961,28 @@ class reports(xmlrpc.XMLRPC):
 			
 			
 	
-	def xmlrpc_updateBankRecon(self,queryParams,client_id):
+	def xmlrpc_updateBankRecon(self,queryParams, flags, client_id):
 		"""
 		Purpose: Returns all uncleared transactions from the starting of 
-		financial year to the end date of given period with 
-		Bank Reconciliation Statement for the given period of time.
+		financial year to the end date of given period 
+		OR  
+		all uncleared transactions from the starting of 
+		financial year to the end date of given period with all cleared transactions 
+		of the given period if cleared_tran_flag is true 
+		with Bank Reconciliation Statement for the given period of time.
 		 
 		Input Parameters: 
-		[account name, financial start, fromdate and todate,projectname]
+		list 1: [account name, financial start, fromdate and todate,projectname]
+		list 2: [cleared_tran_flag]
 		
-		Description:This function returns a grid of 7 columns and number 
-		of rows depending on number of uncleared transactions in the database. 
-		After appending uncleared transactions in grid, 
+		Description:This function returns a grid of 9 columns and number 
+		of rows depending on number of uncleared OR uncleared+cleared transactions in the database. 
+		After appending transactions in grid, 
 		it appends Bank Reconciliation statement.
 		
-		A grid of 7 columns contains:
-		transaction date, accountname, vouchercode, reference number, 
-		dramount, cramount and narration.
+		A grid of 9 columns contains:
+		vouchercode, transaction date, accountname, reference number, 
+		dramount, cramount, narration, clearance date and memo.
 		
 		The function first makes a call to the previous function "getLedger" 
 		and passes the account as a parameter along with the 
@@ -1990,7 +1996,14 @@ class reports(xmlrpc.XMLRPC):
 			for that period
 		3. getOnlyClearedTransactions: to filter out all uncleared 
 			transactions and their details.
+		4. if cleared_tran_flag is True, it calls getReconLedger function to 
+			get the list of cleared transactionsand then it compares ReconGrid 
+			with list of cleared transactions to ignore duplicate transactions
+		
+		and finally added bank reconciliation statement
 		"""
+		#flags[0] is cleared_trans_flag
+		cleared_tran_flag = flags[0]
 		ReconGrid = []
 		totalDbt = 0.00
 		totalCdt = 0.00
@@ -2013,51 +2026,72 @@ class reports(xmlrpc.XMLRPC):
 				
 				ledgerRow = []
 				#may be more than one account was involved at the other side so loop through.
-				for particularRow in particulars:
+				if len(particulars) == 1:
+					for particularRow in particulars:
 					
-					cleared =transaction.xmlrpc_getOnlyClearedTransactions([\
-							str(particularRow),int(transactionRow[0]),\
-							queryParams[2],queryParams[3]],client_id)
+						cleared =transaction.xmlrpc_getOnlyClearedTransactions([\
+								str(particularRow),int(transactionRow[0]),\
+								queryParams[2],queryParams[3]],client_id)
 
-					if cleared == False:
-						 
-						reff_date = str(transactionRow[2]).split(" ")
-						reff_date= datetime.strptime(str(reff_date[0]),"%Y-%m-%d").strftime("%d-%m-%Y")
-			
-						ledgerRow.append(reff_date)
-						ledgerRow.append([particularRow])
-						ledgerRow.append(transactionRow[3])
-						ledgerRow.append(transactionRow[0])
-						ledgerRow.append('%.2f'%(float(transactionRow[4])))
-						totalDbt = totalDbt + float(transactionRow[4])
-						ledgerRow.append("")
-						ledgerRow.append(transactionRow[5])
-						ReconGrid.append(ledgerRow)
+						if cleared == False:
+							 
+							reff_date = str(transactionRow[2]).split(" ")
+							reff_date= datetime.strptime(str(reff_date[0]),"%Y-%m-%d").strftime("%d-%m-%Y")
+							ledgerRow.append(transactionRow[0])
+							ledgerRow.append(reff_date)
+							ledgerRow.append(particularRow)
+							ledgerRow.append(transactionRow[3])
+						
+							ledgerRow.append('%.2f'%(float(transactionRow[4])))
+							totalDbt = totalDbt + float(transactionRow[4])
+							ledgerRow.append("")
+							ledgerRow.append(transactionRow[5])
+							ReconGrid.append(ledgerRow)
 					
 			if transactionRow[1] == "Cr":
 				particulars = transaction.xmlrpc_getParticulars([transactionRow[0],"Dr"],client_id)
 				# [voucher_code,type_flag]
 				ledgerRow = []
 				#may be more than one account was involved a tthe other side so loop through.
-				for particularRow in particulars:
-					cleared =transaction.xmlrpc_getOnlyClearedTransactions(\
-							[str(particularRow),int(transactionRow[0]),\
-								queryParams[2],queryParams[3]],client_id)
+				if len(particulars) == 1:
+					for particularRow in particulars:
+						cleared =transaction.xmlrpc_getOnlyClearedTransactions(\
+								[str(particularRow),int(transactionRow[0]),\
+									queryParams[2],queryParams[3]],client_id)
 					
-					if cleared == False:
-						reff_date = str(transactionRow[2]).split(" ")
-						reff_date= datetime.strptime(str(reff_date[0]),"%Y-%m-%d").strftime("%d-%m-%Y")
-						ledgerRow.append(reff_date)
-						ledgerRow.append([particularRow])
-						ledgerRow.append(transactionRow[3])
-						ledgerRow.append(transactionRow[0])
-						ledgerRow.append("")
-						ledgerRow.append('%.2f'%(float(transactionRow[4])))
-						ledgerRow.append(transactionRow[5])
-						totalCdt = totalCdt + float(transactionRow[4])
-						ReconGrid.append(ledgerRow)
+						if cleared == False:
+							reff_date = str(transactionRow[2]).split(" ")
+							reff_date= datetime.strptime(str(reff_date[0]),"%Y-%m-%d").strftime("%d-%m-%Y")
+							ledgerRow.append(transactionRow[0])
+							ledgerRow.append(reff_date)
+							ledgerRow.append(particularRow)
+							ledgerRow.append(transactionRow[3])
+						
+							ledgerRow.append("")
+							ledgerRow.append('%.2f'%(float(transactionRow[4])))
+							ledgerRow.append(transactionRow[5])
+							totalCdt = totalCdt + float(transactionRow[4])
+							ReconGrid.append(ledgerRow)
+		
+		for row in ReconGrid:
+				row.append("") #clearance date
+				row.append("") #memo		
 					
-		ReconGrid.append(["","","Total","",'%.2f'%(totalDbt),'%.2f'%(totalCdt)])
+		# if cleared transaction flag is true then, =================================================
+		if cleared_tran_flag == True:
+			ReconLedger = self.xmlrpc_getReconLedger(queryParams,client_id)
+			voucher_list = []
+			for v_code in ReconGrid:
+				voucher_list.append(v_code[3])
+				
+			for row in ReconLedger:
+					if row[3] not in voucher_list : #row[3] is v_code 
+						ReconGrid.append(row)
+			#arrange rows order by date
+			ReconGrid = sorted(ReconGrid,key=lambda x: datetime.strptime(str(x[1]),"%d-%m-%Y"))
+		
+		# lets add recon statement===================================================		
+		ReconGrid.append(["","","","Total",'%.2f'%(totalDbt),'%.2f'%(totalCdt),"","",""])
 		#lets start making Reconcilition Statement,
 		ReconGrid.append(["","RECONCILIATION STATEMENT","","","","AMOUNT"])
 		#get the ledger Grid result,
@@ -2085,17 +2119,19 @@ class reports(xmlrpc.XMLRPC):
 		
 		ClosingBalance = float(TotalDrCrRow[3]) - float(TotalDrCrRow[4])
 		
-		if closingBalRow[3] != "":
-			ReconGrid.append([balancedate,"Balance as per our book (Credit) on "+balancedate,"","","",closingBalRow[3]])
-			closingBal = float(closingBalRow[3])
-			
-		if closingBalRow[4] != "":
-			ReconGrid.append([balancedate,"Balance as per our book (Debit) on "+balancedate,"","","",closingBalRow[4]])
-			closingBal = float(closingBalRow[4])
-			
 		if ClosingBalance == 0:
 			ReconGrid.append([balancedate,"Balance as per our book on "+balancedate,"","","",closingBalRow[3]])
 			closingBal = float(closingBalRow[3])
+		else:
+			if closingBalRow[3] != "":
+				ReconGrid.append([balancedate,"Balance as per our book (Credit) on "+balancedate,"","","",closingBalRow[3]])
+				closingBal = float(closingBalRow[3])
+			
+			if closingBalRow[4] != "":
+				ReconGrid.append([balancedate,"Balance as per our book (Debit) on "+balancedate,"","","",closingBalRow[4]])
+				closingBal = float(closingBalRow[4])
+			
+		
 		
 		if  ClosingBalance >= 0:
 			if totalCdt != 0:
@@ -2132,7 +2168,7 @@ class reports(xmlrpc.XMLRPC):
 			
 		if BankBal == 0:
 			ReconGrid.append(["","Balance as per Bank","","","",'%.2f'%(abs(BankBal))])
-			
+		
 		return ReconGrid	
 		
 	def xmlrpc_getCashFlow(self,queryParams,client_id):

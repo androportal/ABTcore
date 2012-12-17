@@ -212,15 +212,22 @@ class transaction(xmlrpc.XMLRPC):
 			result = dbconnect.engines[client_id].execute(statement).fetchall()
 		else:
 			project_code = self.xmlrpc_getProjectcodeByProjectName([str(queryParams[3])],client_id)
+			print "main params"
+			print str(project_code)
+			print queryParams[0]
+			print queryParams[1]
+			print queryParams[2]
 			statement = "select vouchercode, typeflag ,reffdate,reference,amount,narration\
 					from view_voucherbook\
 					where account_name = '"+queryParams[0]+"'\
 					and projectcode = '"+str(project_code)+"'\
-					and reffdate >= '"+queryParams[1]+"'\
-					and reffdate <= '"+queryParams[2]+"'\
+					and reffdate >= '"+from_date +"'\
+					and reffdate <= '"+to_date+"'\
 					and flag == 1\
 					order by reffdate"
 			result = dbconnect.engines[client_id].execute(statement).fetchall()
+			print "result before result"
+			print result
 		print "result"
 		print result
 		transactionlist = []
