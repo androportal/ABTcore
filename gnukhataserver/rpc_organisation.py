@@ -178,7 +178,7 @@ class organisation(xmlrpc.XMLRPC):
             
 	def xmlrpc_getOrganisation(self,client_id):
 		'''
-		Purpose : function to get all the details of organisation from database					
+		Purpose:function to get all the details of organisation from database					
 		i/p parameters : client_id
 		o/p parameter : true if result contain value else false
 		'''
@@ -201,7 +201,7 @@ class organisation(xmlrpc.XMLRPC):
 						])
 			return orgdetail_list
 			
-	def xmlrpc_updateOrg(self,queryParams_org,client_id):
+	def xmlrpc_updateOrg(self,queryParams,client_id):
 		'''
 		Purpose: updating the orgdetails after edit organisation
 		i/p parameters:
@@ -212,30 +212,31 @@ class organisation(xmlrpc.XMLRPC):
 				client_id
 		o/p parameter : string
 		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		stmt = "update organisation set orgaddr='"+queryParams_org[1]+"',\
-						orgcountry='"+queryParams_org[2]+"',\
-						orgstate='"+queryParams_org[3]+"',\
-						orgcity='"+queryParams_org[4]+"',\
-						orgpincode='"+queryParams_org[5]+"',\
-						orgtelno='"+queryParams_org[6]+"',\
-						orgfax='"+queryParams_org[7]+"',\
-						orgemail='"+queryParams_org[8]+"',\
-						orgwebsite='"+queryParams_org[9]+"',\
-						orgmvat='"+queryParams_org[10]+"',\
-						orgstax='"+queryParams_org[11]+"',\
-						orgregno='"+queryParams_org[12]+"',\
-						orgregdate='"+queryParams_org[13]+"',\
-						orgfcrano='"+queryParams_org[14]+"',\
-						orgfcradate='"+queryParams_org[15]+"',\
-						orgpan='"+queryParams_org[16]+"'\
-						where orgcode='"+queryParams_org[0]+"'"	
-		dbconnect.engines[client_id].execute(stmt)
+		statement = "update organisation set orgaddr='"+queryParams[1]+"',\
+						orgcountry='"+queryParams[2]+"',\
+						orgstate='"+queryParams[3]+"',\
+						orgcity='"+queryParams[4]+"',\
+						orgpincode='"+queryParams[5]+"',\
+						orgtelno='"+queryParams[6]+"',\
+						orgfax='"+queryParams[7]+"',\
+						orgemail='"+queryParams[8]+"',\
+						orgwebsite='"+queryParams[9]+"',\
+						orgmvat='"+queryParams[10]+"',\
+						orgstax='"+queryParams[11]+"',\
+						orgregno='"+queryParams[12]+"',\
+						orgregdate='"+queryParams[13]+"',\
+						orgfcrano='"+queryParams[14]+"',\
+						orgfcradate='"+queryParams[15]+"',\
+						orgpan='"+queryParams[16]+"'\
+						where orgcode='"+queryParams[0]+"'"	
+		dbconnect.engines[client_id].execute(statement)
 		Session.commit()
 		Session.close()
 		connection.connection.close()
-		return winmsg
+		return "upadte successfully"
 
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 """
-import the twisted modules for executing rpc calls and also to
-implement the server
+import the twisted modules for executing rpc calls 
+and also to implement the server
 """
 from twisted.web import xmlrpc, server
 """
@@ -11,7 +11,7 @@ object and listens on a given port.
 from twisted.internet import reactor
 from sqlalchemy.orm import sessionmaker,scoped_session
 from xml.etree import ElementTree as et
-from time import strftime
+# pysqlite2 is a SQLite binding for Python that complies to the Database API  
 from pysqlite2 import dbapi2 as sqlite
 import datetime
 import os,sys
@@ -25,7 +25,6 @@ import rpc_data
 import rpc_user
 import rpc_reports
 import rpc_getaccountsbyrule
-#import rpc_inventory
 from sqlalchemy.orm import join
 from decimal import *
 from sqlalchemy import or_
@@ -33,48 +32,44 @@ from modules import blankspace
 #note that all the functions to be accessed by the client must have the xmlrpc_ prefix.
 class gnukhata(xmlrpc.XMLRPC): 
 	
-
 	def __init__(self):
 		xmlrpc.XMLRPC.__init__(self)
 
-	
-	
 	def xmlrpc_getOrganisationNames(self): 
-		'''
-		def xmlrpc_getOrganisationNames :
-
+		"""
 		Purpose: This function is used to return the list of
-			organsations found in gnukhata.xml located at
-			/opt/gkAakash/. Returns a list of
-			organisations already present in the file
-		'''
-	
-		orgs = dbconnect.getOrgList() #calling the function for getting list of organisation nodes.
-		
-		orgnames = [] #initialising an empty list for organisation names
+			organsation names found in gnukhata.xml 
+			located at /opt/gkAakash/
+			
+		Output: Returns a list of organisation names 
+		        already present in the file
+		"""
+		# calling the function getOrgList for getting list of organisation nodes.
+		orgs = dbconnect.getOrgList() 
+		# initialising an empty list for organisation names
+		orgnames = [] 
 		for org in orgs:
-			#print "we r in getOrganisation"
+			# find orgname tag in gnukhata.xml file
 			orgname=org.find("orgname")
+			# append the distinct orgname 
 			if orgname.text not in orgnames:
 				orgnames.append(orgname.text)
-		print orgnames
 		return orgnames
 	
 	def xmlrpc_deleteOrganisation(self,queryParams): 
-		'''
-		def xmlrpc_deleteOrganisationName :
-
+		"""
 		Purpose: This function is used delete organisation
-		         from existing organisations
-			organsations found in gnukhata.xml located at
-			/opt/gkAakash/. 
-			also delete database details of respective
-			organisation
-			
-		'''
-		tree = et.parse("/opt/gkAakash/gnukhata.xml") # parsing gnukhata.xml file
+		         from existing organsations found in gnukhata.xml 
+		         located at /opt/gkAakash/ 
+			 Also delete database details of respective organisation
+			 from /opt/gkAakash/db/
+			 
+		Output: Boolean True
+		"""
+		# parsing gnukhata.xml file
+		tree = et.parse("/opt/gkAakash/gnukhata.xml") 
 		root = tree.getroot() # getting root node.
-		orgs = root.getchildren() 
+		orgs = root.getchildren() # get list children node (orgnisation)
 		for organisation in orgs:
 		
 			orgname = organisation.find("orgname").text
@@ -82,9 +77,9 @@ class gnukhata(xmlrpc.XMLRPC):
 			financialyear_to = organisation.find("financial_year_to").text
 			dbname = organisation.find("dbname").text
 			databasename = dbname
-			
+			# Check respective organisation name 
 			if orgname == queryParams[0] and financialyear_from == queryParams[1] and financialyear_to == queryParams[2]:
-				print "we r in"
+				
 				root.remove(organisation)
 				tree.write("/opt/gkAakash/gnukhata.xml")
 				os.system("rm /opt/gkAakash/db/"+databasename)
@@ -93,11 +88,15 @@ class gnukhata(xmlrpc.XMLRPC):
 	def xmlrpc_getFinancialYear(self,arg_orgName):
 		"""
 		purpose: This function will return a list of financial
-		years for the given organisation.  Arguements,
-		organisation name of type string.  returns, list of
-		financial years in the format dd-mm-yyyy
+			years for the given organisation.  
+			Arguements,
+			
+		Input: [organisationname]
+		
+		Output: returns financialyear list for peritcular organisation
+		        in the format "dd-mm-yyyy"
 		"""
-		#get the list of organisations from the /etc/gnukhata.xml file.
+		#get the list of organisations from the /opt/gkAakash/gnukhata.xml file.
 		#we will call the getOrgList function to get the nodes.
 		orgs = dbconnect.getOrgList()
 		
@@ -110,62 +109,68 @@ class gnukhata(xmlrpc.XMLRPC):
 				financialyear_to = org.find("financial_year_to")
 				from_and_to = [financialyear_from.text, financialyear_to.text]
 				financialyearlist.append(from_and_to)
-			
-		#print financialyearlist
+		
 		return financialyearlist
 		
 	def xmlrpc_getConnection(self,queryParams):
-		'''
-		def xmlrpc_getConnection: purpose
-			This function is used to return the client_id found in dbconnect.py 
-			Returns the client_id
-		Input parameters : [organisation name]
-		'''
-		#print queryParams
+		"""
+		purpose: This function is used to return the client_id for sqlite 
+			 engine found in dbconnect.py 
+			 
+		Input: [organisation name]	
+		
+		Output: Returns the client_id integer
+		
+		"""
+		
 		self.client_id=dbconnect.getConnection(queryParams)
-		print "getConnection method will give you client_id for existing organisation"
 		return self.client_id
 
 	
 	def xmlrpc_closeConnection(self,client_id):
-		print('closing connection'+str(client_id))
+		"""
+		purpose: This function is used close the connetion 
+			with sqlite for client_id
+			 
+		Input: client_id	
+		
+		Output: Returns boolean True if conncetion closed
+		
+		"""
 		dbconnect.engines[client_id].dispose()
 		del dbconnect.engines[client_id]
 		return True
 		
 		
 	def xmlrpc_Deploy(self,queryParams):
-		'''
-		def xmlrpc_Deploy 
-
+		"""
 		Purpose: This function deploys a database instance for
 			an organisation for a given financial year.
-			The expected parameters are:
-			queryParams[organisation name,From date,to
-			date,organisation type] The function will
-			generate the database name based on the
-			organisation name provided The name of the
-			database is a combination of, First character
-			of organisation name, * time stap as
-			dd-mm-yyyy-hh-MM-ss-ms An entry will be made
-			in the xml file for the currosponding
-			organisation.
-		'''
-		print queryParams
+			The function will generate the database name 
+			based on the organisation name provided The name 
+			of the database is a combination of, 
+			First character of organisation name,
+			time stap as "dd-mm-yyyy-hh-MM-ss-ms" 
+			An entry will be made in the xml file 
+			for the currosponding organisation.
+			
+		Input: [organisation name,From date,to
+			date,organisation type] 
+			
+		Output: Returns boolean True and client_id
+			
+		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
-		print queryParams
 		gnukhataconf=et.parse("/opt/gkAakash/gnukhata.xml")
 		gnukhataroot = gnukhataconf.getroot()	
 		org = et.SubElement(gnukhataroot,"organisation") #creating an organisation tag
 		org_name = et.SubElement(org,"orgname")
-		#print queryParams
 		# assigning client queryparams values to variables
 		name_of_org = queryParams[0] # name of organisation
 		db_from_date = queryParams[1]# from date
 		db_to_date = queryParams[2] # to date
 		organisationType = queryParams[3] # organisation type
 		org_name.text = name_of_org #assigning orgnisation name value in orgname tag text of gnukhata.xml
-		
 		financial_year_from = et.SubElement(org,"financial_year_from") #creating a new tag for financial year from-to	
 		financial_year_from.text = db_from_date
 		financial_year_to = et.SubElement(org,"financial_year_to")
@@ -173,16 +178,17 @@ class gnukhata(xmlrpc.XMLRPC):
 		dbname = et.SubElement(org,"dbname") 
 		
 		#creating database name for organisation		
-		org_db_name=name_of_org[0:1]
-		time=datetime.datetime.now()
-		str_time=str(time.microsecond)	
-		new_microsecond=str_time[0:2]		
-		result_dbname=org_db_name + str(time.year) + str(time.month) + str(time.day) + str(time.hour)\
-		 + str(time.minute) + str(time.second) + new_microsecond
-		#print result_dbname		
+		org_db_name = name_of_org[0:1]
+		time = datetime.datetime.now()
+		str_time = str(time.microsecond)	
+		new_microsecond = str_time[0:2]		
+		result_dbname = org_db_name + str(time.year) + str(time.month) + str(time.day) + str(time.hour)\
+		 		+ str(time.minute) + str(time.second) + new_microsecond
+			
 		dbname.text = result_dbname #assigning created database name value in dbname tag text of gnukhata.xml
-		#print result_dbname 
+		
 		gnukhataconf.write("/opt/gkAakash/gnukhata.xml")
+		
 		try:
 			conn = sqlite.connect("/opt/gkAakash/db/"+result_dbname)
             		cur = conn.cursor()
@@ -192,15 +198,15 @@ class gnukhata(xmlrpc.XMLRPC):
             	except:
             		print "role already exists"
 
-
+		# getting client_id for the given orgnisation and from and to date
 		self.client_id = dbconnect.getConnection([name_of_org,db_from_date,db_to_date])
-		#print "In deploy dbconnect.getConnection give you client_id"
-		#print self.client_id
+		
 		try:
 			metadata = dbconnect.Base.metadata
 			metadata.create_all(dbconnect.engines[self.client_id])
 		except:
-			print "not work"
+			print "cannot create metadata"
+			
 		Session = scoped_session(sessionmaker(bind=dbconnect.engines[self.client_id]))
 			
 		dbconnect.engines[self.client_id].execute(\
@@ -297,7 +303,6 @@ class gnukhata(xmlrpc.XMLRPC):
 			dbconnect.subGroups('11','Unsecured')\
 		])
 		
-		
 		Session.commit()
 
 		Session.add_all([\
@@ -306,53 +311,48 @@ class gnukhata(xmlrpc.XMLRPC):
 		])
 		Session.commit()
 
-		print "everything is done"
 		Session.close()
 		connection.close()
 		return True,self.client_id
+# create the instance of class gnukhata
 
 gnukhata = gnukhata()
 
 groups=rpc_groups.groups()
 gnukhata.putSubHandler('groups',groups)
+
 account=rpc_account.account()
 gnukhata.putSubHandler('account',account)
+
 organisation = rpc_organisation.organisation()
 gnukhata.putSubHandler('organisation',organisation)
+
 transaction=rpc_transaction.transaction()
 gnukhata.putSubHandler('transaction',transaction)
 
 data=rpc_data.data()
 gnukhata.putSubHandler('data',data)
+
 reports=rpc_reports.reports()
 gnukhata.putSubHandler('reports',reports)
 
 user=rpc_user.user()
 gnukhata.putSubHandler('user',user)
-'''
-customizable = rpc_customizable.customizable()
-gnukhata.putSubHandler('customizable',customizable)
-'''
+
 getaccountsbyrule=rpc_getaccountsbyrule.getaccountsbyrule()
 gnukhata.putSubHandler('getaccountsbyrule',getaccountsbyrule)
-'''
-inventory=rpc_inventory.inventory()
-gnukhata.putSubHandler('inventory',inventory)'''
-
 
 def rungnukhata():
 	print "initialising application"
 	#the code to daemonise published instance.
 	print "starting server"
  	# Daemonizing GNUKhata
-
 	# Accept commandline arguments
 	# A workaround for debugging
 	def usage():
 		print "Usage: %s [-d|--debug] [-h|--help]\n" % (sys.argv[0])
 		print "\t-d (--debug)\tStart server in debug mode. Do not fork a daemon."
 		print "\t-d (--help)\tShow this help"
-
 
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "hd", ["help","debug"])
@@ -361,7 +361,6 @@ def rungnukhata():
 		os._exit(2)
 
 	debug = 0
-
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
 			usage()

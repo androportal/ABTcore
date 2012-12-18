@@ -1,20 +1,11 @@
-
-'''
-import the database connector and functions for stored procedure.
-'''
 import dbconnect
 import rpc_account
 import rpc_transaction
 import rpc_groups
 import rpc_getaccountsbyrule
-'''
-import the twisted modules for executing rpc calls and 
-also to implement the server
-'''
+# import the twisted modules for executing rpc calls and also to implement the server
 from twisted.web import xmlrpc, server
-'''
-reactor from the twisted library starts the server with a 
-published object and listens on a given port.'''
+# reactor from the twisted library starts the server with a published object and listens on a given port.
 from twisted.internet import reactor
 from datetime import datetime,time
 from modules import blankspace
@@ -27,25 +18,13 @@ class reports(xmlrpc.XMLRPC):
 	
 	def xmlrpc_getLedger(self,queryParams,client_id):
 		'''
-		Purpose : returns a complete ledger for given account.  
-		Information taken from view_voucherbook	
+		Purpose : This function give a complete ledger for given account.  
 		
-		Input parameters : 
-		[accountname,financialStart,fromdate,todate,projectname]
+		Input: [accountname,financialStart,fromdate,todate,projectname]
 		
-		Output parameters : 
-		Returns a grid (2 dimentional list ) with columns as 
-		[Date, Particulars, Reference number, Dr, Cr , vouchercode]
+		Output: Returns a grid (2 dimentional list ) with columns as 
+			[Date, Particulars, Reference number, Dr, Cr , vouchercode]
 		
-		Description : Note that last 3 rows have the narration 
-		column blank.
-		The 3rd last row contains just the total Dr and total Cr.
-		the second last row contains the closing balance.
-		If the closing balance (carried forward ) is Dr then it 
-		will be shown at Cr side.
-		The C/F balance if Cr will be shown at Dr side.
-		The last row will just contain the grand total which will
-		be equal at credit and debit side.
 		'''
 		#first let's get the details of the given account regarding the
 		#Balance and its Dr/Cr side.
@@ -832,7 +811,7 @@ class reports(xmlrpc.XMLRPC):
 			if (orgtype == "Profit Making"):
 				groupname = "Capital & Liabilities"
 			
-			corpuslist.append([groupname,"Amount","Total amount"])	
+			corpuslist.append([groupname,"Debit","Credit","Total Amount"])	
 			Lcount = Lcount+1		
 				
 			if (orgtype == "NGO"):
@@ -842,31 +821,36 @@ class reports(xmlrpc.XMLRPC):
 				
 				groupname="CAPITAL"
 			if (tot_capital != 0.00):	
-				corpuslist.append([groupname,"",""])
+				corpuslist.append([groupname,"","",""])
 				Lcount = Lcount+1		
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 1):
 					
 						accountname = baltrialdata[i][2]
-						amount = baltrialdata[i][3]
-						corpuslist.append(["      "+accountname,amount,""])
+						amount =float(baltrialdata[i][3])
+						if(amount<0):
+							corpuslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
+							
+						else:
+							corpuslist.append(["         "+accountname,'%.2f'%(amount),"",""])
 						Lcount = Lcount+1
-			
-				
-				corpuslist.append(["","Total",tot_capital])	
+				corpuslist.append(["","","",tot_capital])	
 				Lcount = Lcount+1	
 			if (tot_reserves != "0.00"):
-				corpuslist.append(["RESERVES","",""])	
+				corpuslist.append(["RESERVES","","",""])	
 				Lcount = Lcount+1	
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 12):
 						accountname=baltrialdata[i][2]
-						amount=baltrialdata[i][3]
+						amount=float(baltrialdata[i][3])
+						if(amount<0):
+							corpuslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
 							
-						corpuslist.append(["      "+accountname,amount,""])
+						else:	
+							corpuslist.append(["         "+accountname,'%.2f'%(amount),"",""])
 						Lcount = Lcount+1
 				
-				corpuslist.append(["","Total",tot_reserves])	
+				corpuslist.append(["","","",tot_reserves])	
 				Lcount = Lcount+1	
 				
 			if (tot_loanlia != "0.00"):	
@@ -876,25 +860,32 @@ class reports(xmlrpc.XMLRPC):
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 11):
 						accountname=baltrialdata[i][2]
-						amount=baltrialdata[i][3]
-						corpuslist.append(["      "+accountname,amount,""])
+						amount=float(baltrialdata[i][3])
+						if(amount<0):
+							corpuslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
+						else:
+							corpuslist.append(["         "+accountname,'%.2f'%(amount),""])
 						Lcount = Lcount+1	
 			
-				corpuslist.append(["","Total",tot_loanlia])		
+				corpuslist.append(["","","",tot_loanlia])		
 				Lcount = Lcount+1
 			
 			if (tot_currlia != "0.00"):		
-				corpuslist.append(["CURRENT LIABILITIES","",""])
+				corpuslist.append(["CURRENT LIABILITIES","","",""])
 				Lcount = Lcount+1		
 				
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 3):
 						accountname=baltrialdata[i][2]
-						amount=baltrialdata[i][3]
-						corpuslist.append(["      "+accountname,amount,""])
+						amount=float(baltrialdata[i][3])
+						if(amount < 0):
+							corpuslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
+							
+						else:	
+							corpuslist.append(["         "+accountname,'%.2f'%(amount),"",""])
 						Lcount = Lcount+1
 				
-				corpuslist.append(["","Total",tot_currlia])
+				corpuslist.append(["","","",tot_currlia])
 				Lcount = Lcount+1
 										
 			if (Flag != "netLoss"):
@@ -904,92 +895,117 @@ class reports(xmlrpc.XMLRPC):
 				else:
 					flag = "NET SURPLUS"
 				if (profitloss[1] != "0.00"):
-					corpuslist.append(["",flag,profitloss[1]])	
+					corpuslist.append(["",flag,profitloss[1],""])	
 					Lcount = Lcount+1		
 			else:
-				corpuslist.append(["","",""])	
+				corpuslist.append(["","","",""])	
 				Lcount = Lcount+1	
 			
 			if (rowFlag == "liabilities"):
 				for i in range (0, rows):
-					corpuslist.append(["","",""])	
+					corpuslist.append(["","","",""])	
 					Lcount = Lcount+1	
 			
 			############# ASSETS ################################################		
 				
-			assetslist.append(["Property & Assets","Amount","Total amount"])	
+			assetslist.append(["Property & Assets","Debit","Credit","Total amount"])	
 			Rcount = Rcount+1
 			if (tot_fixedasset != "0.00"):	
-				assetslist.append(["FIXED ASSETS","",""])
+				assetslist.append(["FIXED ASSETS","","",""])
 				Rcount = Rcount+1	
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 6):
 					
 						accountname = baltrialdata[i][2]
-						amount = baltrialdata[i][3]
-						assetslist.append(["      "+accountname,amount,""])
+						amount = float(baltrialdata[i][3])
+						if(amount<0):
+							assetslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
+							
+						else:	
+							assetslist.append(["         "+accountname,'%.2f'%(amount),"",""])
 						Rcount = Rcount+1
 			
-				assetslist.append(["","Total",tot_fixedasset])	
+				assetslist.append(["","","",tot_fixedasset])	
 				Rcount = Rcount+1
 			
 			if (tot_currentasset != "0.00"):	
 				groupname="CURRENT ASSETS"
 			
-				assetslist.append([groupname,"",""])
+				assetslist.append([groupname,"","",""])
 				Rcount = Rcount+1	
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 2):
 						accountname=baltrialdata[i][2]
-						amount=baltrialdata[i][3]
-						assetslist.append(["      "+accountname,amount,""])
+						amount=float(baltrialdata[i][3])
+						print "amount " 
+						print amount
+						if(amount < 0):
+							print "m in less than"
+							assetslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
+							
+						else:	
+							assetslist.append(["         "+accountname,'%.2f'%(amount),"",""])
 						Rcount = Rcount+1
-			
-				assetslist.append(["","Total",tot_currentasset])	
+				assetslist.append(["","","",tot_currentasset])	
 				Rcount = Rcount+1
 			if (tot_loansasset != "0.00"):	
-				groupname="LOANS(Assets)"
-				assetslist.append([groupname,"",""])
+				groupname="LOANS(Asset)"
+				assetslist.append([groupname,"","",""])
 				Rcount = Rcount+1	
 				
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 10):
 						accountname=baltrialdata[i][2]
-						amount=baltrialdata[i][3]
-						assetslist.append(["      "+accountname,amount,""])
+						amount=float(baltrialdata[i][3])
+						if(amount<0):
+							assetslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
+							
+						else:	
+							assetslist.append(["         "+accountname,'%.2f'%(amount),"",""])
+						
 						Rcount = Rcount+1
 			
-				assetslist.append(["","Total",tot_loansasset])	
+				assetslist.append(["","","",tot_loansasset])	
 				Rcount = Rcount+1
 			if (tot_investment != "0.00"):	
 				groupname="INVESTMENTS"
-				assetslist.append([groupname,"",""])
+				assetslist.append([groupname,"","",""])
 				Rcount = Rcount+1	
 				
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 9):
 						accountname=baltrialdata[i][2]
-						amount=baltrialdata[i][3]
-						assetslist.append(["      "+accountname,amount,""])
+						amount=float(baltrialdata[i][3])
+						if(amount<0):
+							assetslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
+							
+						else:	
+							assetslist.append(["         "+accountname,'%.2f'%(amount),"",""])
+						
 						Rcount = Rcount+1
 			
-				assetslist.append(["","Total",tot_investment])	
+				assetslist.append(["","","",tot_investment])	
 				Rcount = Rcount+1
 			
 			if (tot_miscellaneous != "0.00"):	
 				groupname="MISCELLANEOUS EXPENSES(Asset)"	
 			
-				assetslist.append([groupname,"",""])
+				assetslist.append([groupname,"","",""])
 				Rcount = Rcount+1	
 				
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 13):
 						accountname=baltrialdata[i][2]
 						amount=baltrialdata[i][3]
-						assetslist.append(["      "+accountname,amount,""])
+						if(amount<0):
+							assetslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
+							
+						else:	
+							assetslist.append(["         "+accountname,'%.2f'%(amount),"",""])
+						
 						Rcount = Rcount+1
 			
-				assetslist.append(["","Total",tot_miscellaneous])	
+				assetslist.append(["","","",tot_miscellaneous])	
 				Rcount = Rcount+1
 					
 			if (Flag == "netLoss"):
@@ -1000,10 +1016,10 @@ class reports(xmlrpc.XMLRPC):
 					flag = "NET DEFICIT"
 				
 				if (profitloss[1] != "0.00"):	
-					assetslist.append(["",flag,profitloss[1]])# net surplus or net profit
+					assetslist.append(["",flag,profitloss[1],""])# net surplus or net profit
 					Rcount = Rcount+1
 			else:
-				assetslist.append(["","",""])	
+				assetslist.append(["","","",""])	
 				Rcount = Rcount+1
 			print "Lcount"	
 			print Lcount
@@ -1014,12 +1030,12 @@ class reports(xmlrpc.XMLRPC):
 			if (Lcount > Rcount):
 				diff = Lcount - Rcount	
 				for i in range(0,diff):
-					assetslist.append(["","",""])
+					assetslist.append(["","","",""])
 			else:
 				diff = Rcount - Lcount	
 				print diff
 				for i in range(0,diff):
-					corpuslist.append(["","",""])
+					corpuslist.append(["","","",""])
 			
 			if (Flag == "netLoss"):
 				if (difamount != "0.00"):
@@ -1027,25 +1043,25 @@ class reports(xmlrpc.XMLRPC):
 				else:
 					totalCr
 					
-				corpuslist.append(["","TOTAL",totalCr])	
+				corpuslist.append(["TOTAL","","",totalCr])	
 					
 				if (difamount != "0.00"):
 					pnl2
 				else:
 					pnl2
-				assetslist.append([":","TOTAL",pnl2])	
+				assetslist.append(["TOTAL","","",pnl2])	
 			if (Flag != "netLoss"):	
 				if (difamount != "0.00"):
 					pnl1
 				else:
 					pnl1
-				corpuslist.append(["","TOTAL",pnl1])	
+				corpuslist.append(["TOTAL","","",pnl1])	
 					
 				if (difamount != "0.00"):
 					totalDr
 				else:
 					totalDr
-				assetslist.append(["","TOTAL",totalDr])	
+				assetslist.append(["TOTAL","","",totalDr])	
 				
 			finallist.append(corpuslist)
 			finallist.append(assetslist)
@@ -1119,33 +1135,39 @@ class reports(xmlrpc.XMLRPC):
 			
 			LeftList = []
 			
-			LeftList.append(["Particulars","Amount","Amount","Amount"])
-			LeftList.append(["SOURCES OF FUNDS","","",""])	
+			LeftList.append(["Particulars","Debit","Credit","Amount","Amount"])
+			LeftList.append(["SOURCES OF FUNDS","","","",""])	
 			if (tot_capital != "0.00"):			
 				if (orgtype == "NGO"):
-					LeftList.append(["      CORPUS","","",""])	
+					LeftList.append(["        CORPUS","","","",""])	
 					
 					
 				if (orgtype == "Profit Making"):
-					LeftList.append(["      OWNER'S CAPITAL","","",""])		
+					LeftList.append(["        OWNER'S CAPITAL","","","",""])		
 					
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 1):
 						account = baltrialdata[i][2]
-						amount = baltrialdata[i][3]
-			
-						LeftList.append(["            "+account,amount,"",""])	
+						amount = float(baltrialdata[i][3])
+						if(amount<0):
+							LeftList.append(["            "+account,"",'%.2f'%(abs(amount)),"",""])
+						else:
+							LeftList.append(["            "+account,'%.2f'%(amount),"","",""])
 				if (orgtype == "NGO"):		
-					LeftList.append(["TOTAL CORPUS","","",tot_capital])
+					LeftList.append(["TOTAL CORPUS","","","",tot_capital])
 				else:
-					LeftList.append(["TOTAL CAPITAL","","",tot_capital])
+					LeftList.append(["TOTAL CAPITAL","","","",tot_capital])
+					
 			if (profitloss[1] != "0.00"):			
-				LeftList.append(["      ADD: RESERVES","","",""])				
+				LeftList.append(["        ADD: RESERVES","","","",""])				
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 12):
 						account =baltrialdata[i][2]
-						amount =baltrialdata[i][3]
-						LeftList.append(["            "+account,amount,"",""])			
+						amount = float(baltrialdata[i][3])
+						if(amount<0):
+							LeftList.append(["              "+account,"",'%.2f'%(abs(amount)),"",""])
+						else:
+							LeftList.append(["              "+account,'%.2f'%(amount),"","",""])
 				if (Flag == "netLoss"):
 					
 					if (orgtype != "NGO"):
@@ -1153,11 +1175,11 @@ class reports(xmlrpc.XMLRPC):
 					else:
 						flag="Net Deficit"
 				
-					LeftList.append(["            "+flag,profitloss[1],"",""])	
+					LeftList.append(["              "+flag,profitloss[1],"","",""])	
 					
 					amount = float(tot_reserves) - float(profitloss[1])
 					
-					LeftList.append(["TOTAL RESERVES & SURPLUS","",'%.2f'%float(amount),""])		
+					LeftList.append(["TOTAL RESERVES & SURPLUS","","","",'%.2f'%float(amount),""])		
 				else:
 				
 					if (orgtype != "NGO"):
@@ -1166,17 +1188,20 @@ class reports(xmlrpc.XMLRPC):
 						flag ="Net Surplus"
 					
 					amount =float(tot_reserves) + float(profitloss[1])
-					LeftList.append(["            "+flag,profitloss[1],"",""])	
-					LeftList.append(["TOTAL RESERVES & SURPLUS","",'%.2f'%float(amount),""])			
+					LeftList.append(["              "+flag,profitloss[1],"",""])	
+					LeftList.append(["TOTAL RESERVES & SURPLUS","","",'%.2f'%float(amount),""])			
 			
 			if (tot_miscellaneous != "0.00"):		
-				LeftList.append(["      LESS: MISCELLANEOUS EXPENSES(Asset)","","",""])
+				LeftList.append(["        LESS: MISCELLANEOUS EXPENSES(Asset)","","","",""])
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 13):
 						account =baltrialdata[i][2]
-						amount =baltrialdata[i][3]
-						LeftList.append(["            "+account,amount,"",""])
-				LeftList.append(["TOTAL MISCELLANEOUS EXPENSES(Asset)","",tot_miscellaneous,""])							
+						amount = float(baltrialdata[i][3])
+						if(amount<0):
+							LeftList.append(["              "+account,"",'%.2f'%(abs(amount)),"",""])
+						else:
+							LeftList.append(["              "+account,'%.2f'%(amount),"","",""])
+				LeftList.append(["TOTAL MISCELLANEOUS EXPENSES(Asset)","","",tot_miscellaneous,""])							
 			
 			if (Flag == "netLoss"):
 				amount = float(tot_reserves) - float(profitloss[1]) - float(tot_miscellaneous)
@@ -1184,18 +1209,21 @@ class reports(xmlrpc.XMLRPC):
 				amount = float(tot_reserves) + float(profitloss[1]) - float(tot_miscellaneous)
 			
 			if (amount != 0):
-				LeftList.append(["TOTAL OF OWNER'S FUNDS","","",'%.2f'%float(amount)])
+				LeftList.append(["TOTAL OF OWNER'S FUNDS","","","",'%.2f'%float(amount)])
 			
 			if (tot_loanlia != "0.00"):	
-				LeftList.append(["      BORROWED FUNDS","","",""])
-				LeftList.append(["      LOANS(Liability)","","",""])
+				LeftList.append(["        BORROWED FUNDS","","","",""])
+				LeftList.append(["        LOANS(Liability)","","","",""])
 		
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 11):
 						account = baltrialdata[i][2]
-						amount = baltrialdata[i][3]
-						LeftList.append(["          "+account,amount,"",""])
-				LeftList.append(["TOTAL BORROWED FUNDS","","",tot_loanlia])
+						amount = float(baltrialdata[i][3])
+						if(amount<0):
+							LeftList.append(["            "+account,"",'%.2f'%(abs(amount)),"",""])
+						else:
+							LeftList.append(["            "+account,'%.2f'%(amount),"","",""])
+				LeftList.append(["TOTAL BORROWED FUNDS","","","",tot_loanlia])
 		
 			if (difamount != "0.00"):
 				if (Flag == "netLoss"):
@@ -1206,7 +1234,7 @@ class reports(xmlrpc.XMLRPC):
 					amount= float(tot_capital) + \
 						float(tot_loanlia) + \
 						(float(tot_reserves) + float(profitloss[1]) - float(tot_miscellaneous))
-				LeftList.append(["TOTAL FUNDS AVAILABLE / CAPITAL EMPLOYED","","",'%.2f'%float(amount)])
+				LeftList.append(["TOTAL FUNDS AVAILABLE / CAPITAL EMPLOYED","","","",'%.2f'%float(amount)])
 			else:
 				if (Flag == "netLoss"):
 					amount= float(tot_capital) + \
@@ -1216,88 +1244,102 @@ class reports(xmlrpc.XMLRPC):
 					amount= float(tot_capital) + \
 						float(tot_loanlia) + \
 						(float(tot_reserves) + float(profitloss[1]) - float(tot_miscellaneous))
-				LeftList.append(["TOTAL FUNDS AVAILABLE / CAPITAL EMPLOYED","","",'%.2f'%float(amount)])
+				LeftList.append(["TOTAL FUNDS AVAILABLE / CAPITAL EMPLOYED","","","",'%.2f'%float(amount)])
 			finallist.append(LeftList)
 		
 			###################### secound list ####################
 		
 			RightList = []
-			RightList.append(["Particulars","Amount","Amount","Amount"])
-			RightList.append(["APPLICATION OF FUNDS","","",""])
+			RightList.append(["Particulars","Debit","Credit","Amount","Amount"])
+			RightList.append(["APPLICATION OF FUNDS","","","",""])
 			
 			if (tot_fixedasset != "0.00"):
-				RightList.append(["      FIXED ASSETS","","",""])
+				RightList.append(["        FIXED ASSETS","","","",""])
 		
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 6):
 				
 						account=baltrialdata[i][2]
-						amount = baltrialdata[i][3]
-				
-						RightList.append(["            "+account,amount,"",""])
-				RightList.append(["TOTAL FIXED ASSETS(NET)","","",tot_fixedasset])
+						amount = float(baltrialdata[i][3])
+						if(amount<0):
+							RightList.append(["              "+account,"",'%.2f'%(abs(amount)),"",""])
+						else:
+							RightList.append(["              "+account,'%.2f'%(amount),"","",""])
+				RightList.append(["TOTAL FIXED ASSETS(Net)","","","",tot_fixedasset])
 			
 			if (tot_investment != "0.00"):
-				RightList.append(["      INVESTMENT","","",""])	
+				RightList.append(["        INVESTMENT","","","",""])	
 		
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 9):
 						account =baltrialdata[i][2]
-						amount=	baltrialdata[i][3]
-						RightList.append(["            "+account,amount,"",""])	
-				RightList.append(["TOTAL LONG TERM INVESTMENTS","","",tot_investment])
+						amount = float(baltrialdata[i][3])
+						if(amount<0):
+							RightList.append(["              "+account,"",'%.2f'%(abs(amount)),"",""])
+						else:
+							RightList.append(["              "+account,'%.2f'%(amount),"","",""])
+				RightList.append(["TOTAL LONG TERM INVESTMENTS","","","",tot_investment])
 			
 			
 			if (tot_loansasset != "0.00"):
-				RightList.append(["      LOANS(ASSETS)","","",""])		
+				RightList.append(["        LOANS(Asset)","","","",""])		
 		
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 10):
 						account =baltrialdata[i][2]
-						amount=	baltrialdata[i][3]
-						RightList.append(["            "+account,amount,"",""])	
-				RightList.append(["TOTAL LOANS(ASSETS)","","",tot_loansasset])
+						amount = float(baltrialdata[i][3])
+						if(amount<0):
+							RightList.append(["              "+account,"",'%.2f'%(abs(amount)),"",""])
+						else:
+							RightList.append(["              "+account,'%.2f'%(amount),"","",""])
+				RightList.append(["TOTAL LOANS(Asset)","","","",tot_loansasset])
 			
 			if (tot_currentasset != "0.00"):
-				RightList.append(["      WORKING CAPITAL","","",""])		
-				RightList.append(["      CURRENT ASSETS","","",""])	
+				RightList.append(["        WORKING CAPITAL","","","",""])		
+				RightList.append(["        CURRENT ASSETS","","","",""])	
 		
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 2):
 						account=baltrialdata[i][2]
-						amount=baltrialdata[i][3]
-						RightList.append(["            "+account,amount,"",""])
-				RightList.append(["TOTAL CURRENT ASSETS","",tot_currentasset,""])
+						amount = float(baltrialdata[i][3])
+						if(amount<0):
+							RightList.append(["              "+account,"",'%.2f'%(abs(amount)),"",""])
+						else:
+							RightList.append(["              "+account,'%.2f'%(amount),"","",""])
+				RightList.append(["TOTAL CURRENT ASSETS","","",tot_currentasset,""])
 			
 			if (tot_currlia != "0.00"):		
-				RightList.append(["      LESS:","","",""])
-				RightList.append(["      CURRENT LIABILITIES","","",""])
+				RightList.append(["        LESS:","","","",""])
+				RightList.append(["        CURRENT LIABILITIES","","","",""])
 			
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 3):
 						account=baltrialdata[i][2]
-						amount=baltrialdata[i][3]
-						RightList.append(["            "+account,amount,"",""])
-				RightList.append(["TOTAL CURRENT LIABILITIES","",tot_currlia,""])
+						amount = float(baltrialdata[i][3])
+						if(amount<0):
+							RightList.append(["              "+account,"",'%.2f'%(abs(amount)),"",""])
+						else:
+							RightList.append(["              "+account,'%.2f'%(amount),"","",""])
+				RightList.append(["TOTAL CURRENT LIABILITIES","","",tot_currlia,""])
 			
 			
 			amount = float(tot_currentasset) - float(tot_currlia)
 			if (amount != 0):
 			
-				RightList.append(["NET CURRENT ASSETS OR WORKING CAPITAL","","",'%.2f'%float(amount)])	
-				RightList.append(["      CURRENT ASSETS","","",""])	
+				RightList.append(["NET CURRENT ASSETS OR WORKING CAPITAL","","","",'%.2f'%float(amount)])	
+				RightList.append(["        CURRENT ASSETS","","","",""])	
 		
 			
 			if (difamount != "0.00"):
 				amount= float(tot_fixedasset) + \
 					float(tot_investment) + \
 					float(tot_loansasset) + (float(tot_currentasset) - float(tot_currlia))
-				RightList.append(["TOTAL FUNDS AVAILABLE / CAPITAL EMPLOYED","","",'%.2f'%float(amount)])
+				RightList.append(["TOTAL FUNDS AVAILABLE / CAPITAL EMPLOYED","","","",'%.2f'%float(amount)])
 			else:
 				amount= float(tot_fixedasset) + \
 					float(tot_investment) + \
 					float(tot_loansasset) + (float(tot_currentasset) - float(tot_currlia))
-				RightList.append(["TOTAL FUNDS AVAILABLE / CAPITAL EMPLOYED","","",'%.2f'%float(amount)])
+				RightList.append(["TOTAL FUNDS AVAILABLE / CAPITAL EMPLOYED","","","",'%.2f'%float(amount)])
 			finallist.append(RightList)
 		
 			if (difamount != "0.00"):
@@ -1309,7 +1351,7 @@ class reports(xmlrpc.XMLRPC):
 			finallist.append([flag])
 			print finallist
 			return finallist
-
+			
 	def xmlrpc_getProfitLossReport(self,queryParams,client_id):
 		"""
 		Purpose: gets profit and loss as on the given date.
