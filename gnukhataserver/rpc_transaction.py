@@ -212,15 +212,22 @@ class transaction(xmlrpc.XMLRPC):
 			result = dbconnect.engines[client_id].execute(statement).fetchall()
 		else:
 			project_code = self.xmlrpc_getProjectcodeByProjectName([str(queryParams[3])],client_id)
+			print "main params"
+			print str(project_code)
+			print queryParams[0]
+			print queryParams[1]
+			print queryParams[2]
 			statement = "select vouchercode, typeflag ,reffdate,reference,amount,narration\
 					from view_voucherbook\
 					where account_name = '"+queryParams[0]+"'\
 					and projectcode = '"+str(project_code)+"'\
-					and reffdate >= '"+queryParams[1]+"'\
-					and reffdate <= '"+queryParams[2]+"'\
+					and reffdate >= '"+from_date +"'\
+					and reffdate <= '"+to_date+"'\
 					and flag == 1\
 					order by reffdate"
 			result = dbconnect.engines[client_id].execute(statement).fetchall()
+			print "result before result"
+			print result
 		print "result"
 		print result
 		transactionlist = []
@@ -342,7 +349,7 @@ class transaction(xmlrpc.XMLRPC):
  		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		print "search parameters"
-		print queryParams
+		
 		from_date = datetime.strptime(str(queryParams[2]),"%d-%m-%Y")
 		to_date = datetime.strptime(str(queryParams[3]),"%d-%m-%Y")
 		if queryParams[0] == 1: 
@@ -353,15 +360,14 @@ class transaction(xmlrpc.XMLRPC):
 			print "search voucher by reference no"
 			
 		if queryParams[0] == 2:	
-			print from_date
-			print to_date
+			
 			result = Session.query(dbconnect.VoucherMaster).\
 						filter(and_(dbconnect.VoucherMaster.reffdate >= from_date,\
 						dbconnect.VoucherMaster.reffdate <= to_date,\
 						dbconnect.VoucherMaster.flag == 1)).\
 			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
 			print "search by date "
-			   
+			 
 		if queryParams[0] == 3:	
 			result = Session.query(dbconnect.VoucherMaster).\
 			filter(and_(dbconnect.VoucherMaster.flag == 1,\
@@ -380,7 +386,7 @@ class transaction(xmlrpc.XMLRPC):
 				reffdate = str(row.reffdate).split(" ")
 				ref_date = datetime.strptime(reffdate[0],"%Y-%m-%d").strftime("%d-%m-%Y")
 				voucherlists.append([row.vouchercode,row.reference,ref_date,row.vouchertype,row.narration])
-			#Sprint voucherlists  
+			print voucherlists  
 			return voucherlists 
 			
 	def xmlrpc_getVoucherAmount(self,queryParams,client_id):
@@ -395,7 +401,7 @@ class transaction(xmlrpc.XMLRPC):
 			     		and typeflag ='Cr'"
 			     		
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
-		print result[0]
+		
 		if result[0] == None:
 			return []
 		else:
@@ -631,4 +637,63 @@ class transaction(xmlrpc.XMLRPC):
 		else:
 			return False
 				
-				
+	def xmlrpc_getLastReference(self,queryParams,client_id):
+		'''
+		Purpose: To get last reference number for respective vouchertype
+		Input parameters:[vouchertype]
+		Output parameters:[reffno]
+	
+		'''
+		print "reff"
+		print queryParams[0]
+		
+		statement = "select count(vouchercode)\
+				from view_voucherbook\
+				where vouchertype = '"+queryParams[0]+"'"
+		maxcode = dbconnect.engines[client_id].execute(statement).fetchone()
+		
+		if maxcode[0] > 0:
+			statement = "select reference\
+					from view_voucherbook\
+					where vouchercode = (\
+								select max(vouchercode)from view_voucherbook \
+								where vouchertype = '"+queryParams[0]+"'\
+								and flag = 1)"
+			reffno = dbconnect.engines[client_id].execute(statement).fetchone()
+			reffno = reffno.reference
+		else :
+			reffno = str(maxcode[0]+1)
+		print reffno
+		print "reffno"	
+		return reffno
+		
+	def xmlrpc_getLastReffDate(self,queryParams,client_id):
+		'''
+		Purpose: To get last reference date for respective vouchertype
+		Input parameters:[financial_start,voucher_type]
+		Output parameters:[reference_date]
+	
+		'''
+		statement = "select count(vouchercode)\
+				from view_voucherbook\
+				where vouchertype = '"+queryParams[1]+"'"
+		maxcode = dbconnect.engines[client_id].execute(statement).fetchone()
+		
+		reff_date = datetime.strptime(str(queryParams[0]),"%d-%m-%Y")
+		if maxcode[0] > 0:
+			statement = "select reffdate\
+					from view_voucherbook\
+					where vouchercode = (\
+								select max(vouchercode)from view_voucherbook \
+								where vouchertype = '"+queryParams[1]+"'\
+								and flag = 1)"
+			reff_date= dbconnect.engines[client_id].execute(statement).fetchone()
+			reff_date = str(reff_date.reffdate).split(" ")
+			reff_date = datetime.strptime(reff_date[0],"%Y-%m-%d").strftime("%d-%m-%Y")
+			
+		else :
+			reff_date = str(queryParams[0])
+			
+		return reff_date
+		
+	

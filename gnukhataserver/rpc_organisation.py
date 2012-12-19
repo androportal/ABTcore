@@ -120,15 +120,16 @@ class organisation(xmlrpc.XMLRPC):
 		'''
 		Purpose : function for add organisation details in database
 		if orgtype is 'NGO then				
-			i/p parameters : orgtype,orgaddress,orgcity,orgpincode,orgstate,
+			i/p parameters : orgtype,orgname,orgaddress,orgcity,orgpincode,orgstate,
 					 orgcountry,orgtelno,orgfax,orgwebsite,orgemail,
-					 orgpan,orgregno,orgregdate,
+					 orgpan,"","",orgregno,orgregdate,
 					 orgfcrano,orgfcradate,client_id
 		else 
-			i/p parameters : orgtype,orgaddress,orgcity,orgpincode,orgstate,
+			i/p parameters : orgtype,orgname,orgaddress,orgcity,orgpincode,orgstate,
 					 orgcountry,orgtelno,orgfax,orgwebsite,orgemail,
-					 orgpan,orgmvat,orgstax,client_id
-					 
+					 orgpan,orgmvat,orgstax,"","",
+					 "","",client_id
+		
 		o/p parameter : true or false
 		'''
 		queryParams = blankspace.remove_whitespaces(queryParams)
@@ -148,49 +149,94 @@ class organisation(xmlrpc.XMLRPC):
 		Session.close()
 		connection.connection.close()
 		return True 
-	'''
-
-	def xmlrpc_getOrganisation(self,client_id):
+	
+	def xmlrpc_getorgTypeByname(self, queryParams, client_id):   
+		'''
+		Purpose   : Function for getting if an orgtype with supplied
+		        orgname.    
+		Parameters : queryParams which is a list containing one element,
+		        orgname as string.
+		Returns :  orgtype if orgname match else eturn false string
+		Description : Querys the Organisation table and sees if an orgname
+		    similar to one provided as a parameter.
+		    if it exists then it will return orgtype related orgname
+		'''
+		print  queryParams[0]
+		queryParams = blankspace.remove_whitespaces(queryParams)
+		connection = dbconnect.engines[client_id].connect()
+	        Session = dbconnect.session(bind=connection)
+	        result = Session.query(dbconnect.Organisation).\
+	           		 filter(dbconnect.Organisation.orgname == queryParams[0]).\
+	               		 first()
+		Session.close()
+	        connection.connection.close()
 		
-		Purpose : function to get all the details of organisation from database					
+		if result == None:
+		    return "0"   
+		else:
+		    return result.orgtype
+            
+	def xmlrpc_getOrganisation(self,client_id):
+		'''
+		Purpose:function to get all the details of organisation from database					
 		i/p parameters : client_id
 		o/p parameter : true if result contain value else false
-	
+		'''
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.Organisation).all()
-		Session.commit()
+		Session.close()
+		connection.connection.close()
 		if result == []:
-			return False
+			return result
 		else:
 			orgdetail_list = []
 			for l in result:
-				orgdetail_list.append([l.orgcode,l.orgtype,l.orgname,l.orgaddr,l.orgcity,l.orgpincode,l.orgstate,l.orgcountry,l.orgtelno,l.orgfax,l.orgwebsite,l.orgemail,l.orgpan,l.orgmvat,l.orgstax,l.orgregno,l.orgregdate,l.orgfcrano,l.orgfcradate])
+				orgdetail_list.append([\
+						l.orgcode,l.orgtype,l.orgname,l.orgaddr,\
+						l.orgcity,l.orgpincode,l.orgstate,l.orgcountry,\
+						l.orgtelno,l.orgfax,l.orgwebsite,l.orgemail,\
+						l.orgpan,l.orgmvat,l.orgstax,l.orgregno,\
+						l.orgregdate,l.orgfcrano,l.orgfcradate\
+						])
 			return orgdetail_list
-			print orgdetail_list
-		Session.close()
-		connection.connection.close()
-		return True	
-	
-	def xmlrpc_updateOrg(self,queryParams_org,client_id):
-		
+			
+	def xmlrpc_updateOrg(self,queryParams,client_id):
+		'''
 		Purpose: updating the orgdetails after edit organisation
 		i/p parameters:
-		orgcode,orgaddress,orgcountry,orgstate,orgcity,orgpincode,orgtelno,orgfax,orgemail,
-		orgwebsite,orgmvat,orgstax,orgregno,orgregdate,orgfcrano,orgfcradate,orgpan,client_id
+				orgcode,orgaddress,orgcountry,orgstate,
+				orgcity,orgpincode,orgtelno,orgfax,orgemail,
+				orgwebsite,orgmvat,orgstax,orgregno,
+				orgregdate,orgfcrano,orgfcradate,orgpan,
+				client_id
 		o/p parameter : string
-		
+		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		stmt = "update organisation set orgaddr='"+queryParams_org[1]+"',orgcountry='"+queryParams_org[2]+"',orgstate='"+queryParams_org[3]+"',orgcity='"+queryParams_org[4]+"',orgpincode='"+queryParams_org[5]+"',orgtelno='"+queryParams_org[6]+"',orgfax='"+queryParams_org[7]+"',orgemail='"+queryParams_org[8]+"',orgwebsite='"+queryParams_org[9]+"',orgmvat='"+queryParams_org[10]+"',orgstax='"+queryParams_org[11]+"',orgregno='"+queryParams_org[12]+"',orgregdate='"+queryParams_org[13]+"',orgfcrano='"+queryParams_org[14]+"',orgfcradate='"+queryParams_org[15]+"',orgpan='"+queryParams_org[16]+"' where orgcode='"+queryParams_org[0]+"'"	
-		dbconnect.engines[client_id].execute(stmt)
-		#print "work done"
-		winmsg = "Organisation Updated Successfully"
-		#print winmsg
+		statement = "update organisation set orgaddr='"+queryParams[1]+"',\
+						orgcountry='"+queryParams[2]+"',\
+						orgstate='"+queryParams[3]+"',\
+						orgcity='"+queryParams[4]+"',\
+						orgpincode='"+queryParams[5]+"',\
+						orgtelno='"+queryParams[6]+"',\
+						orgfax='"+queryParams[7]+"',\
+						orgemail='"+queryParams[8]+"',\
+						orgwebsite='"+queryParams[9]+"',\
+						orgmvat='"+queryParams[10]+"',\
+						orgstax='"+queryParams[11]+"',\
+						orgregno='"+queryParams[12]+"',\
+						orgregdate='"+queryParams[13]+"',\
+						orgfcrano='"+queryParams[14]+"',\
+						orgfcradate='"+queryParams[15]+"',\
+						orgpan='"+queryParams[16]+"'\
+						where orgcode='"+queryParams[0]+"'"	
+		dbconnect.engines[client_id].execute(statement)
 		Session.commit()
 		Session.close()
 		connection.connection.close()
-		return winmsg
+		return "upadte successfully"
 
-'''
+
 

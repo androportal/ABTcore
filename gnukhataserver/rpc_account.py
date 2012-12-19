@@ -32,7 +32,7 @@ class account(xmlrpc.XMLRPC):
 		Returns True
 		""" 
 		group = rpc_groups.groups()
-		print queryParams
+		
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		sp_params = [queryParams[0], queryParams[3]] # create sp_params list contain  groupname , accountname 
 		if queryParams[2] == "": # check for the new-subgroupname if blank then 
@@ -63,28 +63,37 @@ class account(xmlrpc.XMLRPC):
 			sp_params.append("null") # if blank then append "null"
 		else:
 			sp_params.append(queryParams[7]) # else append suggestedcode
-		print "sp_params"
-		print sp_params
+		
 		# execute here
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		# call getGroupCodeByGroupName() pass param groupname will return groupcode
 		group_code = group.xmlrpc_getGroupCodeByGroupName([sp_params[0]], client_id); 
 		# check for accountcode if null
-		print "groupcode" 
-		print group_code
+		
  		if sp_params[6] == 'null': # then
- 			maxcode = Session.query(func.count(dbconnect.Account.accountcode)).scalar() # query on accountcode to get count
  			
- 			if maxcode == None:
+ 			result = Session.query(dbconnect.Account.accountcode).\
+		      	 		order_by(dbconnect.Account.accountcode).\
+		      		all()
+		      	accountcode = []
+		      	print "result"
+		      	print result
+			if result == []:
+				maxcode = []
+			else:
+				for row in result:
+					accountcode.append(int(row.accountcode))
+					maxcode = accountcode
+ 			
+ 			
+ 			if maxcode == []:
 				maxcode = 0
 				sp_params[6] = int(maxcode) + 1;
 			else:
+				maxcode = max(maxcode)
 				sp_params[6] = int(maxcode) + 1;
 		# check for new-subgropname if null	
-		print "subgroupname"
-		print sp_params
-		
 		if sp_params[2] == 'null': # then 
 			# add all values in the account table
 			Session.add(dbconnect.Account(\
@@ -96,8 +105,7 @@ class account(xmlrpc.XMLRPC):
 			
 			subgroup_code =  group.xmlrpc_getSubGroupCodeBySubGroupName([sp_params[2]], client_id)
 			# check for subgroupcode if False 
-			print "subgroupcode"
-			print subgroup_code
+			
 			if subgroup_code == [] : # then 
 			        # call setSubGroup pass params groupname , new-subgroupname , client-id
    				group.xmlrpc_setSubGroup([sp_params[0],sp_params[2]],client_id); 
@@ -134,7 +142,7 @@ class account(xmlrpc.XMLRPC):
 		        in ('Corpus','Capital','Current Liability','Loans(Liability)','Reserves')"
 		
 		res=dbconnect.engines[client_id].execute(stmt).fetchone()
-		print res.totalcrbal
+		
 		if res.totalcrbal == None:
 			return '%.2f'%(0.00)
 		else:
@@ -160,7 +168,7 @@ class account(xmlrpc.XMLRPC):
 		        where groupname \
 		        in ('Current Asset','Fixed Assets','Investment','Loans(Asset)','Miscellaneous Expenses(Asset)')"
 		res=dbconnect.engines[client_id].execute(stmt).fetchone()
-		print res.totaldrbal
+		
 		if res.totaldrbal == None:
 			return '%.2f'%(0.00)
 		else:
@@ -192,8 +200,7 @@ class account(xmlrpc.XMLRPC):
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		SuggestedAccountCode = Session.query(func.count(dbconnect.Account.accountcode)).\
 		filter(dbconnect.Account.accountcode.like(str(queryParams[0])+'%')).scalar()
-		print "suggested code"
-		print SuggestedAccountCode
+		
 		if SuggestedAccountCode == 0:
 			return str(queryParams[0] + "100")
 		else:
@@ -243,13 +250,13 @@ class account(xmlrpc.XMLRPC):
 		Session.commit()
 		Session.close()
 		connection.connection.close()
-		print result    		
+			
 		accountnames = []
 		if result == None:
 			return []
 		for row in result:
 			accountnames.append(row.accountname)
-		print accountnames 
+		
 		return accountnames
 	
 	def xmlrpc_getAllAccountCodes(self,client_id):
@@ -267,13 +274,13 @@ class account(xmlrpc.XMLRPC):
 		Session.commit()
 		Session.close()
 		connection.connection.close()
-		print result    		
+				
 		accountcodes = []
 		if result == None:
 			return []
 		for row in result:
 			accountcodes.append(row.accountcode)
-		print accountcodes 
+		
 		return accountcodes
 		
 	def xmlrpc_getAllBankAccounts(self,client_id):
@@ -297,7 +304,7 @@ class account(xmlrpc.XMLRPC):
 	def xmlrpc_getCashFlowOpening(self,client_id):
 		'''
 		output parameters:accountname,openingbalance
-		Purpose: to get all accountnames which is not in 
+		Purpose: to get all accountnames which is in 
 		under Bank and cash subgroup
 		'''
 		statement = "select accountname,openingbalance\
@@ -399,8 +406,7 @@ class account(xmlrpc.XMLRPC):
 		Session.commit()
 		Session.close()
 		connection.connection.close()
-		print "account result"
-		print result
+		
 		if result == 0:
 			return "0"
 		else:
@@ -429,8 +435,7 @@ class account(xmlrpc.XMLRPC):
 		      scalar()
 		Session.close()
 		connection.connection.close()
-		print "account result"
-		print result
+		
 		if result == 0:
 			return "0"
 		else:
@@ -474,8 +479,6 @@ class account(xmlrpc.XMLRPC):
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.Account).\
 			filter(dbconnect.Account.accountcode == spQueryParams[1]).first()
-		print "edit account"
-		
 		resultParams = [float(result.openingbalance),float(result.balance)]
 		if resultParams[0] == spQueryParams[2]:
 		
@@ -491,9 +494,7 @@ class account(xmlrpc.XMLRPC):
 		Session.commit()
 		Session.close()
 		connection.connection.close()
-		print spQueryParams
 		
-		print "current balance"
 		return final_balance
 		
 		
@@ -549,15 +550,14 @@ class account(xmlrpc.XMLRPC):
 		Session.commit()
 		Session.close()
 		connection.connection.close()
-		print result
-		print "account name based on groupname"
+		
 		accountnames = []
 		if result == []:
 			return result
 		else:
 			for account in result:
 				accountnames.append(str(account[0]))
-			print accountnames
+			
 			return accountnames
 		
 	def xmlrpc_getAccountNamesByProjectName(self,queryParams,client_id):
@@ -593,7 +593,7 @@ class account(xmlrpc.XMLRPC):
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.Account).\
 		      	 	filter(dbconnect.Account.accountname == queryParams[0]).\
-		      		update({'accountcode':0})
+		      		delete()
 		Session.commit()
 		Session.close()
 		connection.connection.close()	
@@ -602,9 +602,11 @@ class account(xmlrpc.XMLRPC):
 		
 	def xmlrpc_hasOpeningBalance(self, queryParams, client_id):
 		'''
-		Purpose   : Function to find out whether the given account has opening balance or not
+		Purpose   : Function to find out whether the given account 
+		has opening balance or not
 		Parameters : queryParams is a account name as string.
-		Returns :  if opening balance of that account name is equal to 0 then return 0 or else return 1
+		Returns : if opening balance of that account name is 
+		equal to 0 then return 0 or else return 1
 		'''
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
@@ -647,6 +649,10 @@ class account(xmlrpc.XMLRPC):
 		
 	def xmlrpc_deleteAccountNameMaster(self,queryParams,client_id):
 		'''
+		i/p: A list containing first element as accountname or accountcode and
+				second element is flag(if first element is accountname, flag is 1 and
+				if if fist element is accountcode, flag is 2)
+				
 		Purpose   : Function for deleting accounts. 
 		
 		For this we have used hasOpeningBalance,hasTransactions & deleteAccount 
@@ -670,20 +676,51 @@ class account(xmlrpc.XMLRPC):
 		'''
 		connection = dbconnect.engines[client_id].connect()
         	Session = dbconnect.session(bind=connection)
-
-        	hasOpeningBalance = self.xmlrpc_hasOpeningBalance([str(queryParams[0])],client_id)
-        	hasTransactions = self.xmlrpc_hasTransactions([str(queryParams[0])],client_id)
+        	#if flag is 1, that means first element is account name
+        	if queryParams[1] == 1:
+        		accName = str(queryParams[0])
+    			hasOpeningBalance = self.xmlrpc_hasOpeningBalance([accName],client_id)
+    			hasTransactions = self.xmlrpc_hasTransactions([accName],client_id)
+    		else:
+    			#if flag is 2, that means first element is account code,
+    			#we have to get accountname by accountcode
+    			accName = self.xmlrpc_getAccountNameByAccountCode([str(queryParams[0])],client_id)
+    			hasOpeningBalance = self.xmlrpc_hasOpeningBalance([accName],client_id)
+    			hasTransactions = self.xmlrpc_hasTransactions([accName],client_id)
         	Session.close()
         	connection.connection.close()
 		if(str(hasOpeningBalance) == "0" and str(hasTransactions) == "0"):
-		    self.xmlrpc_deleteAccount([str(queryParams[0])],client_id)
+		    self.xmlrpc_deleteAccount([accName],client_id)
 		    return "account deleted"
 		elif(str(hasOpeningBalance) == "1" and str(hasTransactions) == "1"):
-		    self.xmlrpc_deleteAccount([str(queryParams[0])],client_id)
 		    return "has both opening balance and trasaction"
 		elif(str(hasOpeningBalance) == "1"):
 		    return "has opening balance"
 		elif(str(hasTransactions) == "1"):
 		    return "has transaction"
 		
+		
+		def xmlrpc_getAccountNameByAccountCode(self, queryParams, client_id):	
+			'''
+			i/p: accountcode
+			Purpose   : Function for getting if an accountname with supplied 
+					accountcode. 	
+			Returns : accoutname if acountcode match else eturn false string
+			Description : Querys the account table and sees if an acountcode
+				similar to one provided as a parameter.
+				if it exists then it will return accountname related accountcode
+			'''
+			connection = dbconnect.engines[client_id].connect()
+			Session = dbconnect.session(bind=connection)
+			result = Session.query(dbconnect.Account.accountname).\
+				  	 	filter(dbconnect.Account.accountcode == queryParams[0]).\
+				  		first()
+			Session.commit()
+			Session.close()
+			connection.connection.close()
+			print result
+			if result == None:
+				return []
+			else:
+				return result[0]
 		
