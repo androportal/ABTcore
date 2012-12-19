@@ -701,26 +701,26 @@ class account(xmlrpc.XMLRPC):
 		
 		
 		def xmlrpc_getAccountNameByAccountCode(self, queryParams, client_id):	
-		'''
-		i/p: accountcode
-		Purpose   : Function for getting if an accountname with supplied 
-				accountcode. 	
-		Returns : accoutname if acountcode match else eturn false string
-		Description : Querys the account table and sees if an acountcode
-			similar to one provided as a parameter.
-			if it exists then it will return accountname related accountcode
-		'''
-		connection = dbconnect.engines[client_id].connect()
-		Session = dbconnect.session(bind=connection)
-		result = Session.query(dbconnect.Account.accountname).\
-		      	 	filter(dbconnect.Account.accountcode == queryParams[0]).\
-		      		first()
-		Session.commit()
-		Session.close()
-		connection.connection.close()
-		print result
-		if result == None:
-			return []
-		else:
-			return result[0]
+			'''
+			i/p: accountcode
+			Purpose   : Function for getting if an accountname with supplied 
+					accountcode. 	
+			Returns : accoutname if acountcode match else eturn false string
+			Description : Querys the account table and sees if an acountcode
+				similar to one provided as a parameter.
+				if it exists then it will return accountname related accountcode
+			'''
+			connection = dbconnect.engines[client_id].connect()
+			Session = dbconnect.session(bind=connection)
+			result = Session.query(dbconnect.Account.accountname).\
+				  	 	filter(dbconnect.Account.accountcode == queryParams[0]).\
+				  		first()
+			Session.commit()
+			Session.close()
+			connection.connection.close()
+			print result
+			if result == None:
+				return []
+			else:
+				return result[0]
 		
