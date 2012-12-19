@@ -649,6 +649,10 @@ class account(xmlrpc.XMLRPC):
 		
 	def xmlrpc_deleteAccountNameMaster(self,queryParams,client_id):
 		'''
+		i/p: A list containing first element as accountname or accountcode and
+				second element is flag(if first element is accountname, flag is 1 and
+				if if fist element is accountcode, flag is 2)
+				
 		Purpose   : Function for deleting accounts. 
 		
 		For this we have used hasOpeningBalance,hasTransactions & deleteAccount 
@@ -672,20 +676,51 @@ class account(xmlrpc.XMLRPC):
 		'''
 		connection = dbconnect.engines[client_id].connect()
         	Session = dbconnect.session(bind=connection)
-
-        	hasOpeningBalance = self.xmlrpc_hasOpeningBalance([str(queryParams[0])],client_id)
-        	hasTransactions = self.xmlrpc_hasTransactions([str(queryParams[0])],client_id)
+        	#if flag is 1, that means first element is account name
+        	if queryParams[1] == 1:
+        		accName = str(queryParams[0])
+    			hasOpeningBalance = self.xmlrpc_hasOpeningBalance([accName],client_id)
+    			hasTransactions = self.xmlrpc_hasTransactions([accName],client_id)
+    		else:
+    			#if flag is 2, that means first element is account code,
+    			#we have to get accountname by accountcode
+    			accName = self.xmlrpc_getAccountNameByAccountCode([str(queryParams[0])],client_id)
+    			hasOpeningBalance = self.xmlrpc_hasOpeningBalance([accName],client_id)
+    			hasTransactions = self.xmlrpc_hasTransactions([accName],client_id)
         	Session.close()
         	connection.connection.close()
 		if(str(hasOpeningBalance) == "0" and str(hasTransactions) == "0"):
-		    self.xmlrpc_deleteAccount([str(queryParams[0])],client_id)
+		    self.xmlrpc_deleteAccount([accName],client_id)
 		    return "account deleted"
 		elif(str(hasOpeningBalance) == "1" and str(hasTransactions) == "1"):
-		    self.xmlrpc_deleteAccount([str(queryParams[0])],client_id)
 		    return "has both opening balance and trasaction"
 		elif(str(hasOpeningBalance) == "1"):
 		    return "has opening balance"
 		elif(str(hasTransactions) == "1"):
 		    return "has transaction"
 		
+		
+		def xmlrpc_getAccountNameByAccountCode(self, queryParams, client_id):	
+		'''
+		i/p: accountcode
+		Purpose   : Function for getting if an accountname with supplied 
+				accountcode. 	
+		Returns : accoutname if acountcode match else eturn false string
+		Description : Querys the account table and sees if an acountcode
+			similar to one provided as a parameter.
+			if it exists then it will return accountname related accountcode
+		'''
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Account.accountname).\
+		      	 	filter(dbconnect.Account.accountcode == queryParams[0]).\
+		      		first()
+		Session.commit()
+		Session.close()
+		connection.connection.close()
+		print result
+		if result == None:
+			return []
+		else:
+			return result[0]
 		
