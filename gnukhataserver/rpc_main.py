@@ -109,7 +109,8 @@ class gnukhata(xmlrpc.XMLRPC):
 				financialyear_to = org.find("financial_year_to")
 				from_and_to = [financialyear_from.text, financialyear_to.text]
 				financialyearlist.append(from_and_to)
-		
+		print "financialyearlist"
+		print financialyearlist
 		return financialyearlist
 		
 	def xmlrpc_getConnection(self,queryParams):

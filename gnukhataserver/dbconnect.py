@@ -183,13 +183,13 @@ bankrecon_table = BankRecon.__table__
 class Organisation(Base):
     __tablename__ = 'organisation'
     orgcode = Column(Integer, primary_key=True)
-    orgtype = Column(Text, nullable=False)
     orgname = Column(Text, nullable=False)
-    orgaddr = Column(Text)
-    orgcity = Column(Text)
-    orgpincode = Column(String(30))
-    orgstate = Column(Text)
+    orgtype = Column(Text, nullable=False)
     orgcountry = Column(Text)
+    orgstate = Column(Text)
+    orgcity = Column(Text)
+    orgaddr = Column(Text)
+    orgpincode = Column(String(30))
     orgtelno = Column(Text)
     orgfax = Column(Text)
     orgwebsite = Column(Text)
@@ -202,16 +202,17 @@ class Organisation(Base):
     orgfcrano = Column(Text)
     orgfcradate = Column(Text)
 
-    def __init__(self, orgtype, orgname, orgaddr, orgcity, orgpincode, orgstate,
-     orgcountry, orgtelno, orgfax, orgwebsite, orgemail, orgpan, orgmvat, orgstax,
+    def __init__(self,orgname,orgtype,orgcountry,orgstate,orgcity,orgaddr,orgpincode,
+     orgtelno, orgfax, orgwebsite, orgemail, orgpan, orgmvat, orgstax,
       orgregno, orgregdate, orgfcrano, orgfcradate):    
-        self.orgtype = orgtype
+       
         self.orgname = orgname
-        self.orgaddr = orgaddr
-        self.orgcity = orgcity
-        self.orgpincode = orgpincode
-        self.orgstate = orgstate
+        self.orgtype = orgtype
         self.orgcountry = orgcountry
+        self.orgstate = orgstate
+        self.orgcity = orgcity
+        self.orgaddr = orgaddr
+        self.orgpincode = orgpincode
         self.orgtelno = orgtelno
         self.orgfax = orgfax
         self.orgwebsite = orgwebsite

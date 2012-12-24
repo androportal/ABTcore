@@ -11,6 +11,7 @@ from twisted.web import xmlrpc, server
 from twisted.internet import reactor
 #inherit the class from XMLRPC to make it publishable as an rpc service.
 from modules import blankspace
+import rpc_transaction
 class organisation(xmlrpc.XMLRPC):
 
 	"""
@@ -53,54 +54,56 @@ class organisation(xmlrpc.XMLRPC):
 	
 	def xmlrpc_getPreferences(self,queryParams,client_id):
 		"""
-		Purpose: finding the appropriate preferences i/p
-		parameters: flagno o/p parameter : flagname
+		Purpose: Finding the appropriate preferences 
+			 if flag no is "2" then will return
+			 accountcode flag value.
+			 If flag no is "1" then will return 
+			 refeno flag value
+			 
+		Input: queryParams[flagname]
+		
+		Output: It returns flagno depnd on flagname
 
-		Description : if flag no is "2" then will return
-			      accountcode flag value. If flag no is
-			      "1" then will return refeno flag value
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		print queryParams[0]
 		result = Session.query(dbconnect.Flags).\
 				filter(dbconnect.Flags.flagno == queryParams[0]).\
 				first()
-		#print res.flagname
+		
 		if result == []:
 			return result
 		else:
-			print result.flagname
 			return result.flagname
-
-		Session.commit()
+		
 		Session.close()
 		connection.connection.close()
 		
 	def xmlrpc_setProjects(self,queryParams,client_id):
 		"""
-		Purpose: function for set projects for a particular
-		organisation i/p parameters: projectname
-		(datatype:text) o/p parameter : Boolean True
+		Purpose: Function for set projects for a particular
+			organisation 
+			
+		Input: queryParams[projectname(datatype:text)]
+		
+		Output: Returns boolean true if projectname added
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		Session.add_all([dbconnect.Projects(None,queryParams[0])])
 		Session.commit()
-		description='Created Project '+queryParams[0]
-		#dbconnect.setLog([6,description],client_id)
-
 		return True
 		
 	def xmlrpc_getAllProjects(self,client_id):
 		"""
-		Purpose: function for get all projects for a
-		particular organisation i/p parameters:client_id o/p
-		parameter :if list is blank then return False else
-		list of list projectcaode(datatype:Integer) and
-		projectname(datatype:text)
+		Purpose: function for get list of all projectnames for a
+			particular organisation 
+			
+		Output: if list is blank then return empty list
+			else returns list of list projectcaode(datatype:Integer) and
+			projectname(datatype:text)
 		"""
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
@@ -115,26 +118,123 @@ class organisation(xmlrpc.XMLRPC):
 				projects.append([result[i].projectcode, result[i].projectname])
 			return projects
 		
+	def xmlrpc_deleteProject(self, queryParams, client_id):
+		"""
+		Purpose: Function for deleting project name
 		
+		Input: queryParams[projectname(datatype:String)]
+		
+		Output: returns 1 String , when project is deleted
+		"""
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Projects).\
+		      	 	filter(dbconnect.Projects.projectname == queryParams[0]).\
+		      		delete()
+		Session.commit()
+		Session.close()
+		connection.connection.close()	
+		return "1"
+		
+	
+	def xmlrpc_hasProjectTransactions(self, queryParams, client_id):
+		"""
+		Purpose: Function to find out whether the given projectname 
+			 has any transactions or not
+			 It will take projectname as a first parameter and
+			 then getprojetcode to delete project
+		
+		Input: queryParams[projectname(datatype:String)]
+		
+		Output: It returns strig "1" when transaction with projectname
+			is present else return "0"
+		"""
+		transaction = rpc_transaction.transaction()
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		projectcode = transaction.xmlrpc_getProjectcodeByProjectName([queryParams[0]],client_id)
+		statement = "select count(vouchercode) as vouchercodeCount\
+			     		from view_voucherbook\
+			     		where projectcode ='"+str(projectcode)+"'"
+		
+		result = dbconnect.engines[client_id].execute(statement).fetchone()
+		Session.close()
+		connection.connection.close()
+		if result[0] == 0:
+			return 0
+		if result[0]  > 0:
+			return 1
+		
+		
+	def xmlrpc_deleteProjectName(self,queryParams,client_id):
+		"""
+		Purpose: Function for deleting project. 
+			For this we have used hasProjectTransactions 
+			& deleteProject rpc functions. 
+			With the help of hasProjectTransactions we are able to 
+			find out whether the given project has any transactions or not. 
+			deleteProject delete that particular projectname which has no transaction
+			
+		Input: queryParams[projectname(datatype:String)]
+		
+		Output: if hasTransaction is "0" then it returns string "project deleted"
+		
+		"""
+		connection = dbconnect.engines[client_id].connect()
+        	Session = dbconnect.session(bind=connection)
+        	hasProjectTransactions= self.xmlrpc_hasProjectTransactions([str(queryParams[0])],client_id)
+        	Session.close()
+        	connection.connection.close()
+		if(str(hasProjectTransactions) == "0"):
+		    self.xmlrpc_deleteProject([str(queryParams[0])],client_id)
+		    return "project deleted"
+		
+		elif(str(hasProjectTransactions) == "1"):
+		    return "has transaction"
+		    
+	def xmlrpc_editProject(self, queryParams, client_id):
+		"""
+		Purpose: function for edit projectname
+		
+		Input: queryParams[projectcode,projectname] 	
+		
+		Output: Return string when it updated successfully
+		
+		"""
+		queryParams = blankspace.remove_whitespaces(queryParams)
+		transaction = rpc_transaction.transaction()
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Projects).\
+			filter(dbconnect.Projects.projectcode == queryParams[0]).\
+			update({'projectname': queryParams[1]})
+		
+		Session.commit()
+		Session.close()
+		connection.connection.close()
+		
+		return "upadted successfully"	
+			
 	def xmlrpc_setOrganisation(self,queryParams,client_id):
-		'''
-		Purpose : function for add organisation details in database
-		if orgtype is 'NGO then				
-			i/p parameters : orgtype,orgname,orgaddress,orgcity,orgpincode,orgstate,
-					 orgcountry,orgtelno,orgfax,orgwebsite,orgemail,
-					 orgpan,"","",orgregno,orgregdate,
-					 orgfcrano,orgfcradate,client_id
-		else 
-			i/p parameters : orgtype,orgname,orgaddress,orgcity,orgpincode,orgstate,
-					 orgcountry,orgtelno,orgfax,orgwebsite,orgemail,
-					 orgpan,orgmvat,orgstax,"","",
-					 "","",client_id
+		"""
+		Purpose : Function for add organisation details in database
+						
+		Input : if orgtype is 'NGO then	
+				
+				[orgname,orgtype,orgcountry,orgstate,orgcity,orgaddr,orgpincode,
+     				orgtelno, orgfax, orgwebsite, orgemail, orgpan, "", "",
+      				orgregno, orgregdate, orgfcrano, orgfcradate]
+			else 
+				[orgname,orgtype,orgcountry,orgstate,orgcity,orgaddr,orgpincode,
+     				orgtelno, orgfax, orgwebsite, orgemail, orgpan,orgmvat,orgstax,
+      				"", "", "", ""]
 		
-		o/p parameter : true or false
-		'''
+		Output: Returns boolean True if added successfully else False
+		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
+		print "org details"
 		print queryParams
 		Session.add_all([\
 				dbconnect.Organisation(\
@@ -152,14 +252,14 @@ class organisation(xmlrpc.XMLRPC):
 	
 	def xmlrpc_getorgTypeByname(self, queryParams, client_id):   
 		'''
-		Purpose   : Function for getting if an orgtype with supplied
-		        orgname.    
-		Parameters : queryParams which is a list containing one element,
-		        orgname as string.
-		Returns :  orgtype if orgname match else eturn false string
-		Description : Querys the Organisation table and sees if an orgname
-		    similar to one provided as a parameter.
-		    if it exists then it will return orgtype related orgname
+		Purpose: Function for get Organisation Type for provided organisation
+			Querys the Organisation table and sees if an orgname
+		    	similar to one provided as a parameter.
+		    	if it exists then it will return orgtype related orgname
+		Input: queryParams[orgname(datatype:string)]
+		
+		Output:  orgtype if orgname match else eturn false string
+		
 		'''
 		print  queryParams[0]
 		queryParams = blankspace.remove_whitespaces(queryParams)
@@ -177,11 +277,14 @@ class organisation(xmlrpc.XMLRPC):
 		    return result.orgtype
             
 	def xmlrpc_getOrganisation(self,client_id):
-		'''
-		Purpose:function to get all the details of organisation from database					
-		i/p parameters : client_id
-		o/p parameter : true if result contain value else false
-		'''
+		"""
+		Purpose: function to get all the details of organisation from database
+							
+		Input: client_id
+		
+		Output: It will return list of organisation details
+		
+		"""
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.Organisation).all()
@@ -204,39 +307,33 @@ class organisation(xmlrpc.XMLRPC):
 	def xmlrpc_updateOrg(self,queryParams,client_id):
 		'''
 		Purpose: updating the orgdetails after edit organisation
-		i/p parameters:
+		
+		Input: queryParams[
 				orgcode,orgaddress,orgcountry,orgstate,
 				orgcity,orgpincode,orgtelno,orgfax,orgemail,
 				orgwebsite,orgmvat,orgstax,orgregno,
-				orgregdate,orgfcrano,orgfcradate,orgpan,
+				orgregdate,orgfcrano,orgfcradate,orgpan]
 				client_id
-		o/p parameter : string
+				
+		Output: It will returns String "upadted successfully"
+		
 		'''
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		statement = "update organisation set orgaddr='"+queryParams[1]+"',\
-						orgcountry='"+queryParams[2]+"',\
-						orgstate='"+queryParams[3]+"',\
-						orgcity='"+queryParams[4]+"',\
-						orgpincode='"+queryParams[5]+"',\
-						orgtelno='"+queryParams[6]+"',\
-						orgfax='"+queryParams[7]+"',\
-						orgemail='"+queryParams[8]+"',\
-						orgwebsite='"+queryParams[9]+"',\
-						orgmvat='"+queryParams[10]+"',\
-						orgstax='"+queryParams[11]+"',\
-						orgregno='"+queryParams[12]+"',\
-						orgregdate='"+queryParams[13]+"',\
-						orgfcrano='"+queryParams[14]+"',\
-						orgfcradate='"+queryParams[15]+"',\
-						orgpan='"+queryParams[16]+"'\
-						where orgcode='"+queryParams[0]+"'"	
-		dbconnect.engines[client_id].execute(statement)
+		result = Session.query(dbconnect.Organisation).\
+			filter(dbconnect.Organisation.orgcode == queryParams[0]).\
+				update({'orgaddr': queryParams[1],'orgcountry':queryParams[2],'orgstate':queryParams[3],\
+				'orgcity': queryParams[4],'orgpincode':queryParams[5],'orgtelno':queryParams[6],\
+				'orgfax':queryParams[7],'orgemail':queryParams[8],'orgwebsite':queryParams[9],\
+				'orgmvat':queryParams[10],'orgstax':queryParams[11],'orgregno':queryParams[12],\
+				'orgregdate':queryParams[13],'orgfcrano':queryParams[14],'orgfcradate':queryParams[15],\
+				'orgpan':queryParams[16]})
+		
 		Session.commit()
 		Session.close()
 		connection.connection.close()
-		return "upadte successfully"
+		return "upadted successfully"
 
 
 

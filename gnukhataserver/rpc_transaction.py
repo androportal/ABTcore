@@ -8,8 +8,6 @@ import xmlrpclib
 import rpc_account
 from datetime import datetime, time
 from sqlalchemy import func , and_ , or_
-from multiprocessing.connection import Client
-from rpc_organisation import organisation
 from modules import blankspace
 
 #inherit the class from XMLRPC to make it publishable as an rpc service.
@@ -333,23 +331,16 @@ class transaction(xmlrpc.XMLRPC):
 		return voucherView	
 		
 	def xmlrpc_searchVouchers(self,queryParams,client_id):
-	
-		'''
-		This function will be usefull in the searchVouchers 
-		to get Complete details or information about transaction
+		"""
+		Purpose: This function will be usefull in the searchVouchers 
+			to get Complete details or information about transaction
 		
-  		input parameters :
-  		[searchFlag , ref_no , from_date , to_date ,narration ]
+  		input: [searchFlag,ref_no,from_date, to_date ,narration]
   	
-  		output parameters : 
-  			
-  		[vouchercode , refeence_no , reffdate,vouchertype,narration ]
-  		
-  		'''
+  		output: [vouchercode , refeence_no , reffdate,vouchertype,narration ]
+  		"""
  		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		print "search parameters"
-		
 		from_date = datetime.strptime(str(queryParams[2]),"%d-%m-%Y")
 		to_date = datetime.strptime(str(queryParams[3]),"%d-%m-%Y")
 		if queryParams[0] == 1: 
@@ -390,10 +381,11 @@ class transaction(xmlrpc.XMLRPC):
 			return voucherlists 
 			
 	def xmlrpc_getVoucherAmount(self,queryParams,client_id):
-		'''
+		"""
+		Purpose: To get amount of particular transaction
 			Input parameters : [voucher_code]
 			Output Parameters : [totalamount]
-		'''
+		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		statement = "select sum(amount) as totalamount\
 			     		from view_voucherbook\

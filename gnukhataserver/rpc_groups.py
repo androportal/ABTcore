@@ -181,7 +181,7 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(func.count(dbconnect.subGroups.subgroupname)).\
-		      filter(dbconnect.subGroups.subgroupname == queryParams[0]).scalar()
+		      filter((func.lower(dbconnect.subGroups.subgroupname)) == queryParams[0].lower()).scalar()
 		Session.close()
 		connection.connection.close()
 		print "subgroup exist"
