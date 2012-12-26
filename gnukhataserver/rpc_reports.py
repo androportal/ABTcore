@@ -1827,17 +1827,23 @@ class reports(xmlrpc.XMLRPC):
 		#Balance and its Dr/Cr side by calling getLedger function.
 		#note that we use the getClearanceDate function which gives us 
 		#the clearance date and memo for each account in the ledger.
+		print "params========"
+		print queryParams
 		ledgerResult = self.xmlrpc_getLedger(queryParams,client_id)
+		
 		reconResult =[]
 		#lets declare voucheLcounter to zero
 		voucheLcounter = 0
 		vouchercodeRecords= transaction.xmlrpc_getTransactions([\
-					queryParams[0],queryParams[1],queryParams[3],\
+					queryParams[0],queryParams[2],queryParams[3],\
 					queryParams[4]],client_id)
 		
 		# following delete operations are done for avoiding clearance date 
 		#and memo in opening balance, totaldr, totalcr and grand total rows.
-		del ledgerResult[0] #opening balance row
+		
+		if ledgerResult[0][1] == "Opening Balance b/f":
+			del ledgerResult[0] #opening balance row
+		
 		del ledgerResult[len(ledgerResult)-1] #grand total row
 		del ledgerResult[len(ledgerResult)-1] #closing balance row
 		del ledgerResult[len(ledgerResult)-1] #total Dr and Cr row
@@ -1846,34 +1852,34 @@ class reports(xmlrpc.XMLRPC):
 		for vc in vouchercodeRecords:
 			voucherCodes.append(int(vc[0]))
 		
-		#lets append required rows in new list.
 		for ledgerRow in ledgerResult:
-			reconRow = []
-			reconRow.append(voucherCodes[voucheLcounter]) #voucher code
-			reconRow.append(ledgerRow[0]) #voucher date
-			reconRow.append(str(ledgerRow[1])) #particular
-			reconRow.append(ledgerRow[2]) #ref no
+			if len(str(ledgerRow[0])) == 10:
+				print "yes"
+				reconRow = []
+				reconRow.append(voucherCodes[voucheLcounter]) #voucher code
+				reconRow.append(ledgerRow[0]) #voucher date
+				reconRow.append(str(ledgerRow[1])) #particular
+				reconRow.append(ledgerRow[2]) #ref no
 			
-			reconRow.append(ledgerRow[3]) #Dr amount
-			reconRow.append(ledgerRow[4]) #Cr amount
-			reconRow.append(ledgerRow[5]) #narration
+				reconRow.append(ledgerRow[3]) #Dr amount
+				reconRow.append(ledgerRow[4]) #Cr amount
+				reconRow.append(ledgerRow[5]) #narration
 			
-			clearanceDates =self.xmlrpc_getClearanceDate([\
-						str(ledgerRow[1]),voucherCodes[voucheLcounter]],client_id)
-			if clearanceDates == None:
-				reconRow.append("")
-				reconRow.append("")
-			else:
-				for datesRow in clearanceDates:
-					clrdate = str(datesRow.clearancedate).split(" ")
-					clrDate = datetime.strptime(clrdate[0],"%Y-%m-%d").strftime("%d-%m-%Y")
-					clrMemo = datesRow.memo
-					reconRow.append(clrDate)
-					reconRow.append(clrMemo)
+				clearanceDates =self.xmlrpc_getClearanceDate([\
+							str(ledgerRow[1]),voucherCodes[voucheLcounter]],client_id)
+				if clearanceDates == []:
+					reconRow.append("")
+					reconRow.append("")
+				else:
+					for datesRow in clearanceDates:
+						clrdate = str(datesRow.clearancedate).split(" ")
+						clrDate = datetime.strptime(clrdate[0],"%Y-%m-%d").strftime("%d-%m-%Y")
+						clrMemo = datesRow.memo
+						reconRow.append(clrDate)
+						reconRow.append(clrMemo)
 			
-			voucheLcounter = voucheLcounter + 1
-			reconResult.append(reconRow)
-		
+				voucheLcounter = voucheLcounter + 1
+				reconResult.append(reconRow)
 		return reconResult
 		
 	def xmlrpc_setBankReconciliation(self,queryParams,client_id):
@@ -2052,6 +2058,8 @@ class reports(xmlrpc.XMLRPC):
 		and finally added bank reconciliation statement
 		"""
 		#flags[0] is cleared_trans_flag
+		print "queryparans--"
+		print queryParams
 		cleared_tran_flag = flags[0]
 		ReconGrid = []
 		totalDbt = 0.00
@@ -2060,7 +2068,7 @@ class reports(xmlrpc.XMLRPC):
 		transaction = rpc_transaction.transaction()
 		#now lets get  te transaction details for this account.
 		transactions =transaction.xmlrpc_getTransactions([\
-					queryParams[0],queryParams[2],queryParams[3],queryParams[4]],client_id)
+					queryParams[0],queryParams[1],queryParams[3],queryParams[4]],client_id)
 		
 					
 		# [vouchercode , voucherflag , reff_date , voucher_reference,transaction_amount,show_narration]			
@@ -2077,10 +2085,9 @@ class reports(xmlrpc.XMLRPC):
 				#may be more than one account was involved at the other side so loop through.
 				if len(particulars) == 1:
 					for particularRow in particulars:
-					
 						cleared =transaction.xmlrpc_getOnlyClearedTransactions([\
 								str(particularRow),int(transactionRow[0]),\
-								queryParams[2],queryParams[3]],client_id)
+								queryParams[1],queryParams[3]],client_id)
 
 						if cleared == False:
 							 
@@ -2090,7 +2097,6 @@ class reports(xmlrpc.XMLRPC):
 							ledgerRow.append(reff_date)
 							ledgerRow.append(particularRow)
 							ledgerRow.append(transactionRow[3])
-						
 							ledgerRow.append('%.2f'%(float(transactionRow[4])))
 							totalDbt = totalDbt + float(transactionRow[4])
 							ledgerRow.append("")
@@ -2106,7 +2112,7 @@ class reports(xmlrpc.XMLRPC):
 					for particularRow in particulars:
 						cleared =transaction.xmlrpc_getOnlyClearedTransactions(\
 								[str(particularRow),int(transactionRow[0]),\
-									queryParams[2],queryParams[3]],client_id)
+									queryParams[1],queryParams[3]],client_id)
 					
 						if cleared == False:
 							reff_date = str(transactionRow[2]).split(" ")
@@ -2115,7 +2121,6 @@ class reports(xmlrpc.XMLRPC):
 							ledgerRow.append(reff_date)
 							ledgerRow.append(particularRow)
 							ledgerRow.append(transactionRow[3])
-						
 							ledgerRow.append("")
 							ledgerRow.append('%.2f'%(float(transactionRow[4])))
 							ledgerRow.append(transactionRow[5])
@@ -2129,15 +2134,18 @@ class reports(xmlrpc.XMLRPC):
 		# if cleared transaction flag is true then, =================================================
 		if cleared_tran_flag == True:
 			ReconLedger = self.xmlrpc_getReconLedger(queryParams,client_id)
+			
 			voucher_list = []
-			for v_code in ReconGrid:
-				voucher_list.append(v_code[3])
-				
-			for row in ReconLedger:
-					if row[3] not in voucher_list : #row[3] is v_code 
-						ReconGrid.append(row)
+			for v_code in ReconLedger:
+				voucher_list.append(v_code[0])
+			
+			for row in ReconGrid:
+					if row[0] not in voucher_list : #row[0] is v_code 
+						ReconLedger.append(row)
+			
 			#arrange rows order by date
-			ReconGrid = sorted(ReconGrid,key=lambda x: datetime.strptime(str(x[1]),"%d-%m-%Y"))
+			ReconGrid = ReconLedger
+		ReconGrid = sorted(ReconGrid,key=lambda x: datetime.strptime(str(x[1]),"%d-%m-%Y"))
 		
 		# lets add recon statement===================================================		
 		ReconGrid.append(["","","","Total",'%.2f'%(totalDbt),'%.2f'%(totalCdt),"","",""])
@@ -2217,7 +2225,8 @@ class reports(xmlrpc.XMLRPC):
 			
 		if BankBal == 0:
 			ReconGrid.append(["","Balance as per Bank","","","",'%.2f'%(abs(BankBal))])
-		
+		print "recon"
+		print ReconGrid
 		return ReconGrid	
 		
 	def xmlrpc_getCashFlow(self,queryParams,client_id):
