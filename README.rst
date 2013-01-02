@@ -121,7 +121,7 @@ to run the server, ``cd`` to directory ``gkAakashCore/`` and type
 
 ::
    
-   sudo ./gkstart
+   sudo ./abtstart
 
 on Aakash (ARM-arch)
 ~~~~~~~~~~~~~~~~~~~~
@@ -200,7 +200,7 @@ chroot!. Now type
 ::
 
     cd /root/gkAakashCore
-    ./gkstart
+    ./abtstart
 
 to start the server.
 

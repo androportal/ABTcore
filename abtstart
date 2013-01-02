@@ -2,35 +2,35 @@
 import os, sys, signal 
 from time import sleep
 from subprocess import Popen, PIPE
-import gnukhataserver.rpc_main
+import abtserver.rpc_main
 
 if __name__ == "__main__":
 	
 	try:
-		if os.path.exists("/opt/gkAakash") == False: # check for gkAakash directory , if false then 
+		if os.path.exists("/opt/abt") == False: # check for abt directory , if false then 
 			try:
 				print "creating directory"
-				os.system("mkdir -p /opt/gkAakash/db") # create gkAakash directory and db to host all databases
-				os.system("cp ./src/places.db /opt/gkAakash/") # copy places.db from /src to gkAakash
+				os.system("mkdir -p /opt/abt/db") # create abt directory and db to host all databases
+				os.system("cp ./src/places.db /opt/abt/") # copy places.db from /src to abt
 				
 			except:
 				print "can't create directory somthing is wrong"
 
 		else:
-		 	if os.path.exists("/opt/gkAakash/db") == False: # check for gkAakash/db directory , if false then
+		 	if os.path.exists("/opt/abt/db") == False: # check for abt/db directory , if false then
 				try:
 					print "creating directory"
-					os.system("mkdir /opt/gkAakash/db") # create db directory in gkAakash
-					os.system("cp ./src/places.db /opt/gkAakash/") # copy places.db from /src to gkAakash
+					os.system("mkdir /opt/abt/db") # create db directory in abt
+					os.system("cp ./src/places.db /opt/abt/") # copy places.db from /src to abt
 				except:
 					print "can't create directory somthing is wrong"
 			else:
 				print "db already exist"
 				
-			print "gkAakash already exist"
+			print "abt already exist"
 		#calling rungnukhata() from rpc_main.py which is in gnukhataserver
 		#getpid()	# ??
-		gnukhataserver.rpc_main.rungnukhata()
+		abtserver.rpc_main.runabt()
 		
 	except:
 		print "inside exception"

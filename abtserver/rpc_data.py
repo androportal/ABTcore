@@ -17,13 +17,13 @@ class data(xmlrpc.XMLRPC):
 	def xmlrpc_getStateNames(self):
 		"""
 		purpose: This is function to get state list 
-			present in the "/opt/gkAakash/places.db"
+			present in the "/opt/abt/places.db"
 			
 		Output: return list of all the distinct states 
-			present in "/opt/gkAakash/places.db"
+			present in "/opt/abt/places.db"
 		"""
 		try:
-			conn = sqlite.connect("/opt/gkAakash/places.db")
+			conn = sqlite.connect("/opt/abt/places.db")
 			cur = conn.cursor()
 			result = cur.execute("select distinct state from state_city order by state")
 			rows = result.fetchall()
@@ -38,16 +38,16 @@ class data(xmlrpc.XMLRPC):
 	def xmlrpc_getCityNames(self,queryParams):
 		"""
 		purpose: This is function to get city list 
-			present in the "/opt/gkAakash/places.db"
+			present in the "/opt/abt/places.db"
 			with its respective state name
 			
 		Input: [statename]	
 		
 		Output: return list of all the city names
-			present in "/opt/gkAakash/places.db"
+			present in "/opt/abt/places.db"
 		"""
 		try:
-			conn = sqlite.connect("/opt/gkAakash/places.db")
+			conn = sqlite.connect("/opt/abt/places.db")
 			cur = conn.cursor()
 			result =  cur.execute("select city from state_city where state = '%s'"%str(queryParams[0]))
 			rows = result.fetchall()

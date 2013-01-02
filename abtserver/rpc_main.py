@@ -30,7 +30,7 @@ from decimal import *
 from sqlalchemy import or_
 from modules import blankspace
 #note that all the functions to be accessed by the client must have the xmlrpc_ prefix.
-class gnukhata(xmlrpc.XMLRPC): 
+class abt(xmlrpc.XMLRPC): 
 	
 	def __init__(self):
 		xmlrpc.XMLRPC.__init__(self)
@@ -38,8 +38,8 @@ class gnukhata(xmlrpc.XMLRPC):
 	def xmlrpc_getOrganisationNames(self): 
 		"""
 		Purpose: This function is used to return the list of
-			organsation names found in gnukhata.xml 
-			located at /opt/gkAakash/
+			organsation names found in abt.xml 
+			located at /opt/abt/
 			
 		Output: Returns a list of organisation names 
 		        already present in the file
@@ -49,7 +49,7 @@ class gnukhata(xmlrpc.XMLRPC):
 		# initialising an empty list for organisation names
 		orgnames = [] 
 		for org in orgs:
-			# find orgname tag in gnukhata.xml file
+			# find orgname tag in abt.xml file
 			orgname=org.find("orgname")
 			# append the distinct orgname 
 			if orgname.text not in orgnames:
@@ -59,15 +59,15 @@ class gnukhata(xmlrpc.XMLRPC):
 	def xmlrpc_deleteOrganisation(self,queryParams): 
 		"""
 		Purpose: This function is used delete organisation
-		         from existing organsations found in gnukhata.xml 
-		         located at /opt/gkAakash/ 
+		         from existing organsations found in abt.xml 
+		         located at /opt/abt/ 
 			 Also delete database details of respective organisation
-			 from /opt/gkAakash/db/
+			 from /opt/abt/db/
 			 
 		Output: Boolean True
 		"""
-		# parsing gnukhata.xml file
-		tree = et.parse("/opt/gkAakash/gnukhata.xml") 
+		# parsing abt.xml file
+		tree = et.parse("/opt/abt/abt.xml") 
 		root = tree.getroot() # getting root node.
 		orgs = root.getchildren() # get list children node (orgnisation)
 		for organisation in orgs:
@@ -81,8 +81,8 @@ class gnukhata(xmlrpc.XMLRPC):
 			if orgname == queryParams[0] and financialyear_from == queryParams[1] and financialyear_to == queryParams[2]:
 				
 				root.remove(organisation)
-				tree.write("/opt/gkAakash/gnukhata.xml")
-				os.system("rm /opt/gkAakash/db/"+databasename)
+				tree.write("/opt/abt/abt.xml")
+				os.system("rm /opt/abt/db/"+databasename)
 		return True	
 
 	def xmlrpc_getFinancialYear(self,arg_orgName):
@@ -96,7 +96,7 @@ class gnukhata(xmlrpc.XMLRPC):
 		Output: returns financialyear list for peritcular organisation
 		        in the format "dd-mm-yyyy"
 		"""
-		#get the list of organisations from the /opt/gkAakash/gnukhata.xml file.
+		#get the list of organisations from the /opt/abt/abt.xml file.
 		#we will call the getOrgList function to get the nodes.
 		orgs = dbconnect.getOrgList()
 		
@@ -162,16 +162,16 @@ class gnukhata(xmlrpc.XMLRPC):
 			
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
-		gnukhataconf=et.parse("/opt/gkAakash/gnukhata.xml")
-		gnukhataroot = gnukhataconf.getroot()	
-		org = et.SubElement(gnukhataroot,"organisation") #creating an organisation tag
+		abtconf=et.parse("/opt/abt/abt.xml")
+		abtroot = abtconf.getroot()	
+		org = et.SubElement(abtroot,"organisation") #creating an organisation tag
 		org_name = et.SubElement(org,"orgname")
 		# assigning client queryparams values to variables
 		name_of_org = queryParams[0] # name of organisation
 		db_from_date = queryParams[1]# from date
 		db_to_date = queryParams[2] # to date
 		organisationType = queryParams[3] # organisation type
-		org_name.text = name_of_org #assigning orgnisation name value in orgname tag text of gnukhata.xml
+		org_name.text = name_of_org #assigning orgnisation name value in orgname tag text of abt.xml
 		financial_year_from = et.SubElement(org,"financial_year_from") #creating a new tag for financial year from-to	
 		financial_year_from.text = db_from_date
 		financial_year_to = et.SubElement(org,"financial_year_to")
@@ -186,12 +186,12 @@ class gnukhata(xmlrpc.XMLRPC):
 		result_dbname = org_db_name + str(time.year) + str(time.month) + str(time.day) + str(time.hour)\
 		 		+ str(time.minute) + str(time.second) + new_microsecond
 			
-		dbname.text = result_dbname #assigning created database name value in dbname tag text of gnukhata.xml
+		dbname.text = result_dbname #assigning created database name value in dbname tag text of abt.xml
 		
-		gnukhataconf.write("/opt/gkAakash/gnukhata.xml")
+		abtconf.write("/opt/abt/abt.xml")
 		
 		try:
-			conn = sqlite.connect("/opt/gkAakash/db/"+result_dbname)
+			conn = sqlite.connect("/opt/abt/db/"+result_dbname)
             		cur = conn.cursor()
             		conn.commit()
             		cur.close()
@@ -315,39 +315,39 @@ class gnukhata(xmlrpc.XMLRPC):
 		Session.close()
 		connection.close()
 		return True,self.client_id
-# create the instance of class gnukhata
+# create the instance of class abt
 
-gnukhata = gnukhata()
+abt = abt()
 
 groups=rpc_groups.groups()
-gnukhata.putSubHandler('groups',groups)
+abt.putSubHandler('groups',groups)
 
 account=rpc_account.account()
-gnukhata.putSubHandler('account',account)
+abt.putSubHandler('account',account)
 
 organisation = rpc_organisation.organisation()
-gnukhata.putSubHandler('organisation',organisation)
+abt.putSubHandler('organisation',organisation)
 
 transaction=rpc_transaction.transaction()
-gnukhata.putSubHandler('transaction',transaction)
+abt.putSubHandler('transaction',transaction)
 
 data=rpc_data.data()
-gnukhata.putSubHandler('data',data)
+abt.putSubHandler('data',data)
 
 reports=rpc_reports.reports()
-gnukhata.putSubHandler('reports',reports)
+abt.putSubHandler('reports',reports)
 
 user=rpc_user.user()
-gnukhata.putSubHandler('user',user)
+abt.putSubHandler('user',user)
 
 getaccountsbyrule=rpc_getaccountsbyrule.getaccountsbyrule()
-gnukhata.putSubHandler('getaccountsbyrule',getaccountsbyrule)
+abt.putSubHandler('getaccountsbyrule',getaccountsbyrule)
 
-def rungnukhata():
+def runabt():
 	print "initialising application"
 	#the code to daemonise published instance.
 	print "starting server"
- 	# Daemonizing GNUKhata
+ 	# Daemonizing abt
 	# Accept commandline arguments
 	# A workaround for debugging
 	def usage():
@@ -410,6 +410,6 @@ def rungnukhata():
 	
 	#publish the object and make it to listen on the given port through reactor
 
-	reactor.listenTCP(7081, server.Site(gnukhata))
+	reactor.listenTCP(7081, server.Site(abt))
 	#start the service by running the reactor.
 	reactor.run()

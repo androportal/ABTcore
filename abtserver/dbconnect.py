@@ -26,36 +26,36 @@ userlist = {}
 def getOrgList():
     '''
 	def getOrgList  : Purpose
-	This function opens the configuration file gnukhata.xml 
+	This function opens the configuration file abt.xml 
 	and gets the list of all organisations registered on the server.
 	Function takes no arguments.
 	Returns a list of organisations.
 	'''	
     
-    if os.path.exists("/opt/gkAakash/gnukhata.xml") == False:
+    if os.path.exists("/opt/abt/abt.xml") == False:
         print "file not found trying to create one."
         try:
-            os.system("touch /opt/gkAakash/gnukhata.xml")
+            os.system("touch /opt/abt/abt.xml")
             print "file created "
-            os.system("chmod 722 /opt/gkAakash/gnukhata.xml")
+            os.system("chmod 722 /opt/abt/abt.xml")
             print "permissions granted "
         except:
             print "the software is finding trouble creating file."
             return False
         try:
-            gkconf = open("/opt/gkAakash/gnukhata.xml", "a")
-            gkconf.write("<gnukhata>\n")
-            gkconf.write("</gnukhata>")
+            gkconf = open("/opt/abt/abt.xml", "a")
+            gkconf.write("<abt>\n")
+            gkconf.write("</abt>")
             gkconf.close()
         except:
             print "we can't write to the file, sorry!"
             return False
-    #opening the gnukhata.xml file by parsing it into a tree.	
-    gnukhataconf = et.parse("/opt/gkAakash/gnukhata.xml")
+    #opening the abt.xml file by parsing it into a tree.	
+    abtconf = et.parse("/opt/abt/abt.xml")
     #now since the file is opened we will get the root element.  
-    gnukhataroot = gnukhataconf.getroot()
+    abtroot = abtconf.getroot()
     #we will now extract the list of children (organisations ) into a variable named orgs. 
-    orgs = gnukhataroot.getchildren() 
+    orgs = abtroot.getchildren() 
     return orgs
 
 
@@ -66,7 +66,7 @@ def getConnection(queryParams):
 	return the id of the latest engine added to the list.
 	first check if the file exists in the given path.
 	if this is the first time we are running the server 
-	then we need to create the gnukhata.xml file.
+	then we need to create the abt.xml file.
 	'''
     dbname = "" #the dbname variable will hold the final database name for the given organisation. 
     orgs = getOrgList() #we will use org as an iterator and go through the list of all the orgs.
@@ -85,7 +85,7 @@ def getConnection(queryParams):
 	else:
 	    print "orgnisationname and financial year not match"
     global engines #the engine has to be a global variable so that it is accessed throughout the module.
-    stmt = 'sqlite:////opt/gkAakash/db/' + database
+    stmt = 'sqlite:////opt/abt/db/' + database
     engine = create_engine(stmt, echo=False) #now we will create an engine instance to connect to the given database.
     engines.append(engine)  #add the newly created engine instance to the list of engines.
     return engines.index(engine) #returning the connection number for this engine.
