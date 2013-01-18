@@ -5,7 +5,7 @@ ABTcore
 About
 -----
 
-This provides a back-end to `ABT<https://github.com/androportal/ABT>`_ and is derived from
+This provides a back-end to `ABT <https://github.com/androportal/ABT>`_ and is derived from
 `core_engine <www.gnukhata.org/core_engine>`_ of GNUkhata.
 
 `Sqlite3 <http://www.sqlite.org/>`_ is used as a database engine.
@@ -14,7 +14,7 @@ We have completely dropped an idea of ``stored procedures``, instead we have
 implemented an `Object
 relational mapping` using `SQLAlchemy <http://www.sqlalchemy.org/>`_
 
-`Android-xmlrcp<http://code.google.com/p/android-xmlrpc/>`_ client side (java)library
+`Android-xmlrcp <http://code.google.com/p/android-xmlrpc/>`_ client side (java)library
 is used to communicate with xmlrpc's of `ABTcore`. 
 It uses twisted module for executing rpc calls. A server reactor from the
 twisted library starts a service on port ``7081`` with a published
