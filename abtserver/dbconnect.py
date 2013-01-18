@@ -1,5 +1,4 @@
 from sqlalchemy import create_engine, func, select, literal_column
-from sqlalchemy.engine import create_engine
 from sqlalchemy import orm
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, select, Text, DECIMAL, Enum
 from sqlalchemy.ext.declarative import declarative_base
@@ -11,7 +10,7 @@ import datetime, time
 from time import strftime
 from sqlalchemy import *
 from types import * 
-from pysqlite2 import dbapi2 as sqlite
+from sqlite3 import dbapi2 as sqlite
 '''	
 creating an empty list of engines.
 engine in this analogy is a connection maintained as a session.

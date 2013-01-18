@@ -12,7 +12,8 @@ from twisted.internet import reactor
 from sqlalchemy.orm import sessionmaker,scoped_session
 from xml.etree import ElementTree as et
 # pysqlite2 is a SQLite binding for Python that complies to the Database API  
-from pysqlite2 import dbapi2 as sqlite
+from sqlite3 import dbapi2 as sqlite
+# from sqlite3 import dbapi2 as sqlite
 import datetime
 import os,sys
 import getopt
@@ -189,16 +190,6 @@ class abt(xmlrpc.XMLRPC):
 		dbname.text = result_dbname #assigning created database name value in dbname tag text of abt.xml
 		
 		abtconf.write("/opt/abt/abt.xml")
-		
-		try:
-			conn = sqlite.connect("/opt/abt/db/"+result_dbname)
-            		cur = conn.cursor()
-            		conn.commit()
-            		cur.close()
-            		conn.close()
-            	except:
-            		print "role already exists"
-
 		# getting client_id for the given orgnisation and from and to date
 		self.client_id = dbconnect.getConnection([name_of_org,db_from_date,db_to_date])
 		

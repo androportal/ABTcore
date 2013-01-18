@@ -28,23 +28,9 @@ if __name__ == "__main__":
 				print "db already exist"
 				
 			print "abt already exist"
-		#calling rungnukhata() from rpc_main.py which is in gnukhataserver
-		#getpid()	# ??
+		
 		abtserver.rpc_main.runabt()
 		
 	except:
 		print "inside exception"
-		'''
-		var = "pgrep gkstart"
-		# var = "ps -eo pid,args | grep '/python \./gkstart' | cut -f 2 -d ' '"
-		val = Popen(var,shell=True,stdout=PIPE).stdout.read().strip('\n')
-		pid = val.split("\n")
-		print pid
-		os.kill(int(pid[0]),signal.SIGKILL)
-		print "sleeping for 2 sec"
-		sleep(3)
-
-		# run again
-		os.getpid()
-		gnukhataserver.rpc_main.rungnukhata()
-		'''
+		

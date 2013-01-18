@@ -13,6 +13,10 @@
 bin/
 gen/
 
+
+# docs
+docs/
+
 # 
 *.sh*
 *.tmp

@@ -1,5 +1,5 @@
 # import the database connector (database binding)
-from pysqlite2 import dbapi2 as sqlite 
+from sqlite3 import dbapi2 as sqlite 
 # import the twisted modules for executing rpc calls and also to implement the server
 from twisted.web import xmlrpc, server 
 # reactor from the twisted library starts the server with a published object and listens on a given port.
