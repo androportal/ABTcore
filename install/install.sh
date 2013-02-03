@@ -1,5 +1,5 @@
 #!/bin/bash
-# installation script for gkAakash
+# installation script for Aakash Business Tool
 
 chmod +x ./adb
 
@@ -22,29 +22,77 @@ function connect_device() {
 }
 
 function installing() {
+# ---------algo-----------
+# if image,
+#   push image 
+# elif tar
+#   extract tar
+#   push image
+# else
+#   download tar
+#   extract tar
+#   push image
+# fi
+# --------------------
+# BUG: check for an image size b4 pushing
+    
+    if [ -f abt.img ]; then
+    	echo "Sending abt.img, this will take around 5 minutes"
+    	./adb push abt.img /mnt/sdcard/
+    elif [ -f abt.tar.gz ]; then
+    	echo "extracting image..."
+    	tar -xvzf abt.tar.gz
+    	if [ -f abt.img ]; then
+    	    echo "Sending abt.img, this will take around 5 minutes"
+    	    ./adb push abt.img /mnt/sdcard/
+    	else
+    	    echo "file: abt.img not found!"
+    	    exit 1
+    	fi	
+    else
+    	echo "downloading image, please wait..."
+    	wget -c http://aakashlabs.org/builds/abt.tar.gz
+    	if [ -f abt.tar.gz ]; then
+    	    echo "extracting image..."
+    	    tar -xvzf abt.tar.gz
+    	    if [ -f abt.img ]; then
+    		echo "Sending abt.img, this will take around 5 minutes"
+    		./adb push abt.img /mnt/sdcard/
+    	    else
+    		echo "file: abt.img not found!"
+    	    exit 1
+    	    fi	
+    	fi
+    fi
 
-    echo "Sending aakash.sh..."
-    ./adb push aakash.sh /data/local/
-    
-    echo "Sending preinstall.sh..."
-    ./adb push preinstall.sh /system/bin/
-    
-    echo "Sending debug.sh...."
-    ./adb push debug.sh  /data/local/
-    
-    echo "Sending gkaakash.img, this will take around 5 minutes "
-    #./adb push gkaakash.img /mnt/sdcard/
+    if [ -f debug.sh ]; then
+	echo "Sending debug.sh...."
+	./adb push debug.sh  /data/local/
+    else
+	echo "file: debug.sh not found!"
+	exit 1
+    fi
     
     ./adb shell sync
     
-    echo "Installing APK... "
-    ./adb install gkaakash.apk
-    
+    if [ -f ABT.apk ]; then
+	echo "Installing APK... "
+	./adb install -r ABT.apk
+    else
+	echo "downloading APK...."
+	wget -c http://aakashlabs.org/builds/ABT.apk
+	if [ -f ABT.apk ]; then
+	    echo "Installing APK... "
+	    ./adb install -r ABT.apk
+	fi
+    fi
+
     echo "Device will reboot in 5 seconds..press cntrl + c  to abort auto rebooot.."
     sleep 5
     ./adb reboot
 }
 
 # __init__
-
 connect_device
+#installing
+
