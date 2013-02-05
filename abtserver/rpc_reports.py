@@ -3,29 +3,34 @@ import rpc_account
 import rpc_transaction
 import rpc_groups
 import rpc_getaccountsbyrule
-# import the twisted modules for executing rpc calls and also to implement the server
 from twisted.web import xmlrpc, server
-# reactor from the twisted library starts the server with a published object and listens on a given port.
 from twisted.internet import reactor
 from datetime import datetime,time
 from modules import blankspace
 from sqlalchemy import or_ , func , and_
 
 class reports(xmlrpc.XMLRPC):
-	
+	"""
+	+ This rpc module will provide details about all reports
+	+ It privides calculation's for all reports and it's display
+	+ it genarate Ledger,trial balance,balancesheet,profit and loss
+	  and so on ...  
+	"""
 	def __init__(self):
 		xmlrpc.XMLRPC.__init__(self)
 	
 	def xmlrpc_getLedger(self,queryParams,client_id):
-		'''
-		Purpose : This function give a complete ledger for given account.  
+		"""
+		* Purpose:
+			- This function give a complete ledger for given account.
 		
-		Input: [accountname,financialStart,fromdate,todate,projectname]
+		* Input:  
+			- [accountname,financialStart,fromdate,todate,projectname]
 		
-		Output: Returns a grid (2 dimentional list ) with columns as 
-			[Date, Particulars, Reference number, Dr, Cr , vouchercode]
-		
-		'''
+		* Output:
+			- returns a grid (2 dimentional list ) with columns as 
+			- [Date, Particulars, Reference number, Dr, Cr , vouchercode]
+		"""
 		#first let's get the details of the given account regarding the
 		#Balance and its Dr/Cr side.
 		#note that we use the calculateBalance function which gives us
@@ -84,7 +89,7 @@ class reports(xmlrpc.XMLRPC):
 			# if the transaction had the amount at Dr side then particulars must have the names of accounts involved in Cr.
 			if transactionRow[1] == "Dr":
 				particulars = transaction.xmlrpc_getParticulars([transactionRow[0],"Cr"],client_id)
-				#may be more than one account was involved at the other side so loop through.
+				# may be more than one account was involved at the other side so loop through.
 				particular = []
 				for particularRow in particulars:
 					particular.append(particularRow)
@@ -186,15 +191,16 @@ class reports(xmlrpc.XMLRPC):
 			
 	def xmlrpc_calculateBalance(self,queryParams,client_id):
 		"""
-		Purpose: calculate closing balance of given accounts 
-		Returns a grid of 4 columns and number of 
-		rows depending on number of accounts.
+		* Purpose:
+			- calculate closing balance of given accounts 
+			- Returns a grid of 4 columns and number of 
+		  	  rows depending on number of accounts.
+		  
+		* Input:
+			- [accountname,org_financial_from,report_from_date,report_to_date]
 		
-		Input parameters:
-		[accountname,org_financial_from,report_from_date,report_to_date]
-		
-		Returns list:
-		[group_name,bal_brought,curbal,total_DrBal,total_CrBal,opening_baltype,baltype]
+		* Output:
+			- [group_name,bal_brought,curbal,total_DrBal,total_CrBal,opening_baltype,baltype]
 		
 		"""
 		
@@ -205,15 +211,11 @@ class reports(xmlrpc.XMLRPC):
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		
 		group_name = result[0]
-		#print "groupname"
-		#print group_name
 		statement = "select openingbalance\
 			      from group_subgroup_account\
 			      where accountname = '"+queryParams[0]+"'"
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		opening_balance = result[0]
-		#print "opening_balance"
-		#print opening_balance
 		financial_fromdate = str(datetime.strptime(str(queryParams[1]),"%d-%m-%Y"))
 		report_fromdate =  str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
 		report_todate =  str(datetime.strptime(str(queryParams[3]),"%d-%m-%Y"))
@@ -258,7 +260,7 @@ class reports(xmlrpc.XMLRPC):
 				bal_brought = opening_balance
 				opening_baltype = 'Cr'
 				baltype = 'Cr'
-			#print baltype	
+			
 		
 		else:
 			statement = "select sum(amount) as dr_amount\
@@ -377,49 +379,45 @@ class reports(xmlrpc.XMLRPC):
 		
 		
 	def xmlrpc_getTrialBalance(self,queryParams,client_id):
-		
 		"""
-		Purpose: 
-		gets trial balance as on the given date. 
-		Returns a grid of 4 columns and number of 
-		rows depending on number of accounts.
-			
-		Input parameters contains: 
-		[org_financial_from,from_date,to_date]
+		* Purpose:
+			- gets trial balance as on the given date. 
+			- returns a grid of 4 columns and number of 
+			  rows depending on number of accounts.
+			- this function returns a grid of 4 columns contaning 
+			  trial balance.
+			- number of rows in this grid will depend on the number 
+			  of accounts in the database.
+			- the function first makes a call to the getAllAccounts 
+			  from rpc_account to get accountlist
+			- then a loop runs through the list of accounts.
+			  on every iteration it calls the ``calculateBalance`` and 
+			  passes the account as a parameter along with the financial start
+			  from_date and to_date
+			- note that trial balance is always calculated from the starting 
+			  of the financial year.
+			- also in the for loop we see if the typeflag for the balance 
+			  for given account is Dr or Cr.
+			- if the balance is Dr then we put the amount in the 4th column, 
+			  with the 5th column blank.
+			- if the typeflag is ``credit`` then we put the amount in the 5th row, 
+			  leaving the 4th as blank.
+			  and vice varsa
+		  
+		* Input:
+			- [org_financial_from,from_date,to_date]
 		
-		Output : 
-		list containing list 
-		[serial no , accountname , groupname , debit bal , creadit bal ]
-		 	and [total debit , total credit]
-			
-		description:
-		
-		This function returns a grid of 4 columns contaning 
-		trial balance.
-		Number of rows in this grid will depend on the number 
-		of accounts in the database.
-		The function first makes a call to the getAllAccounts 
-		from rpc_account to get accountlist
-		then a loop runs through the list of accounts.
-		on every iteration it calls the calculateBalance and 
-		passes the account as a parameter along with the financial start
-		from_date and to_date
-		
-		Note that trial balance is always calculated from the starting 
-		of the financial year.
-		Also in the for loop we see if the typeflag for the balance 
-		for given account is Dr or Cr.
-		if the balance is Dr then we put the amount in the 4th column, 
-		with the 5th column blank.
-		If the typeflag is credit then we put the amount in the 5th row, 
-		leaving the 4th as blank.
-		   
-		"""
+		* Output:
+			-[serial no , accountname , groupname , debit bal , creadit bal ]
+		 	 and [total debit , total credit]
+		 	
+		"""   
+	
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		account = rpc_account.account()
 		accounts = account.xmlrpc_getAllAccountNames(client_id)
 		trialBalance = []
-		srno =1
+		srno = 1
 		total_dr = 0.00
 		total_cr = 0.00
 		
@@ -448,20 +446,17 @@ class reports(xmlrpc.XMLRPC):
 		return trialBalance
 		
 	def xmlrpc_getGrossTrialBalance(self,queryParams,client_id):
-		'''
-		purpose:just like the getTrialBalance, this function too returns
-		list of balances of all accounts.
-		However it has a difference in that it provides the total Dr 
-		and total Cr for all accounts, instead of the difference.
-		
-		
-		description: Similar to the getTrial balance function this one 
-		returns a grid, but instead of current balance, it returns total 
-		Dr and total Cr in the grid.
-		[serial no , accountname , groupname , debit bal , creadit bal ]
-		 	and [total debit , total credit]
-		
-		'''
+		"""
+		* Purpose:
+			- just like the getTrialBalance, this function returns
+			  list of balances of all accounts.
+			- instead of the current balance it provides the total Dr 
+			  and total Cr for all accounts.
+		  
+		* Input:
+			- [serial no , accountname , groupname , debit bal , creadit bal ]
+			  and [total debit , total credit]
+		"""
 		account = rpc_account.account()
 		accounts = account.xmlrpc_getAllAccountNames(client_id)
 		trialBalance = []
@@ -469,7 +464,6 @@ class reports(xmlrpc.XMLRPC):
 		total_dr = 0.00
 		total_cr = 0.00
 		for acc in accounts:
-			
 			closingRow = self.xmlrpc_calculateBalance(\
 						[acc,queryParams[0],queryParams[1],queryParams[2]],client_id)
 			
@@ -490,29 +484,11 @@ class reports(xmlrpc.XMLRPC):
 	
 	def xmlrpc_getExtendedTrialBalance(self,queryParams,client_id):
 		"""
-		Purpose: gets trial balance as on the given date. 
-		Returns a grid of 7 columns and number of rows 
-		depending on number of accounts.
-		
-		description:This function returns a grid of 7 columns 
-		contaning trial balance.
-		Number of rows in this grid will depend on the number 
-		of accounts in the database.
-		The function first makes a call to the getAllAccountnames 
-		and stors the list.
-		then a loop runs through the list of accounts.
-		on every iteration it calls the calculateBalance and 
-		passes the account as a parameter along with the 
-		[financial start, Calculate_from and calculate_to]
-		
-		Note: trial balance is always calculated from the starting 
-		of the financial year.
-		Also in the for loop we see if the typeflag for the balance 
-		for given account is Dr or Cr.
-		if the balance is Dr then we put the amount in the 
-		4th column, with the 5th column blank.
-		If the typeflag is credit then we put the amount in the 5th row,
-		leaving the 4th as blank.
+		* Purpose:
+			- gets extended trial balance as on the given date. 
+		* Output:
+			- returns a grid of 7 columns and number of rows 
+			  depending on number of accounts.
 		
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
@@ -567,10 +543,16 @@ class reports(xmlrpc.XMLRPC):
 		return trialBalance
 		
 	def xmlrpc_getProjectStatementReport(self,queryParams,client_id):
-		'''
-		Input parameters:[projectname,financial_fromdate,fromdate,todate]
-		Output:list of list [serialno,accountname,groupname,totalDr,totalCr]
-		'''
+		"""
+		* Purpose:
+			- it gives project statement report
+		
+		* Input:
+			- [projectname,financial_fromdate,fromdate,todate]
+		
+		* Output:
+			- list of list [serialno,accountname,groupname,totalDr,totalCr]
+		"""
 		account = rpc_account.account()
 		group = rpc_groups.groups()
 		projectAccounts =account.xmlrpc_getAccountNamesByProjectName([str(queryParams[0])],client_id)
@@ -595,11 +577,16 @@ class reports(xmlrpc.XMLRPC):
 		return projectStatement
 	
 	def xmlrpc_getProjectStatement(self,queryParams,client_id):
-		'''
-		Input parameters:[projectname,accountname,financial_fromdate,fromdate,todate]
-		Output :[total_debit,total_credit]
-		'''
+		"""
+		* Purpose:
+			- it gives project statement grid.
 		
+		* Input:
+			- [projectname,accountname,financial_fromdate,fromdate,todate]
+		
+		* Output:
+			- [total_debit,total_credit]
+		"""
 		financial_fromdate = str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
 		report_fromdate =  str(datetime.strptime(str(queryParams[3]),"%d-%m-%Y"))
 		report_todate =  str(datetime.strptime(str(queryParams[4]),"%d-%m-%Y"))
@@ -636,18 +623,18 @@ class reports(xmlrpc.XMLRPC):
 	
 	def xmlrpc_getBalancesheet(self,queryParams,client_id):
 		"""
-		Purpose: gets trial balance as on the given date.
-		Returns a grid of 4 columns and number of rows depending 
-		on number of accounts.
+		* Purpose:
+			- gets trial balance as on the given date.
 		
-		description: This function returns a grid of 4 columns 
-		contaning balancesheet.
-		Number of rows in this grid will depend on the number 
-		of accounts in the database.
+		* Input:
+			- [org_financial_from,from_date,to_date]
 		
-		Input parameters contains: 
-		[org_financial_from,from_date,to_date]
-		
+		* Output:
+			- returns a grid of 4 columns and number of rows depending 
+			  on number of accounts.
+			- this function returns a grid of 4 columns contaning balancesheet.
+			- number of rows in this grid will depend on the number 
+			  of accounts in the database.
 		"""
 		assetGrpCodes = [6,2,10,9,13]
 		liabilitiesGrpCodes = [1,3,11,12]
@@ -741,15 +728,24 @@ class reports(xmlrpc.XMLRPC):
 		
 		return balancesheet
 		
-	def xmlrpc_getBalancesheetDisplay(self,queryParams,client_id):	
-		'''
-		Purpose: Function to rearrange the data in a particular manner
-			for display 
-			
-		Input: [org_financial_from,from_date,to_date,reportflag,orgtype,balancesheet_type]
+	def xmlrpc_getBalancesheetDisplay(self,queryParams,client_id):
+		"""
+		* Purpose:
+			- note that this function is not do any calculations
+			  it is just for the format for front end display.
+			- it will take the return grid of ``getBalancesheet``.
+			- to rearrange the data in a particular manner for display. 
 		
-		Output:
-		'''
+		* Input:
+			- [org_financial_from,from_date,to_date,reportflag,orgtype,balancesheet_type]
+		
+		* Output:
+			- if balancesheet type is ``Conventional Balance Sheet``
+				+ list of list [groupname,debit amount,credit amount,total amount])
+			- else 
+				+ list of list [Particulars,debit amount,credit amount,Amount,Amount]	
+		"""
+		
 		# flag to check balancesheet or profitloss
 		reportFlag = queryParams[3]
 		balancesheet_type = queryParams[5] # type of balancesheet
@@ -1365,35 +1361,34 @@ class reports(xmlrpc.XMLRPC):
 			
 	def xmlrpc_getProfitLossReport(self,queryParams,client_id):
 		"""
-		Purpose: gets profit and loss as on the given date.
-		Returns a grid of 4 columns and number of rows 
-		depending on number of accounts.
+		* Purpose:
+			- gets profit and loss as on the given date.
+			- this function returns a grid of 4 columns 
+			  contaning profit and loss details.
+			- number of rows in this grid will depend on the number 
+			  of accounts in the database.
+			- For profit and loss the accounts from group ``direct income``
+			  and ``indirect income`` and ``expence`` are invoke.
+			- The function first makes a call to the``getAccountsByGroupCode``
+			  and stores the list.
+			- then a loop runs through the list of accounts.
+			  on every iteration it calls the ``calculateBalance`` 
+			  and passes the account as a parameter along with the 
+			  financial start, Calculate_from and calculate_to.
+		  
+		* Note: 
+			- profit and loss is always calculated from 
+			  the starting of the financial year.
+			- the total of each group of accounts is calculated 
+			  separately for calculation purpose.
+
+		* Input:
+			- [org_financial_from,from_date,to_date]
 		
-		description: This function returns a grid of 4 columns 
-		contaning profit and loss details.
-		
-		Number of rows in this grid will depend on the number 
-		of accounts in the database.
-		
-		For profit and loss the accounts from group direct 
-		and indirect income and expence are invoke.
-		The function first makes a call to the
-		getAccountsByGroupCode and stores the list.
-		then a loop runs through the list of accounts.
-		on every iteration it calls the calculateBalance 
-		and passes the account as a parameter along with the 
-		financial start, Calculate_from and calculate_to.
-		
-		Note: profit and loss is always calculated from 
-		the starting of the financial year.
-		the total of each group of accounts is calculated 
-		separately for calculation purpose.
-		
-		Input parameters contains: 
-		[org_financial_from,from_date,to_date]
-		
-		Otput parameters :List of list
-		[serial no,groupcode,accountname,amount,balancetype]
+		* Output: 
+			- returns a grid of 4 columns and number of rows 
+			  depending on number of accounts.
+			- List of list [serial no,groupcode,accountname,amount,balancetype]
 		"""
 		grpCodes = [4,5,7,8]
 		profitloss = []
@@ -1410,8 +1405,7 @@ class reports(xmlrpc.XMLRPC):
 					profitlossrow = []
 					closingRow = self.xmlrpc_calculateBalance(\
 						[acc,queryParams[0],queryParams[1],queryParams[2]],client_id)
-					print "closingRow"
-					print closingRow
+					
 					profitlossrow.append(srno)
 					profitlossrow.append(grpCode)
 					profitlossrow.append(acc)
@@ -1465,8 +1459,7 @@ class reports(xmlrpc.XMLRPC):
 				profitloss.append('%.2f'%(float(netProfit))) #
 				profitloss.append('%.2f'%(float(totalnetprofit))) 
 				profitloss.append('%.2f'%(float(grandTotal))) # final total amount 
-				print "grossprofitGrid"
-				print profitloss
+				
 			else:
 				netLoss = total_indirExp_balances - totalnetprofit
 				grandTotal = netLoss + totalnetprofit
@@ -1474,8 +1467,7 @@ class reports(xmlrpc.XMLRPC):
 				profitloss.append('%.2f'%(float(netLoss)))
 				profitloss.append('%.2f'%(float(total_indirExp_balances)))
 				profitloss.append('%.2f'%(float(grandTotal)))
-				print "grossLossGrid"
-				print profitloss
+				
 		else:
 			grossLoss = total_dirExp_balances - total_dirInc_balances
 			profitloss.append("grossLoss")
@@ -1496,24 +1488,29 @@ class reports(xmlrpc.XMLRPC):
 				profitloss.append('%.2f'%(float(netProfit)))
 				profitloss.append('%.2f'%(float(total_indirInc_balances)))
 				profitloss.append('%.2f'%(float(grandTotal)))
-		print "profit and loss"
-		print profitloss
 		
 		return profitloss
 		
 	def xmlrpc_getProfitLossDisplay(self,queryParams,client_id):	
-		'''
-		Input parameters contains: 
-		[org_financial_from,from_date,to_date,reportflag,orgtype]
-		'''
+		"""
+		* Purpose:
+			- it takes the return grid of getProfitLossReport
+			- this function is just for the arrangement of grid
+			  for display
+		
+		* Input:
+			- [org_financial_from,from_date,to_date,reportflag,orgtype]
+		
+		* Output:
+			- returns 3 dimentional list [[["","Particulars","Amount"]]]
+			- list of list contan list for DE DI IE and II
+		"""
 		orgtype=queryParams[4]
 		trialdata = self.xmlrpc_getProfitLossReport(queryParams,client_id)
-		print "trialdata"
-		print trialdata
+		
 		length = len(trialdata) - int(10)
 		grandTotal =trialdata[len(trialdata) - int(1)]
-		print "grandToatal"
-		print grandTotal
+		
 		netTotal = trialdata[len(trialdata) - int(2)]
 		dirincm = trialdata[len(trialdata) - int(10)]
 		direxp = trialdata[len(trialdata) - int(9)]
@@ -1521,12 +1518,10 @@ class reports(xmlrpc.XMLRPC):
 		indirexp = trialdata[len(trialdata) - int(7)]
 		grossFlag = trialdata[len(trialdata) - int(6)]
 		grossProfitloss = trialdata[len(trialdata) - int(5)]
-		print "grossProfitloss"
-		print grossProfitloss
+		
 		netFlag = trialdata[len(trialdata) - int(4)]
 		netProfitloss = trialdata[len(trialdata) - int(3)]
-		print "trialdata"
-		print trialdata
+		
 		finalList =[]
 		DEList=[]
 		DIList=[]
@@ -1791,62 +1786,61 @@ class reports(xmlrpc.XMLRPC):
 			
 			DIList.append(["","Total",amount])
 			finalList.append(DIList) # Final list of 2nd coloumn DI +II
-			
-		print finalList
+		
 		return finalList
 	
 	def xmlrpc_getReconLedger(self,queryParams,client_id):
-		'''
-		Purpose : returns a complete ledger for given bank account.
-		Information taken from view_voucherbook	
-					
-		Parameters : For getting ledger it takes the result of rpc_getLedger.
-		It expects a list of queryParams which contains
-		Input parameters : 
-		[accountname,financialStart,fromdate,todate,projectname]
+		"""
+		* Purpose:
+			- to get a complete ledger for given bank account.
+			- information taken from view_voucherbook	
+			- for getting ledger it takes the result of rpc_getLedger.
+			- it expects a list of queryParams which contains
 		
-		description: Returns a grid (2 dimentional list ) with columns as 
-		Date, Particulars, Reference number, Dr amount, Cr amount, 
-		narration, Clearance Date and Memo.
+		* Input: 
+			- [accountname,financialStart,fromdate,todate,projectname]
 		
-		Note that It will display the value of clearance date and memo 
-		for only those transactions which are cleared.
-		The last row will just contain the grand total which will 
-		be equal at credit and debit side.
-		2nd last row contains the closing balance.
-		3rd last row contains just the total Dr and total Cr.
-		If the closing balance (carried forward ) is debit 
-		then it will be shown at credit side and 
-		if it is credit will be shown at debit side.
-		
-		'''
-		
+		* Output:
+			- returns a grid (2 dimentional list ) with columns as 
+			  Date, Particulars, Reference number, Dr amount, Cr amount, 
+			  narration, Clearance Date and Memo.
+		  
+		* Note:
+			- Note that It will display the value of clearance date and memo 
+			  for only those transactions which are cleared.
+			- The last row will just contain the grand total which will 
+			  be equal at credit and debit side.
+			- 2nd last row contains the closing balance.
+			- 3rd last row contains just the total Dr and total Cr.
+			- if the closing balance (carried forward ) is debit 
+			  then it will be shown at credit side and 
+			  if it is credit will be shown at debit side.
+		"""
 		# create the instance of transaction 
 		transaction = rpc_transaction.transaction()
-		#first let's get the details of the given account regarding the 
-		#Balance and its Dr/Cr side by calling getLedger function.
-		#note that we use the getClearanceDate function which gives us 
-		#the clearance date and memo for each account in the ledger.
-		print "params========"
-		print queryParams
+		# first let's get the details of the given account regarding the 
+		# Balance and its Dr/Cr side by calling getLedger function.
+		# note that we use the getClearanceDate function which gives us 
+		# the clearance date and memo for each account in the ledger.
+		
 		ledgerResult = self.xmlrpc_getLedger(queryParams,client_id)
 		
 		reconResult =[]
-		#lets declare voucheLcounter to zero
+		# lets declare voucheLcounter to zero
 		voucheLcounter = 0
 		vouchercodeRecords= transaction.xmlrpc_getTransactions([\
 					queryParams[0],queryParams[2],queryParams[3],\
 					queryParams[4]],client_id)
 		
 		# following delete operations are done for avoiding clearance date 
-		#and memo in opening balance, totaldr, totalcr and grand total rows.
+		# and memo in opening balance, totaldr, totalcr and grand total rows.
 		
 		if ledgerResult[0][1] == "Opening Balance b/f":
-			del ledgerResult[0] #opening balance row
+			del ledgerResult[0] # opening balance row
 		
-		del ledgerResult[len(ledgerResult)-1] #grand total row
-		del ledgerResult[len(ledgerResult)-1] #closing balance row
-		del ledgerResult[len(ledgerResult)-1] #total Dr and Cr row
+		del ledgerResult[len(ledgerResult)-1] # grand total row
+		del ledgerResult[len(ledgerResult)-1] # closing balance row
+		del ledgerResult[len(ledgerResult)-1] # total Dr and Cr row
 		del ledgerResult[len(ledgerResult)-1] # empty row
 		voucherCodes = []
 		for vc in vouchercodeRecords:
@@ -1854,19 +1848,20 @@ class reports(xmlrpc.XMLRPC):
 		
 		for ledgerRow in ledgerResult:
 			if len(str(ledgerRow[0])) == 10:
-				print "yes"
+				
 				reconRow = []
-				reconRow.append(voucherCodes[voucheLcounter]) #voucher code
-				reconRow.append(ledgerRow[0]) #voucher date
-				reconRow.append(str(ledgerRow[1])) #particular
-				reconRow.append(ledgerRow[2]) #ref no
+				reconRow.append(voucherCodes[voucheLcounter]) # voucher code
+				reconRow.append(ledgerRow[0]) # voucher date
+				reconRow.append(str(ledgerRow[1])) # particular
+				reconRow.append(ledgerRow[2]) # ref no
 			
-				reconRow.append(ledgerRow[3]) #Dr amount
-				reconRow.append(ledgerRow[4]) #Cr amount
-				reconRow.append(ledgerRow[5]) #narration
-			
+				reconRow.append(ledgerRow[3]) # Dr amount
+				reconRow.append(ledgerRow[4]) # Cr amount
+				reconRow.append(ledgerRow[5]) # narration
+				accObj = rpc_account.account()
+				accountcode = accObj.xmlrpc_getAccountCodeByAccountName([ledgerRow[1]], client_id)
 				clearanceDates =self.xmlrpc_getClearanceDate([\
-							str(ledgerRow[1]),voucherCodes[voucheLcounter]],client_id)
+							accountcode,voucherCodes[voucheLcounter]],client_id)
 				if clearanceDates == []:
 					reconRow.append("")
 					reconRow.append("")
@@ -1883,49 +1878,56 @@ class reports(xmlrpc.XMLRPC):
 		return reconResult
 		
 	def xmlrpc_setBankReconciliation(self,queryParams,client_id):
-		'''
-		Purpose : Sets the bankrecon table in database as saves 
-		transaction details of those transactions which are
-		cleared with clearance date and memo in table bankrecon
-		
-		Also sets the reconcode(reconciliation code) for the respective 
-		transaction.
-				 
-		Parameters : It expects a list of queryParams which contains
-		[vouchercode(datatype:integer),reffdate(datatype:timestamp),
-		accountname(datatype:varchar),dramount(datatype:numeric),
-		cramount(datatype:numeric),clearancedate(datatype:timestamp),
-		memo(datatype:text)] 
-		'''
+		"""
+		* Purpose:
+			- it sets the bankrecon table in database as saves 
+			  transaction details of those transactions which are
+			  cleared with clearance date and memo in table bankrecon
+			- Also sets the reconcode(reconciliation code) for the respective 
+			  transaction.
+			  
+		* Input:
+			- it expects a list of queryParams which contains
+			  [vouchercode(datatype:integer),reffdate(datatype:timestamp),
+			  accountname(datatype:varchar),dramount(datatype:numeric),
+			  cramount(datatype:numeric),clearancedate(datatype:timestamp),
+			  memo(datatype:text)] 
+		 """
 		# lets create a list containing vouchercode,reffdate,accountname. 
 		for clearRow in queryParams:
 			sp_params = [clearRow[0],clearRow[1],clearRow[2]]
 			
-			#if dr_amount is blank, append 0 as dr_amount and respective cr_amount.
+			# if dr_amount is blank, append 0 as dr_amount and respective cr_amount.
 			if clearRow[3] == "":
 				sp_params.append(0)
 				sp_params.append(clearRow[4])
-			#if cr_amount is blank, append 0 as cr_amount and respective dr_amount.
+			# if cr_amount is blank, append 0 as cr_amount and respective dr_amount.
 			if clearRow[4] == "":
 				sp_params.append(clearRow[3])
 				sp_params.append(0)
-			#Now, lets append respective clearance date and memo				
+			# Now, lets append respective clearance date and memo				
 			sp_params.append(clearRow[5])
 			sp_params.append(clearRow[6])
 			
-			#Finally we are ready to set the bankrecon table.
+			# Finally we are ready to set the bankrecon table.
 			success = self.xmlrpc_setBankRecon(sp_params,client_id)
 		return success	
 		
 	def xmlrpc_setBankRecon(self,queryParams,client_id):
-		'''
-		Input parameters: 
-		[vouchercode,reffdate,accountname,dramount,cramount,clearencedate,memo]
-		output : String success
-		'''
+		"""
+		* Purpose:
+			- to set the cleared transaction
+		
+		* Input:
+			- [vouchercode,reffdate,accountname,dramount,cramount,clearencedate,memo]
+		
+		* Output:
+			- returns String success
+		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		reffdate =  datetime.strptime(str(queryParams[1]),"%d-%m-%Y")
 		clearencedate =  datetime.strptime(str(queryParams[5]),"%d-%m-%Y")
+		accObj = rpc_account.account()
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		reconcode = Session.query(func.max(dbconnect.BankRecon.reconcode)).scalar()
@@ -1934,37 +1936,37 @@ class reports(xmlrpc.XMLRPC):
 			reconcode = reconcode + 1
 		else:
 			reconcode = reconcode + 1
-		
+		accountcode = accObj.xmlrpc_getAccountCodeByAccountName([queryParams[2]], client_id)	
 		result = Session.query(dbconnect.BankRecon).\
-					filter(and_(dbconnect.BankRecon.accountname == queryParams[2],\
+					filter(and_(dbconnect.BankRecon.accountcode == accountcode,\
 					dbconnect.BankRecon.vouchercode == queryParams[0])).\
 					first()
 
 		if result == None:
 			if queryParams[3] == 0:
 				# add all values in the bankrecon table
-				Session.add(dbconnect.BankRecon(reconcode,queryParams[0],reffdate,queryParams[2],\
+				Session.add(dbconnect.BankRecon(reconcode,queryParams[0],reffdate,accountcode,\
 							0,queryParams[4],clearencedate,queryParams[6]))
 				Session.commit()
 			else:	
 				# add all values in the bankrecon table
-				Session.add(dbconnect.BankRecon(reconcode,queryParams[0],reffdate,queryParams[2],\
+				Session.add(dbconnect.BankRecon(reconcode,queryParams[0],reffdate,accountcode,\
 							queryParams[3],0,clearencedate,queryParams[6]))
 				Session.commit()
 		else:
 			Session.query(dbconnect.BankRecon).\
-			filter(and_(dbconnect.BankRecon.accountname == queryParams[2],\
+			filter(and_(dbconnect.BankRecon.accountcode == accountcode,\
 					dbconnect.BankRecon.vouchercode == queryParams[0])).\
 			delete()
 			Session.commit()
 			if queryParams[3] == 0:
 				# add all values in the bankrecon table
-				Session.add(dbconnect.BankRecon(reconcode,queryParams[0],reffdate,queryParams[2],\
+				Session.add(dbconnect.BankRecon(reconcode,queryParams[0],reffdate,accountcode,\
 							0,queryParams[4],clearencedate,queryParams[6]))
 				Session.commit()
 			else:
 				# add all values in the bankrecon table
-				Session.add(dbconnect.BankRecon(reconcode,queryParams[0],reffdate,queryParams[2],\
+				Session.add(dbconnect.BankRecon(reconcode,queryParams[0],reffdate,accountcode,\
 							queryParams[3],0,clearencedate,queryParams[6]))
 				Session.commit()
 			 
@@ -1973,35 +1975,47 @@ class reports(xmlrpc.XMLRPC):
 		return "success"
 		
 	def xmlrpc_getClearanceDate(self,queryParams,client_id):
+		"""
+		* Purpose:
+			- to get the Clearancedate of cleared transaction
 		
-		'''
-		input parameters :
-		[accountname ,vouchercode]
-		output :
-		[clearance date , memo]	
-		'''	
+		* Input:
+			- [accountcode ,vouchercode]
+		
+		* Output:
+			- [clearance date , memo]
+		"""
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.BankRecon).\
-				filter(and_(dbconnect.BankRecon.accountname==queryParams[0],\
+				filter(and_(dbconnect.BankRecon.accountcode==queryParams[0],\
 					dbconnect.BankRecon.vouchercode==queryParams[1])).\
 					all()
 		
 		return result
 			
 	def xmlrpc_deleteClearedRecon(self,queryParams,client_id):
-		'''
-		Purpose: To uncleared the cleared trasaction and
-		delete cleared entry from bankrecon table 
+		"""
+		* Pupose:
+			- to uncleared the cleared trasaction and
+			  delete cleared entry from bankrecon table 
 		
-		Input parametes:[accountname,vouchercode,todate]
-		'''
+		* Input:
+			- [accountcode,vouchercode,todate]
+		
+		* Output:
+			- If accountcode, vouchercode matches and clearencedate less than 
+			  input clearencedate then delete clearRecon and return True
+			  else return False
+		"""
 		
 		clearencedate =  str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
+		accObj = rpc_account.account()
+		accountcode = accObj.xmlrpc_getAccountCodeByAccountName([queryParams[0]], client_id)	
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.BankRecon).\
-			filter(and_(dbconnect.BankRecon.accountname==queryParams[0],\
+			filter(and_(dbconnect.BankRecon.accountcode==accountcode,\
 			dbconnect.BankRecon.vouchercode==queryParams[1],\
 			dbconnect.BankRecon.clearancedate < clearencedate)).delete()
 		
@@ -2018,48 +2032,46 @@ class reports(xmlrpc.XMLRPC):
 	
 	def xmlrpc_updateBankRecon(self,queryParams, flags, client_id):
 		"""
-		Purpose: Returns all uncleared transactions from the starting of 
-		financial year to the end date of given period 
-		OR  
-		all uncleared transactions from the starting of 
-		financial year to the end date of given period with all cleared transactions 
-		of the given period if cleared_tran_flag is true 
-		with Bank Reconciliation Statement for the given period of time.
-		 
-		Input Parameters: 
-		list 1: [account name, financial start, fromdate and todate,projectname]
-		list 2: [cleared_tran_flag]
+		* Purpose:
+			- returns all uncleared transactions from the starting of 
+			  financial year to the end date of given period 
+			  ``OR`` 
+			- all uncleared transactions from the starting of 
+			  financial year to the end date of given period with all cleared transactions 
+			  of the given period if cleared_tran_flag is true 
+			  with`` Bank Reconciliation Statement`` for the given period of time.
+		  
+			- The function first makes a call to the previous function ``getLedger`` 
+		   	  and passes the account as a parameter along with the 
+		          financial start, Calculate_from and calculate_to.
+			- note that balance is always calculated from the starting of the financial year.
+			- Then, on every iteration it calls following functions 
+				+ ``getTransactions``: to get trnsactions from starting date of 
+				  financial year to the end date of given period
+				+ ``getParticulars``: to get all particulars(account names) 
+				  for that period
+				+ ``getOnlyClearedTransactions``: to filter out all uncleared 
+				  transactions and their details.
+				+ if cleared_tran_flag is True, it calls ``getReconLedger`` function to 
+				  get the list of cleared transactionsand then it compares ReconGrid 
+				  with list of cleared transactions to ignore duplicate transactions
+				  and finally added bank reconciliation statement. 
+		* Input: 
+			- list 1: [account name, financial start, fromdate and todate,projectname]
+			- list 2: [cleared_tran_flag]
 		
-		Description:This function returns a grid of 9 columns and number 
-		of rows depending on number of uncleared OR uncleared+cleared transactions in the database. 
-		After appending transactions in grid, 
-		it appends Bank Reconciliation statement.
+		* Output:
+			- this function returns a grid of 9 columns and number 
+			  of rows depending on number of uncleared 
+			  OR uncleared + cleared transactions in the database. 
+			- After appending transactions in grid, 
+			  it appends Bank Reconciliation statement.
+			- A grid of 9 columns contains:
+				+ [vouchercode, transaction date, accountname, reference number,dramount, cramount, narration, clearance date and memo]
 		
-		A grid of 9 columns contains:
-		vouchercode, transaction date, accountname, reference number, 
-		dramount, cramount, narration, clearance date and memo.
-		
-		The function first makes a call to the previous function "getLedger" 
-		and passes the account as a parameter along with the 
-		financial start, Calculate_from and calculate_to.
-		
-		Note that balance is always calculated from the starting of the financial year.
-		Then, on every iteration it calls following functions 
-		1. getTransactions: to get trnsactions from starting date of 
-			financial year to the end date of given period
-		2. getParticulars: to get all particulars(account names) 
-			for that period
-		3. getOnlyClearedTransactions: to filter out all uncleared 
-			transactions and their details.
-		4. if cleared_tran_flag is True, it calls getReconLedger function to 
-			get the list of cleared transactionsand then it compares ReconGrid 
-			with list of cleared transactions to ignore duplicate transactions
-		
-		and finally added bank reconciliation statement
+			   
 		"""
 		#flags[0] is cleared_trans_flag
-		print "queryparans--"
-		print queryParams
 		cleared_tran_flag = flags[0]
 		ReconGrid = []
 		totalDbt = 0.00
@@ -2225,25 +2237,24 @@ class reports(xmlrpc.XMLRPC):
 			
 		if BankBal == 0:
 			ReconGrid.append(["","Balance as per Bank","","","",'%.2f'%(abs(BankBal))])
-		print "recon"
-		print ReconGrid
+	
 		return ReconGrid	
 		
 	def xmlrpc_getCashFlow(self,queryParams,client_id):
-		""" Purpose: Returns the data for CashFlow in a grid format
-		
-		Input parameters : *financial_from ,startdate and end date
-		
-		description:
-		The function will return a grid with 4 columns.
-		first 2 columns will have the account name and its sum of
-		received amount, while next 2 columns will have the same 
-		for amount paid.first we make a call to get CashFlowAccounts 
-		for the list of accounts falling under Bank or Cash subgroups.
-		Then a loop will run through the list and get the list of 
-		payment and receipts as mentioned above.
-		every row will contain a pair of 
-		account:amount for payment and receipt each.
+		"""
+		* Purpose:
+			- The function will return a grid with 4 columns.
+			- first 2 columns will have the account name and its sum of
+			  received amount, while next 2 columns will have the same 
+			- for amount paid.first we make a call to get CashFlowAccounts 
+			- for the list of accounts falling under Bank or Cash subgroups.
+			- Then a loop will run through the list and get the list of 
+			  payment and receipts as mentioned above.
+			- every row will contain a pair of as below
+			  account:amount for payment and receipt each.
+		  
+		* Input: 
+			- financial_from ,start_date and end_date
 		"""
 		#declare the cashFlowGrid, rlist, plist as a blank list.
 		#we will fill up cashFlowGrid by appending rlist and plist.
@@ -2339,6 +2350,6 @@ class reports(xmlrpc.XMLRPC):
 		cashFlowGrid.append(rlist)
 		cashFlowGrid.append(plist)
 		cashFlowGrid.append(Netlist)
-		print cashFlowGrid
+		
 		return cashFlowGrid
 		

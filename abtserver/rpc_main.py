@@ -1,19 +1,9 @@
 #!/usr/bin/python
-"""
-import the twisted modules for executing rpc calls 
-and also to implement the server
-"""
 from twisted.web import xmlrpc, server
-"""
-reactor from the twisted library starts the server with a published
-object and listens on a given port.
-"""
 from twisted.internet import reactor
 from sqlalchemy.orm import sessionmaker,scoped_session
 from xml.etree import ElementTree as et
-# pysqlite2 is a SQLite binding for Python that complies to the Database API  
 from sqlite3 import dbapi2 as sqlite
-# from sqlite3 import dbapi2 as sqlite
 import datetime
 import os,sys
 import getopt
@@ -23,28 +13,36 @@ import rpc_groups
 import rpc_account
 import rpc_transaction
 import rpc_data
-import rpc_user
 import rpc_reports
 import rpc_getaccountsbyrule
 from sqlalchemy.orm import join
-from decimal import *
-from sqlalchemy import or_
 from modules import blankspace
-#note that all the functions to be accessed by the client must have the xmlrpc_ prefix.
+
 class abt(xmlrpc.XMLRPC): 
-	
+	"""
+	+ This class is the inherit class of XMLRPC base class
+	+ This is the main file which implement the server and publish the object to given port 
+	  and execute the xmlrpc functions.
+	+ We have used twisted module to implement server and executing xmlrpc calls
+	+ also to publish the object and make it to listen on the given port through reactor 
+	  and start the service by running the reactor.
+	+ It also create database and deploy organisation. 
+	+ note that all the functions to be accessed by the client must have the xmlrpc_ prefix.
+	+ the client however will not use the prefix to call the functions.
+	"""
 	def __init__(self):
 		xmlrpc.XMLRPC.__init__(self)
 
 	def xmlrpc_getOrganisationNames(self): 
-		"""
-		Purpose: This function is used to return the list of
-			organsation names found in abt.xml 
-			located at /opt/abt/
-			
-		Output: Returns a list of organisation names 
-		        already present in the file
-		"""
+		'''
+		* Purpose:
+			- function is used to return the list of
+		          organsation names found in abt.xml located at /opt/abt/
+		        - we have imported ``ElementTree`` for parsing xml file.
+		
+		* Output: 
+		        - returns a list of organisation names already present in the file
+		'''
 		# calling the function getOrgList for getting list of organisation nodes.
 		orgs = dbconnect.getOrgList() 
 		# initialising an empty list for organisation names
@@ -59,13 +57,14 @@ class abt(xmlrpc.XMLRPC):
 	
 	def xmlrpc_deleteOrganisation(self,queryParams): 
 		"""
-		Purpose: This function is used delete organisation
-		         from existing organsations found in abt.xml 
-		         located at /opt/abt/ 
-			 Also delete database details of respective organisation
-			 from /opt/abt/db/
-			 
-		Output: Boolean True
+		* Purpose: 
+			- This function is used delete organisation from existing 
+			  organsations found in abt.xml located at /opt/abt/ 
+			- also delete database details of respective organisation
+			  from /opt/abt/db/
+		  
+		* Output: 
+			 - Boolean True
 		"""
 		# parsing abt.xml file
 		tree = et.parse("/opt/abt/abt.xml") 
@@ -88,14 +87,14 @@ class abt(xmlrpc.XMLRPC):
 
 	def xmlrpc_getFinancialYear(self,arg_orgName):
 		"""
-		purpose: This function will return a list of financial
-			years for the given organisation.  
-			Arguements,
-			
-		Input: [organisationname]
-		
-		Output: returns financialyear list for peritcular organisation
-		        in the format "dd-mm-yyyy"
+		* purpose: 
+			- This function will return a list of financial years for the 
+			  given organisation. 
+		* Input: 
+		 	- [organisationname]
+		* Output: 
+		 	- returns financialyear list for peritcular organisation
+		  	  in the format "dd-mm-yyyy"
 		"""
 		#get the list of organisations from the /opt/abt/abt.xml file.
 		#we will call the getOrgList function to get the nodes.
@@ -110,33 +109,34 @@ class abt(xmlrpc.XMLRPC):
 				financialyear_to = org.find("financial_year_to")
 				from_and_to = [financialyear_from.text, financialyear_to.text]
 				financialyearlist.append(from_and_to)
-		print "financialyearlist"
-		print financialyearlist
+		
 		return financialyearlist
 		
 	def xmlrpc_getConnection(self,queryParams):
 		"""
-		purpose: This function is used to return the client_id for sqlite 
-			 engine found in dbconnect.py 
-			 
-		Input: [organisation name]	
-		
-		Output: Returns the client_id integer
-		
+		* Purpose: 
+			- This function is used to return the client_id for sqlite 
+			  engine found in ``dbconnect.py``
+		* Input: 
+		 	- [organisation name]
+		* Output: 
+			- returns the client_id integer
 		"""
-		
 		self.client_id=dbconnect.getConnection(queryParams)
 		return self.client_id
 
 	
 	def xmlrpc_closeConnection(self,client_id):
 		"""
-		purpose: This function is used close the connetion 
-			with sqlite for client_id
-			 
-		Input: client_id	
-		
-		Output: Returns boolean True if conncetion closed
+		* Purpose: 
+			- This function is used close the connetion with sqlite 
+			  for client_id
+			  
+		* Input: 
+		 	- client_id
+			
+		* Output: 
+		 	- returns boolean True if conncetion closed
 		
 		"""
 		dbconnect.engines[client_id].dispose()
@@ -146,20 +146,29 @@ class abt(xmlrpc.XMLRPC):
 		
 	def xmlrpc_Deploy(self,queryParams):
 		"""
-		Purpose: This function deploys a database instance for
-			an organisation for a given financial year.
-			The function will generate the database name 
-			based on the organisation name provided The name 
-			of the database is a combination of, 
-			First character of organisation name,
-			time stap as "dd-mm-yyyy-hh-MM-ss-ms" 
-			An entry will be made in the xml file 
-			for the currosponding organisation.
-			
-		Input: [organisation name,From date,to
-			date,organisation type] 
-			
-		Output: Returns boolean True and client_id
+		* Purpose:
+			- The function will generate the database name 
+			  based on the organisation name and time stap.
+			- provided the name of the database is a combination of, 
+			  first character of organisation name,time stap as 
+			  "dd-mm-yyyy-hh-MM-ss-ms" 
+			- An entry will be made in the xml file 
+			  for the currosponding organisation.
+			- This function deploys a database instance for
+			  an organisation for a given financial year.
+			- It will call to getConnection and establish the connection 
+			  for created database
+			- also create the metadata(tables) given in ``dbconnect`` for that organisation
+			  using sqlAlchemy.
+			- create the ``Views`` for the particular organisation.
+			- It add manually ``groupnames`` ad ``subgroups`` to it's corresponding class
+			  tables ``Groups`` and ``subGroups``
+		   	
+		 * Input: 
+		 	- [organisation name,From date,todate,organisation_type]
+		
+		 * Output: 
+		 	- returns boolean True and client_id
 			
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
@@ -173,7 +182,7 @@ class abt(xmlrpc.XMLRPC):
 		db_to_date = queryParams[2] # to date
 		organisationType = queryParams[3] # organisation type
 		org_name.text = name_of_org #assigning orgnisation name value in orgname tag text of abt.xml
-		financial_year_from = et.SubElement(org,"financial_year_from") #creating a new tag for financial year from-to	
+		financial_year_from = et.SubElement(org,"financial_year_from") #creating a new tag for financial year fromto	
 		financial_year_from.text = db_from_date
 		financial_year_to = et.SubElement(org,"financial_year_to")
 		financial_year_to.text = db_to_date
@@ -306,45 +315,51 @@ class abt(xmlrpc.XMLRPC):
 		Session.close()
 		connection.close()
 		return True,self.client_id
-# create the instance of class abt
-
-abt = abt()
-
-groups=rpc_groups.groups()
-abt.putSubHandler('groups',groups)
-
-account=rpc_account.account()
-abt.putSubHandler('account',account)
-
-organisation = rpc_organisation.organisation()
-abt.putSubHandler('organisation',organisation)
-
-transaction=rpc_transaction.transaction()
-abt.putSubHandler('transaction',transaction)
-
-data=rpc_data.data()
-abt.putSubHandler('data',data)
-
-reports=rpc_reports.reports()
-abt.putSubHandler('reports',reports)
-
-user=rpc_user.user()
-abt.putSubHandler('user',user)
-
-getaccountsbyrule=rpc_getaccountsbyrule.getaccountsbyrule()
-abt.putSubHandler('getaccountsbyrule',getaccountsbyrule)
 
 def runabt():
+	"""
+	+ As we have imported all the nested XMLRPC resource,so that create one handler ``abt`` 
+	  calls another if a method with a given prefix is called.
+	+ and publish that handelr instance ``abt`` to server .
+	+ this is ``def runabt()`` which is outside ``class abt():``.
+	"""
+	import rpc_main
+	# create the instance of class abt
+	abt = rpc_main.abt()
+	groups=rpc_groups.groups()
+	abt.putSubHandler('groups',groups)
+
+	account=rpc_account.account()
+	abt.putSubHandler('account',account)
+
+	organisation = rpc_organisation.organisation()
+	abt.putSubHandler('organisation',organisation)
+
+	transaction=rpc_transaction.transaction()
+	abt.putSubHandler('transaction',transaction)
+
+	data=rpc_data.data()
+	abt.putSubHandler('data',data)
+
+	reports=rpc_reports.reports()
+	abt.putSubHandler('reports',reports)
+
+	# user=rpc_user.user()
+	# abt.putSubHandler('user',user)
+
+	getaccountsbyrule=rpc_getaccountsbyrule.getaccountsbyrule()
+	abt.putSubHandler('getaccountsbyrule',getaccountsbyrule)
+
 	print "initialising application"
 	#the code to daemonise published instance.
-	print "starting server"
+	
  	# Daemonizing abt
 	# Accept commandline arguments
 	# A workaround for debugging
 	def usage():
-		print "Usage: %s [-d|--debug] [-h|--help]\n" % (sys.argv[0])
-		print "\t-d (--debug)\tStart server in debug mode. Do not fork a daemon."
-		print "\t-d (--help)\tShow this help"
+		print "Usage: %s [d|debug] [h|help]\n" % (sys.argv[0])
+		print "\td (debug)\tStart server in debug mode. Do not fork a daemon."
+		print "\td (help)\tShow this help"
 
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "hd", ["help","debug"])
@@ -354,10 +369,10 @@ def runabt():
 
 	debug = 0
 	for opt, arg in opts:
-		if opt in ("-h", "--help"):
+		if opt in ("h", "help"):
 			usage()
 			os.exit(0)
-		elif opt in ("-d", "--debug"):
+		elif opt in ("d", "debug"):
 			debug = 1
 
 	# Do not fork if we are debug mode
@@ -388,7 +403,7 @@ def runabt():
 
 		# Redirect the standard I/O file descriptors to the specified file.  Since
 		# the daemon has no controlling terminal, most daemons redirect stdin,
-		# stdout, and stderr to /dev/null.  This is done to prevent side-effects
+		# stdout, and stderr to /dev/null.  This is done to prevent sideeffects
 		# from reads and writes to the standard I/O file descriptors.
 
 		# This call to open is guaranteed to return the lowest file descriptor,
@@ -400,7 +415,8 @@ def runabt():
 		os.dup2(0, 2)			# standard error (2)
 	
 	#publish the object and make it to listen on the given port through reactor
-
+	print "starting server"
 	reactor.listenTCP(7081, server.Site(abt))
 	#start the service by running the reactor.
 	reactor.run()
+	

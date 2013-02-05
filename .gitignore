@@ -15,7 +15,7 @@ gen/
 
 
 # docs
-docs/
+# docs/
 
 # 
 *.sh*

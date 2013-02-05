@@ -1,7 +1,6 @@
 from twisted.web import xmlrpc, server
 from twisted.internet import reactor
 from time import strftime
-import pydoc
 from datetime import datetime, time
 from time import strftime
 from sqlalchemy.orm.exc import NoResultFound
@@ -14,23 +13,31 @@ import dbconnect
 from modules import blankspace
 class account(xmlrpc.XMLRPC):
 	
-	"""class name is aacount which having different store procedures"""
+	"""
+	+ This rpc module do all the functionality related to account like
+	  create,edit,delete and give info about balances .
+	"""
 	def __init__(self):
 		xmlrpc.XMLRPC.__init__(self)
 		
 	def xmlrpc_setAccount(self, queryParams, client_id):
 		"""
-		Purpose: Adds an account in the account table, under a selected 
-			group and optionally a subgroup.  
-			depending on the preference choosen by the user.
-			This function insert a row in the account table.
-		        it takes one parameter named queryParams which is a list containing,
+		* Purpose:
+			- it call ``getGroupCodeByGroupName()`` from ``rpc_groups`` 
+			  pass param groupname will return groupcode
+			- adds an account in the account table, under a selected group and optionally a subgroup.
+			- depending on the preference choosen by the user.
+			- this function insert a row in the account table.
+			- connection made with engine of sessions using client_id.
+			- add query will be execute.
+
+		* Input:
+			- queryParams[groupname,subgroupname,newsubgroupname,accountname,
+				 accountcodetype,openingbalance,currentBalance,suggestedcode]
 		
-		Input: queryParams[groupname,subgroupname,newsubgroupname,accountname,
-		accountcodetype,openingbalance,currentBalance,suggestedcode]
-		
-		Output: Returns String "success"
-		""" 
+		* Output: 
+			- returns String "success"
+		"""
 		group = rpc_groups.groups()
 		
 		queryParams = blankspace.remove_whitespaces(queryParams)
@@ -54,7 +61,6 @@ class account(xmlrpc.XMLRPC):
 			sp_params.append(queryParams[5]) 
 			
 		now = datetime.today() # sqlite take datetime or date object for TIMESTAMP
-		#date = now.strftime("%Y-%m-%d %H:%M:%S")
 		sp_params.append(now) # append the current date of system while setting account
 		sp_params.append(sp_params[3]) # append accountname
 		
@@ -123,18 +129,21 @@ class account(xmlrpc.XMLRPC):
 		
 	def xmlrpc_getCrOpeningBalance(self, client_id):
 		"""
-		Purpose: This function calculates the total credit opening balance 
-			for all accounts with Cr opening balance.  
-			it takes no arguement and returns a float value.
-		
-			when adding an account we tend to know what is the total of 
-			all debit and credit opening balances.
-			This function calculates the total for all accounts with Cr as 
-			opening balance.
-			function executes `statement` for the expected result as float.
-			refer rpc_main.py for the said group_subgroup_account view.
-			
-		Output: Total amount credit balances
+		* Purpose:
+			- This function calculates the total credit opening balance 
+			  for all accounts with ``Cr`` opening balance.  
+			- groups who has ``Cr`` opening balances are ``Corpus`` ``Capital``
+			  ``Current Liability`` ``Loans(Liability)`` ``Reserves``.
+			- when adding an account we tend to know what is the total of 
+			  all debit and credit opening balances.
+			- This function calculates the total for all accounts with Cr as 
+			  opening balance.
+			- function executes ``statement`` for the expected result as float.
+			- refer ``rpc_main.py`` for the said ``group_subgroup_account`` view.
+			- it takes no arguement and returns a float value.
+
+		* Output:
+			- total amount credit balances
 		"""
 		statement = "select sum(openingbalance) as totalcrbal \
 		        from group_subgroup_account \
@@ -151,24 +160,25 @@ class account(xmlrpc.XMLRPC):
 	
 	def xmlrpc_getDrOpeningBalance(self, client_id):
 		"""
-		Purpose: This function calculates the total debit opening balance 
-			for all accounts with Dr opening balance. 
-			Functions takes no arguement and returns a float value.
-			when adding an account we tend to know what is the total of 
-			all debit and credit opening balances.
-			This function calculates the total for all accounts with Dr 
-			as opening balance.
-			function executes the `stmt` for the expected result as float.
-			refer rpc_main.py for the said group_subgroup_account view
-			
-		Output: Total amount credit balances
+		* Purpose:
+			- This function calculates the total debit opening balance 
+			  for all accounts with Dr opening balance. 
+			- groups who has Dr opening balances are ``Current Asset`` 
+			  ``Fixed Assets`` ``Investment`` ``Loans(Asset)`` 
+			  ``Miscellaneous Expenses(Asset)``.
+			- Functions takes no arguement and returns a float value.
+			- function executes the `statement` for the expected result as float.
+			- refer ``rpc_main.py`` for the said ``group_subgroup_account`` view
+		
+		* Output: 
+			- total amount credit balances
 		"""
 	
-		stmt = "select sum(openingbalance) as totaldrbal\
+		statement = "select sum(openingbalance) as totaldrbal\
 		        from group_subgroup_account\
 		        where groupname \
 		        in ('Current Asset','Fixed Assets','Investment','Loans(Asset)','Miscellaneous Expenses(Asset)')"
-		res=dbconnect.engines[client_id].execute(stmt).fetchone()
+		res=dbconnect.engines[client_id].execute(statement).fetchone()
 		
 		if res.totaldrbal == None:
 			return '%.2f'%(0.00)
@@ -177,26 +187,27 @@ class account(xmlrpc.XMLRPC):
 			
 	def xmlrpc_getSuggestedCode(self,queryParams,client_id):
 		"""
-		purpose: To get code on the basis of provided 3 characters at list 
-			queryParams[0] 
-			function takes the 2 characters of selected group and first character of account.
-			The 2 characters of the selected group are determined in the front end.
-			The first character of the entered account is then appended to the former.
-			For example,
-				an account SBI in group Current Asset will send CAS 
-				as the 3 characters as queryParams[0]
-				The function then executes a stored procedure getSuggestedCode 
-				and checks if an account exists with a code starting with 
-				the given 3 characters.
-				if an account did exist then the given 3 characters will be postfixed 
-				with total count of existing similar account codes + 100.
-				If no such account is found then 100 will be concatinated to the first 3 chars.
-				for example if no account exists with an account code starting with CAS, 
-				then the suggested code will be CAS100.
-				Next time an account with 3 chars as CAS is entered, then it will be CAS101.
-				
-		Input:	first two charector of groupname and first charecto of the accountname
-			returns a string containing the suggested code.
+		* Purpose:
+			- To get code on the basis of provided 3 characters at list queryParams[0] 
+			- function takes the 2 characters of selected group and first character of account.
+			- The 2 characters of the selected group are determined in the front end.
+			- The first character of the entered account is then appended to the former.
+		
+		* Input: 
+			- first two charector of groupname and first character of the accountname
+			  returns a string containing the suggested code.
+			- for example
+				- an account SBI in group Current Asset will send CAS 
+				  as the 3 characters as queryParams[0].
+				- check for account exist if an account did exist then the 
+				  given 3 characters will be postfixed. 
+				  with total count of existing similar account codes + 100.
+				- If no such account is found then 100 will be concatinated 
+				  to the first 3 chars.
+				- for example if no account exists with an account code starting with CAS, 
+				  then the suggested code will be CAS100.
+				- Next time an account with 3 chars as CAS is entered, 
+				  then it will be CAS101.
 			
 		"""	
 		connection = dbconnect.engines[client_id].connect()
@@ -217,14 +228,16 @@ class account(xmlrpc.XMLRPC):
 	
 	def xmlrpc_getAccountCodeByAccountName(self, queryParams, client_id):	
 		"""
-		Purpose: Function for get an accountcode for given accountname.
-		 	
-		Parameters: queryParams which is a list containing one element, 
-				accountname as string.
-				
-		Output: returns accountcode if it exist for given accountname
-			else returns empty list
-	
+		* Purpose:
+			- Function for get an accountcode for given accountname.
+		
+		* Input:
+			- queryParams which is a list containing one element, 
+			  accountname as string.
+		
+		* Output:
+			- returns accountcode if it exist for given accountname
+			  else returns empty list
 		"""
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
@@ -242,11 +255,11 @@ class account(xmlrpc.XMLRPC):
 			
 	def xmlrpc_getAllAccountNames(self, client_id):
 		"""
-		Purpose: Function to get the list of all accountnames 
-			in the database.
+		* Purpose: 
+			- Function to get the list of all accountnames in the database.
 			
-		Output: returns the list of all acountnames.
-			else returns empty list 
+		* Output: 
+			- returns the list of all acountnameselse returns empty list 
 		
 		"""
 		connection = dbconnect.engines[client_id].connect()
@@ -269,10 +282,14 @@ class account(xmlrpc.XMLRPC):
 	
 	def xmlrpc_getAllAccountCodes(self,client_id):
 		"""
-		purpose: To get the list of all accountcodes
+		* Purpose:
+			- it will return list of all accountcodes present in the account table.
 		
-		Output: returns the list of all accountcode.
-			else it returns empty list
+		* Input:
+			- no input argument
+		
+	        * Output: 
+	        	- returns the list of all accountcode else it returns empty list.
 		"""
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
@@ -292,9 +309,14 @@ class account(xmlrpc.XMLRPC):
 			return accountcodes
 		
 	def xmlrpc_getAllBankAccounts(self,client_id):
-		'''
-		Purpose: To get all accountnames which is under Bank subgroup
-		'''
+		"""
+		* Purpose
+			- To get all accountnames which is under ``Bank`` subgroup.
+			- it will query the ``group_subgroup_account`` view from ``rpc_main``.
+		
+		* Output:
+			- Returns list of accountnames
+		"""
 		statement = "select accountname\
 			     		from group_subgroup_account\
 			     		where subgroupname ='Bank'\
@@ -311,10 +333,11 @@ class account(xmlrpc.XMLRPC):
 			
 	def xmlrpc_getCashFlowOpening(self,client_id):
 		"""
-		Purpose: to get all accountnames which is in 
-			under Bank and cash subgroup
+		* Purpose: 
+			- to get all accountnames which is in under Bank and cash subgroup
 		
-		output :Returns list of [accountname,openingbalance]
+		* Output:
+			- returns list of [accountname,openingbalance]
 		
 		"""
 		statement = "select accountname,openingbalance\
@@ -323,8 +346,7 @@ class account(xmlrpc.XMLRPC):
 				in ('Bank','Cash') order by accountname"
 				
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
-		print "cash flow "
-		print result
+		
 		cashflow = []
 		for row in result:
 			cashflow.append([row[0],row[1]])
@@ -333,12 +355,15 @@ class account(xmlrpc.XMLRPC):
 		
 	def xmlrpc_getCashFlowReceivedAccounts(self,queryParams,client_id):
 		"""
-		Purpose: to get sum of amount for those transaction in which only cash and bankk
-			accountname(with Dr) are involve in startdate and todate
-			
-		input: cfaccountname,cbaccountname,startdate,enddate
+		* Purpose:
+			- to get sum of amount for those transaction in which only ``Cash`` 
+			  and ``Bank`` accountname(with Dr) are involve in startdate and todate
 		
-		output parameters: cfamount
+		* Input: 
+			- cfaccountname,cbaccountname,startdate,enddate
+		
+		* Output:
+			- cfamount
 		"""
 		financial_fromdate = str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
 		financial_enddate =  str(datetime.strptime(str(queryParams[3]),"%d-%m-%Y"))
@@ -354,8 +379,7 @@ class account(xmlrpc.XMLRPC):
 				and flag = 1)\
 				group by account_name"
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
-		print "cash flow recieved"
-		print result
+		
 		CashFlowReceived = []
 		if result == None:
 			return result
@@ -365,14 +389,19 @@ class account(xmlrpc.XMLRPC):
 			return CashFlowReceived 			
 	
 	def xmlrpc_getCashFlowPaidAccounts(self,queryParams,client_id):
-		'''
-		Purpose: to get sum of amount for those transaction in which only cash and bankk
-			accountname(with Cr) are involve in startdate and todate
-			
-		input: cfaccountname,cbaccountname,startdate,enddate
+		"""
+		* Purpose:
+			- to get sum of amount for those transaction in which only cash and bank
+			  accountname(with Cr) are involve in startdate and todate
+		  
+		* Input:
+			- cfaccountname,cbaccountname,startdate,enddate
+			- cfaccountname will be except ``cash`` and ``bank`` accounts.
+			- cbaccountname will be ``cash`` and ``bank`` accounts.
 		
-		output parameters: cfamount
-		'''
+		* Output: 
+			- cfamount
+		"""
 		financial_fromdate = str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
 		financial_enddate =  str(datetime.strptime(str(queryParams[3]),"%d-%m-%Y"))
 		
@@ -388,8 +417,7 @@ class account(xmlrpc.XMLRPC):
 				and flag = 1)\
 				group by account_name"
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
-		print "cash flow paid"
-		print result
+		
 		getCashFlowPaid = []
 		if result == None:
 			return result
@@ -401,20 +429,22 @@ class account(xmlrpc.XMLRPC):
 		
 	
 	def xmlrpc_accountExists(self, queryParams, client_id):
-		'''
-		Purpose   : Function for finding if an account already exists 
-		with the supplied name. 	
-		Parameters : queryParams which is a list containing one element, 
-		accountname as string.
-		Returns :  1 if account name exists and 0 if not.
-		Description : Querys the account table and sees if an account 
-		name similar to one provided 
-		as a parameter exists.
-		We can ensure that no duplicate account is ever entered because 
-		if a similar account exists 
-		like the one in queryparams[0] then we won't allow another 
-		entry with same name.
-		'''
+		"""
+		* Purpose:
+			- function for finding if an account already exists 
+			  with the supplied name. 	
+			- queryParams which is a list containing one element, 
+			  accountname as string.
+			- querys the account table and sees if an account 
+			  name similar to one provided as a parameter exists.
+			- We can ensure that no duplicate account is ever entered because 
+			  if a similar account exists. 
+			- like the one in queryparams[0] then we won't allow another 
+			  entry with same name.
+		  
+		* Output:
+			- if account name exists returns 1 else 0 .
+		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
@@ -433,12 +463,15 @@ class account(xmlrpc.XMLRPC):
 			
 	def xmlrpc_accountCodeExists(self, queryParams, client_id):
 		"""
-		Purpose: Function for finding if an accountcode already 
-			exists with the supplied code. 	
-			
-		Input: accountode(datatype:string)
+		* Purpose:
+			- Function for finding if an accountcode already 
+			  exists with the supplied code.
+		  
+		* Input:
+			- accountode(datatype:string)
 		
-		Output: return "1" if accountcode exists and "0" if not.
+		* Output:
+			- return "1" if accountcode exists and "0" if not.
 		
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
@@ -457,22 +490,24 @@ class account(xmlrpc.XMLRPC):
 			
 	def xmlrpc_editAccount(self, queryParams, client_id):
 		"""
-		Purpose: Modifies an account based on account code.  
-			alters account name and opening balance.
-			This function will edit an account and change 
-			either account name, oepning balance or both.
-			the account is fetched internally by the software on the basis 
-			of account code, even if it was searched by client using account
-			name. 
-			If the function is successful,it will return the newly 
-			updated current balance.If the groupname sent in the queryParams
-			is direct or indirect income, or direct or indirect expence, 
-			then the oepning balance is sent as 0.
+		* Purpose:
+			- Modifies an account based on account code.  
+			- alters account name and opening balance.
+			- This function will edit an account and change 
+			  either account name, oepning balance or both.
+			- the account is fetched internally by the software 
+			  on the basis of account code, even if it was 
+			  searched by client using account name. 
+			- If the function is successful,it will return the string
+			- If the groupname sent in the queryParams is direct or 
+			  indirect income, or direct or indirect expence, 
+			  then the oepning balance is sent as 0.
 		
-		Input: [accountname, accountcode, groupname and new_opening_balance]
+		* Input: 
+			- [accountname, accountcode, groupname and new_opening_balance]
 		
-		Output: [Current_balance]
-		
+		* Output: 
+			- returns string ``edit successfully``
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		spQueryParams = [queryParams[0], queryParams[1]]
@@ -506,23 +541,22 @@ class account(xmlrpc.XMLRPC):
 		Session.close()
 		connection.connection.close()
 		
-		return final_balance
+		return "edit successfully"
 		
 		
 	def xmlrpc_getAccount(self, queryParams, client_id):
 		"""
-		purpose: Searches and returns account details.  
-			Search is based on either accountcode or account name.
-			
-		Input: 
-			* searchFlag as integer (1 means search by account code and 2 means account name )
-			* searchValue as text (value depends on the searchFlag)
-		Output: 
-			* groupname
-			* subgroupname (if any )
-			* accountcode
-			* accountname
-			* openingbalance
+		* Purpose:
+			- Searches and returns account details.  
+			- Search is based on either accountcode or account name.
+			- it query to ``group_subgroup_account`` view from ``rpc_main``	
+		
+		* Input: 
+			- searchFlag as integer (1 means search by account code and 2 means account name )
+			- searchValue as text (value depends on the searchFlag)
+		
+		* Output: list of below values
+			- groupname,subgroupname,accountcode,accountname,openingbalance
 		
 		"""
 		if queryParams[0] == 1:
@@ -543,12 +577,15 @@ class account(xmlrpc.XMLRPC):
 	
 	def xmlrpc_getAccountNamesByGroupCode(self,queryParams,client_id):
 		"""
-		Purpose: To get accountname accourding to given groupcode
+		* Purpose:
+			- to get accountname accourding to given groupcode.
+			- it query to the ``Account`` tables.
 		
-		Input: [groupcode]
-		
-		Output: it will return list of accountname else return empty list
-		
+		* Input: 
+			- [groupcode]
+
+		* Output:
+			- it will return list of accountname else return empty list
 		"""
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)	
@@ -569,13 +606,20 @@ class account(xmlrpc.XMLRPC):
 			return accountnames
 		
 	def xmlrpc_getAccountNamesByProjectName(self,queryParams,client_id):
-		'''
-		Purpose : This function will return list of accountnames
-		for particular projectname
-		Input parameters: projectname
-		output : list of accountnames
-	
-		'''
+		"""
+		* Purpose:
+			- call ``getProjectcoeByProjectName`` to get projectcode
+			- using projectcode we will get accountnames used in transaction 
+			  for given projectname. 
+			- function will return list of accountnames for particular projectname
+		
+		* Input:
+			- [projectname]
+		
+		* Output:
+			- list of accountnames
+		
+		"""
 		transaction = rpc_transaction.transaction()
 		projectcode = transaction.xmlrpc_getProjectcodeByProjectName(queryParams,client_id)
 		statement = "select distinct(account_name)\
@@ -585,19 +629,22 @@ class account(xmlrpc.XMLRPC):
 				order by account_name"  
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
 		accountname = []
-		for Row in result:
-			accountname.append(Row[0])
+		for Row in accountname:
+			result.append(Row[0])
 		return accountname       
 	
 	
 	def xmlrpc_deleteAccount(self, queryParams, client_id):
-		'''
-		Purpose: Function for deleting accountname row
+		"""
+		* Purpose:
+			- function for deleting accountname row.
 		
-		Input: accountname as string.
+		* Input:
+			- accountname as string.
 		
-		Output: returns 1 when account is deleted
-		'''
+		* Output:
+			- returns 1 when account is deleted
+		"""
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.Account).\
@@ -610,15 +657,16 @@ class account(xmlrpc.XMLRPC):
 		
 		
 	def xmlrpc_hasOpeningBalance(self, queryParams, client_id):
-		'''
-		Purpose: Function to find out whether the given account 
-			has opening balance 
-			
-		Input: accountname(datatype:string)
+		"""
+		* Purpose:
+			- function to find out whether the given account has opening balance
+		  
+		* Input:
+			- accountname(datatype:string)
 		
-		Output: if opening balance of accountname is 
-			0 then return "0" else return "1"
-		'''
+		* Output: 
+			- if opening balance of accountname is 0 then return "0" else return "1"
+		"""
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.Account.openingbalance).\
@@ -633,15 +681,17 @@ class account(xmlrpc.XMLRPC):
 			
 	
 	def xmlrpc_hasTransactions(self, queryParams, client_id):
-		'''
-		Purpose : Function to find out whether the given account 
-		has any transactions or not
+		"""
+		* Purpose:
+			- function to find out whether the given account has any transactions or not.
+		  
+		* Input:
+			- accountname as string.
 		
-		Parameters: queryParams is a account name as string.
-		
-		Returns : if there is any voucher entry of that accountname 
-		return 1 or else return 0
-		'''
+		* Output:
+			- if there is any voucher entry of that accountname 
+			  return 1 or else return 0
+		"""
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		
@@ -659,29 +709,27 @@ class account(xmlrpc.XMLRPC):
 		
 		
 	def xmlrpc_deleteAccountNameMaster(self,queryParams,client_id):
-		'''		
-		Purpose: Function for deleting accounts. 
+		"""
+		* Purpose:		
+			- function for deleting accounts.
+			- for this we have used ``hasOpeningBalance`` ``hasTransactions`` 
+			  & ``deleteAccount`` rpc functions. 
+			- with the help of ``hasTransactions`` we are able to find out whether 
+			  the given account has any transactions or not. 
+			- it tells that if there is any voucher entry of that accountname 
+			  return 1 or else return 0
+			- The function ``hasOpeningBalance`` returns ``1`` if opening balance 
+			  for that account exists or else returns ``0``
+			- third function ``deleteAccount`` deletes that particular accountname
 		
-			For this we have used hasOpeningBalance,hasTransactions & 
-			deleteAccount rpc functions. 
-			With the help of hasTransactions we are able to find out whether 
-			the given account has any transactions or not. 
-			It tells that if there is any voucher entry of that accountname 
-			return 1 or else return 0
+		* Input:
+			- [accountname,flag] or [accountcode,flag]
 		
-			The function hasOpeningBalance returns 1 if opening balance 
-			for that account exists or else returns 0
-			and third function deleteAccount deletes that particular accountname
-		
-		Input: [accountname,flag] or [accountcode,flag]
-			
-		Output:  if hasOpenibalance is 0 and hasTransaction is 0
-			returns string "account deleted"
-		
-			if hasOpenibalance is 1 and hasTransaction is 1
-			returns string "has both opening balance and trasaction" 
-		
-		'''
+		* Output:  
+			- if hasOpenibalance is 0 and hasTransaction is 0 returns string "account deleted"
+			  if ``hasOpenibalance`` is 1 and ``hasTransaction`` is 1
+			- returns string "has both opening balance and trasaction" 
+		"""
 		connection = dbconnect.engines[client_id].connect()
         	Session = dbconnect.session(bind=connection)
         	#if flag is 1, that means first element is account name
@@ -711,16 +759,19 @@ class account(xmlrpc.XMLRPC):
 		
 		
 	def xmlrpc_getAccountNameByAccountCode(self, queryParams, client_id):	
-		'''
-		Purpose: Function for get accountname provided accountcode
-			 Querys the account table and sees if an acountcode
-			 similar to one provided as a parameter.
-			 if it exists then it will return accountname
-			
-		Input: [accountcode]
+		"""
+		* Purpose:
+			- function to get accountname provided the accountcode
+			- querys the account table and sees if an acountcode
+			  similar to one provided as a parameter.
+			- if it exists then it will return accountname
 		
-		Output: Return accountname if present else empty list
-		'''
+		* Input: 
+			- [accountcode]
+		
+		* Output: 
+			- return accountname if present else empty list
+		"""
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.Account.accountname).\

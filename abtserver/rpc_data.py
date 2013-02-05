@@ -10,17 +10,20 @@ from modules import blankspace
 # the client however will not use the prefix to call the functions. 
 # inherit the class from XMLRPC to make it publishable as an rpc service.
 class data(xmlrpc.XMLRPC):
-
+	"""
+	+ This file gives the information about states and cities present in the ``places.db``.
+	+ you can locate ``places.db`` in ABTcore/src before running ABTcore.
+	+ if you have ABTcore running om your machine then locate it at ``/opt/abt/``
+	"""
 	def __init__(self):
 		xmlrpc.XMLRPC.__init__(self)
 
 	def xmlrpc_getStateNames(self):
 		"""
-		purpose: This is function to get state list 
-			present in the "/opt/abt/places.db"
-			
-		Output: return list of all the distinct states 
-			present in "/opt/abt/places.db"
+		* Purpose:
+			- This is function to get state list present in the "/opt/abt/places.db"
+		* Output: 
+			- return list of all the distinct states present in "/opt/abt/places.db"
 		"""
 		try:
 			conn = sqlite.connect("/opt/abt/places.db")
@@ -37,14 +40,15 @@ class data(xmlrpc.XMLRPC):
 
 	def xmlrpc_getCityNames(self,queryParams):
 		"""
-		purpose: This is function to get city list 
-			present in the "/opt/abt/places.db"
-			with its respective state name
-			
-		Input: [statename]	
+		* Purpose:
+			- This is function to get city list present in the "/opt/abt/places.db"
+			  with its respective state name
 		
-		Output: return list of all the city names
-			present in "/opt/abt/places.db"
+		* Input: 
+			- [statename]
+			
+		* Output: 
+			- return list of all the city names present in "/opt/abt/places.db"
 		"""
 		try:
 			conn = sqlite.connect("/opt/abt/places.db")

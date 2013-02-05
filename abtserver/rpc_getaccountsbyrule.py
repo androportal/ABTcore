@@ -12,7 +12,9 @@ from sqlalchemy.orm import join
 #inherit the class from XMLRPC to make it publishable as an rpc service.
 class getaccountsbyrule(xmlrpc.XMLRPC):
 	"""
-	will retrive all the accounts on the basis of transaction rules
+	+ This file provides accoutnames as per transaction rule.
+	+ In acounting there are different type of voucher and each of 
+	  them has different rule 
 	"""
 	def __init__(self):
 		xmlrpc.XMLRPC.__init__(self)
@@ -22,25 +24,28 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 
 	def xmlrpc_getContraAccounts(self,client_id):
 		"""
-		Purpose: fetches the list of all accounts which are
-		used in a contra voucher. Takes no arguments and
-		returns list of accounts. If no accounts are found for
-		contra then returns false.
-
-		description: This function is called for populating
-		the account's list with all the accounts for contra.
-		Note that contra voucher only involves cash and bank
-		accounts.
-		
+		Purpose: 
+			- fetches the list of all accounts which are
+			  used in a ``contra voucher``. 
+			- takes no arguments and returns list of accounts. 
+			  if no accounts are found for contra then returns false.
+			- this function is called for populating
+			  the account's list with all the accounts for contra.
+			- Note that contra voucher only involves cash and bank
+			  accounts.
+			  
+		* Input:
+		 	- no input parameters
+		 	
+		* Output:
+			- return list containing accountname which comes under
+			  ``cash`` and ``bank`` 
 		"""
 		statement = "select accountname\
 		        from group_subgroup_account\
 		        where subgroupname \
 		        in ('Cash','Bank') order by accountname"
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
-		print "contra acc"
-		print result
-		
 		
 		if result == []:
 			return result
@@ -48,21 +53,28 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 			contraAccounts = []
 			for row in result:
 				contraAccounts.append(row[0])
-			print contraAccounts
+			
 			return contraAccounts
 	
 
 	def xmlrpc_getJournalAccounts(self,client_id):
 		"""
-		Purpose: fetches the list of all accounts which are
-		used in a journal voucher. Takes no arguments and
-		returns list of accounts. If no accounts are found
-		for journal then returns false.
-
-		description: This function is called for populating
-		the account's list with all the accounts for journal.
-		Note that journal voucher involves all accounts,
-		except cash and bank accounts.
+		* Purpose:
+			- fetches the list of all accounts which are
+			  used in a ``journal voucher``. 
+			- takes no arguments and returns list of accounts. 
+			- if no accounts are found for journal then returns false.
+			- this function is called for populating
+			  the account's list with all the accounts for journal.
+			- Note that journal voucher involves all accounts,
+			  except cash and bank accounts.
+			  
+		* Input:
+		 	- no input parameters
+		 	
+		* Output:
+			- return list containing accountname which except
+			  ``cash`` and ``bank`` 
 		"""
 		statement = "select accountname\
 		        from group_subgroup_account\
@@ -79,18 +91,19 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 
 	def xmlrpc_getReceivableAccounts(self,queryParams,client_id):
 		"""
-		Purpose: fetches the list of all accounts which are
-		used in a Receivable voucher.
+		* Purpose: 
+			- fetches the list of all accounts which are
+			  used in a ``Receivable voucher``.
+			- take one argument Cr or Dr and returns list of
+			  accounts according.  
 		  
-		Take one argument Cr or Dr and returns list of
-		accounts according.  If no accounts are found for
-		Receivable then returns false.  
-
-		description: This function is called for populating
-		the account's list with all the accounts for
-		Receivable.  If type is "Cr" then it will returns
-		account name list, except cash and bank accounts.  if
-		"Dr" then return only cash and bank accounts.
+		* Output:
+			- if no accounts are found for Receivable then returns false.  
+			- this function is called for populating
+			  the account's list with all the accounts for Receivable.  
+			- if account type is ``Cr`` then it will returns
+			  account name list, except ``cash`` and ``bank`` accounts.  
+			- if account type is ``Dr`` then return only ``cash`` and ``bank`` accounts.
 		"""
 		if  queryParams[0] == 'Cr':
 			statement = "select accountname\
@@ -117,18 +130,19 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 			
 	def xmlrpc_getPaymentAccounts(self,queryParams,client_id):
 		'''
-		Purpose: fetches the list of all accounts which are
-		used in a Payment voucher.
+		Purpose: 
+			- fetches the list of all accounts which are
+			  used in a ``Payment voucher``.
+			- take one argument ``Cr`` or ``Dr`` and 
+			  returns list of accounts accordingly.  
 		  
-		Take one argument Cr or Dr and returns list of
-		accounts accordingly.  If no accounts are found for
-		payment then returns false.  
-
-		Description: This function is called for populating
-		the account's list with all the accounts for payment.
-		If type is "Cr" then it will returns list of account
-		names, except cash and bank accounts.  If type is
-		"Dr", then returns only cash and bank accounts.
+		* Output:
+			- if no accounts are found for payment then returns false.  
+			- this function is called for populating
+			  the account's list with all the accounts for payment.
+			- if type is ``Dr`` then it will returns list of account
+			  names, except ``cash`` and ``bank`` accounts.  
+			- if type is ``Cr`` then returns only ``cash`` and ``bank`` accounts.
 		'''
 		
 		if  queryParams[0] == 'Cr':
@@ -156,20 +170,20 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 		
 	def xmlrpc_getDebitNoteAccounts(self,queryParams,client_id):
 		"""
-		Purpose: get the list of accounts for debit note
-		either for credit or debit side.  Function takes one
-		parameter queryParams which is a list containing only
-		one element, cr_dr_flag.  Returns list of accounts
-		else false if not found.
-		
-		Description: returns a list of accounts pertaining to
-		debit note.  If the input parameter in queryParams[0]
-		is Cr then only the('Direct Expense','Fixed
-		Assets','Indirect Expense')of accounts is returned
-		else ('Sundry Creditors for Expense','Sundry Creditors
-		for Purchase') of accounts is returned in form of
-		list.
-		
+		* Purpose: 
+			- get the list of accounts for debit note
+			  either for credit or debit side.  
+			- function takes one parameter cr_dr_flag.
+		* Input:
+			- [cr_dr flag]
+		* Output:
+			- returns a list of accounts pertaining to
+			  debit note.  
+			- if the input parameter is ``Cr`` then returns account
+			  under the groupnames ``Direct Expense`` ``Fixed Assets`` 
+			  ``Indirect Expense``
+			- else returns accountname under subgroupnames 
+			  ``Sundry Creditors for Expense`` ``Sundry Creditors for Purchase``.
 		"""   
 		
 		if  queryParams[0] == 'Cr':
@@ -196,18 +210,16 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 
 	def xmlrpc_getCreditNoteAccounts(self,queryParams,client_id):
 		"""
-		Purpose: gets the list of accounts for credit note
-		either for credit or debit side.  Function takes one
-		parameter queryParams which is a list containing only
-		one element, cr_dr_flag.  Returns list of accounts
-		else false if not found.
-
-		Description: returns a list of accounts pertaining to
-		credit note.  If the input parameter in queryParams[0]
-		is Cr then only the ('Sundry Debtors') of accounts is
-		returned else ('Direct Income','Indirect Income') of
-		accounts is returned in form of list.
-		
+		* Purpose: 
+			- gets the list of accounts for credit note either for credit or debit side.
+		* Input:
+			- [cr_dr flag]
+			
+		* Output: 
+			- returns a list of accounts pertaining to credit note.  
+			- if the input parameter is ``Cr`` then returns the accountnames under subgroupname
+			  ``Sundry Debtors``.
+			- else returns account under groupname ``Direct Income`` ``Indirect Income``.
 		"""   
 		if  queryParams[0] == 'Cr':
 		 	statement = "select accountname\
@@ -233,18 +245,21 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 
 	def xmlrpc_getSalesAccounts(self,queryParams,client_id):
 		"""
-		Purpose: gets the list of accounts for sales accounts
-		either for credit or debit side.  Function takes one
-		parameter queryParams which is a list containing only
-		one element, cr_dr_flag.  Returns list of accounts
-		else false if not found.
-
-		description: returns a list of accounts pertaining to
-		sales accounts.  If the input parameter in
-		queryParams[0] is Cr then only the ('Direct
-		Income','Indirect Income') of accounts is returned
-		else ('Bank','Cash','Sundry Debtors') of accounts is
-		returned in form of list.  .
+		* Purpose: 
+			- gets the list of accounts for sales accounts
+			  either for credit or debit side.  
+		
+		* Input:
+			- [cr_dr flag] 
+		
+		* Output: 
+			- returns a list of accounts pertaining to
+			  sales accounts.  
+			- if the input parameter in queryParams[0] is ``Cr``
+			  then return the accountname under groupname ``Direct
+			  Income`` ``Indirect Income`` 
+			- else returns accountname under subgroupname ``Bank`` ``Cash``
+			  ``Sundry Debtor``.
 		""" 
 		if  queryParams[0] == 'Cr':
 		 	statement = "select accountname\
@@ -269,20 +284,22 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 		
 	def xmlrpc_getPurchaseAccounts(self,queryParams,client_id):
 		"""
-		Purpose: gets the list of accounts for purchase
-		accounts either for credit or debit side.  Function
-		takes one parameter queryParams which is a list
-		containing only one element, cr_dr_flag.  Returns list
-		of accounts else false if not found.
-
-		description: returns a list of accounts pertaining to
-		purchase accounts.  If the input parameter in
-		queryParams[0] is Cr then only the
-		('Bank','Cash','Sundry Creditors for Expense','Sundry
-		Creditors for Purchase') of accounts is returned else
-		('Direct Expense','Indirect Expense') of accounts is
-		returned in form of list.
 		
+		Purpose: 
+			- gets the list of accounts for purchase
+			  accounts either for credit or debit side. 
+		  
+		* Input:
+			- [cr_dr flag]
+			
+		* Output: 
+			- returns a list of accounts pertaining to
+			  purchase accounts.  
+			- if the input parameter in queryParams[0] is ``Cr`` then 
+			  returns accountnames under subgroupname ``Bank`` ``Cash`` 
+			  ``Sundry Creditors for Expense`` ``Sundry Creditors for Purchase`` 
+			- else returns acountnames under groupnames ``Direct Expense`` ``Indirect Expense``.
+		 
 		"""  
 		if  queryParams[0] == 'Cr':
 		 	statement = "select accountname\
@@ -308,18 +325,20 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 	
 	def xmlrpc_getSalesReturnAccounts(self,queryParams,client_id):
 		"""
-		Purpose: gets the list of accounts for salesreturn
-		either for credit or debit side.  Function takes one
-		parameter queryParams which is a list containing only
-		one element, cr_dr_flag.  Returns list of accounts
-		else false if not found.
-
-		description: returns a list of accounts pertaining to
-		sales return accounts.  If the input parameter in
-		queryParams[0] is Cr then only the ('Sundry Debtors')
-		of accounts is returned else ('Direct
-		Expense','Indirect Expense') of accounts is returned
-		in form of list.
+		* Purpose: 
+			- gets the list of accounts for ``salesreturn``
+			  either for credit or debit side. 
+		  
+		* Input:
+			- [cr_dr flag]
+			
+		* Output: 
+			- returns a list of accounts pertaining to
+			  sales return accounts.  
+			- If the input parameter in queryParams[0] is ``Cr`` 
+			  then returns the accountname under subgroupname ``Sundry Debtors``
+			- else returns accountnames under groupname ``Direct Expense`` 
+			  ``Indirect Expense`` .
 		
 		"""   
 		if  queryParams[0] == 'Cr':
@@ -345,19 +364,21 @@ class getaccountsbyrule(xmlrpc.XMLRPC):
 		
 	def xmlrpc_getPurchaseReturnAccounts(self,queryParams,client_id):
 		"""
-		Purpose: gets the list of accounts for purchases
-		return either for credit or debit side.  Function
-		takes one parameter queryParams which is a list
-		containing only one element, cr_dr_flag.  Returns list
-		of accounts else false if not found.
-
-		description: returns a list of accounts pertaining to
-		purchases return.  If the input parameter in
-		queryParams[0] is Cr then only the('Direct
-		Income','Indirect Income'of accounts is returned else
-		('Sundry Creditors for Expense','Sundry Creditors for
-		Purchase') of accounts is returned in form of list.
+		* Purpose: 
+			- gets the list of accounts for ``purchases
+			  return`` either for credit or debit side.  
 		
+		* Input:
+			- [cr_dr flag]
+			  
+		* Output:
+			- returns a list of accounts pertaining to
+			  ``purchases return``.  
+			- if the input parameter in queryParams[0] is ``Cr`` 
+			  then returns accuntnames under groupname ``Direct
+			  Income`` ``Indirect Income``
+			- else returns accountname under subgroupname 
+			  ``Sundry Creditors for Expense`` ``Sundry Creditors for Purchase`` .
 		"""  
 		if  queryParams[0] == 'Cr':
 		 	statement = "select accountname\

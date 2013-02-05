@@ -1,0 +1,3799 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to Aakash Business Tool’s documentation! &mdash; Aakash Business Tool 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Aakash Business Tool 0.9 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">Aakash Business Tool 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-aakash-business-tool-s-documentation">
+<h1>Welcome to Aakash Business Tool&#8217;s documentation!<a class="headerlink" href="#welcome-to-aakash-business-tool-s-documentation" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div><p><strong>Aakash Business Tool core(ABTcore)</strong> provides a Back-end to ABT
+which is derived from core_engine of <a class="reference external" href="http://www.gnukhata.org/">GNUKhata</a>.</p>
+<p>This provides all the accounting functionality completely written in <a class="reference external" href="http://docs.python.org/2/tutorial/">Python</a> language.
+and used twisted liabrary to implement xmlrpc server and to access xmlrpc functions and
+android-xmlrpc client access liabrary at client side and used Sqlite3
+database server to maintain data.</p>
+<p>We have completely dropped an idea of <tt class="docutils literal"><span class="pre">stored</span> <span class="pre">procedures</span></tt>,
+instead we have implemented an <tt class="docutils literal"><span class="pre">Object</span> <span class="pre">Relational</span> <span class="pre">Mapping</span></tt> using SQLAlchemy.</p>
+<dl class="docutils">
+<dt><strong>ABTcore</strong> includes three parts:</dt>
+<dd><ol class="first last arabic simple">
+<li>abtstart</li>
+<li>abtserver</li>
+<li>modules</li>
+<li>src</li>
+</ol>
+</dd>
+</dl>
+</div></blockquote>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<div class="section" id="abtstart">
+<h2>abtstart<a class="headerlink" href="#abtstart" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul>
+<li><dl class="first docutils">
+<dt>It is an executable file, it will responsible to run entire <tt class="docutils literal"><span class="pre">ABTcore</span></tt></dt>
+<dd><ul class="first last simple">
+<li>this is an executable file.</li>
+<li>this is calling function calls runabt() from <tt class="docutils literal"><span class="pre">rpc_main.py``and</span> <span class="pre">start</span> <span class="pre">the</span> <span class="pre">``ABTcore</span></tt>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>In <tt class="docutils literal"><span class="pre">abtstart</span></tt> you are able to see system command&#8217;s , it&#8217;s basically written to maintain databse files loacally.</dt>
+<dd><ul class="first last simple">
+<li>import rpc_main</li>
+<li>provided <tt class="docutils literal"><span class="pre">places.db</span></tt> database file in <tt class="docutils literal"><span class="pre">ABTcore/src</span></tt> which maintains data about <tt class="docutils literal"><span class="pre">state</span></tt> and <tt class="docutils literal"><span class="pre">cities</span></tt>.</li>
+<li>copy <tt class="docutils literal"><span class="pre">places.db</span></tt> database file in /opt/abt/.</li>
+<li>create folder <tt class="docutils literal"><span class="pre">abt</span></tt> to maintain all files need to work ABT.</li>
+<li>create <tt class="docutils literal"><span class="pre">db</span></tt> directory to host all the database files , to keep all record of organisation.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">All the database files of organisations will be there at <tt class="docutils literal"><span class="pre">/opt/abt/db</span></tt>.</p>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="abtserver">
+<h2>abtserver<a class="headerlink" href="#abtserver" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-abtserver.rpc_main">
+<span id="main"></span><h3>main<a class="headerlink" href="#module-abtserver.rpc_main" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="abtserver.rpc_main.abt">
+<em class="property">class </em><tt class="descclassname">abtserver.rpc_main.</tt><tt class="descname">abt</tt><a class="headerlink" href="#abtserver.rpc_main.abt" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li>This class is the inherit class of XMLRPC base class</li>
+<li>This is the main file which implement the server and publish the object to given port 
+and execute the xmlrpc functions.</li>
+<li>We have used twisted module to implement server and executing xmlrpc calls</li>
+<li>also to publish the object and make it to listen on the given port through reactor 
+and start the service by running the reactor.</li>
+<li>It also create database and deploy organisation.</li>
+<li>note that all the functions to be accessed by the client must have the <a href="#id1"><span class="problematic" id="id2">xmlrpc_</span></a> prefix.</li>
+<li>the client however will not use the prefix to call the functions.</li>
+</ul>
+<dl class="method">
+<dt id="abtserver.rpc_main.abt.xmlrpc_Deploy">
+<tt class="descname">xmlrpc_Deploy</tt><big>(</big><em>queryParams</em><big>)</big><a class="headerlink" href="#abtserver.rpc_main.abt.xmlrpc_Deploy" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>The function will generate the database name 
+based on the organisation name and time stap.</li>
+<li>provided the name of the database is a combination of, 
+first character of organisation name,time stap as 
+&#8220;dd-mm-yyyy-hh-MM-ss-ms&#8221;</li>
+<li>An entry will be made in the xml file 
+for the currosponding organisation.</li>
+<li>This function deploys a database instance for
+an organisation for a given financial year.</li>
+<li>It will call to getConnection and establish the connection 
+for created database</li>
+<li>also create the metadata(tables) given in <tt class="docutils literal"><span class="pre">dbconnect</span></tt> for that organisation
+using sqlAlchemy.</li>
+<li>create the <tt class="docutils literal"><span class="pre">Views</span></tt> for the particular organisation.</li>
+<li>It add manually <tt class="docutils literal"><span class="pre">groupnames</span></tt> ad <tt class="docutils literal"><span class="pre">subgroups</span></tt> to it&#8217;s corresponding class
+tables <tt class="docutils literal"><span class="pre">Groups</span></tt> and <tt class="docutils literal"><span class="pre">subGroups</span></tt></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[organisation name,From date,todate,organisation_type]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns boolean True and client_id</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_main.abt.xmlrpc_closeConnection">
+<tt class="descname">xmlrpc_closeConnection</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_main.abt.xmlrpc_closeConnection" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>This function is used close the connetion with sqlite 
+for client_id</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>client_id</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns boolean True if conncetion closed</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_main.abt.xmlrpc_deleteOrganisation">
+<tt class="descname">xmlrpc_deleteOrganisation</tt><big>(</big><em>queryParams</em><big>)</big><a class="headerlink" href="#abtserver.rpc_main.abt.xmlrpc_deleteOrganisation" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>This function is used delete organisation from existing 
+organsations found in abt.xml located at /opt/abt/</li>
+<li>also delete database details of respective organisation
+from /opt/abt/db/</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>Boolean True</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_main.abt.xmlrpc_getConnection">
+<tt class="descname">xmlrpc_getConnection</tt><big>(</big><em>queryParams</em><big>)</big><a class="headerlink" href="#abtserver.rpc_main.abt.xmlrpc_getConnection" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>This function is used to return the client_id for sqlite 
+engine found in <tt class="docutils literal"><span class="pre">dbconnect.py</span></tt></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[organisation name]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns the client_id integer</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_main.abt.xmlrpc_getFinancialYear">
+<tt class="descname">xmlrpc_getFinancialYear</tt><big>(</big><em>arg_orgName</em><big>)</big><a class="headerlink" href="#abtserver.rpc_main.abt.xmlrpc_getFinancialYear" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>purpose: </dt>
+<dd><ul class="first last simple">
+<li>This function will return a list of financial years for the 
+given organisation.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[organisationname]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns financialyear list for peritcular organisation
+in the format &#8220;dd-mm-yyyy&#8221;</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_main.abt.xmlrpc_getOrganisationNames">
+<tt class="descname">xmlrpc_getOrganisationNames</tt><big>(</big><big>)</big><a class="headerlink" href="#abtserver.rpc_main.abt.xmlrpc_getOrganisationNames" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function is used to return the list of
+organsation names found in abt.xml located at /opt/abt/</li>
+<li>we have imported <tt class="docutils literal"><span class="pre">ElementTree</span></tt> for parsing xml file.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns a list of organisation names already present in the file</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="abtserver.rpc_main.runabt">
+<tt class="descclassname">abtserver.rpc_main.</tt><tt class="descname">runabt</tt><big>(</big><big>)</big><a class="headerlink" href="#abtserver.rpc_main.runabt" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li>As we have imported all the nested XMLRPC resource,so that create one handler <tt class="docutils literal"><span class="pre">abt</span></tt> 
+calls another if a method with a given prefix is called.</li>
+<li>and publish that handelr instance <tt class="docutils literal"><span class="pre">abt</span></tt> to server .</li>
+<li>this is <tt class="docutils literal"><span class="pre">def</span> <span class="pre">runabt()</span></tt> which is outside <tt class="docutils literal"><span class="pre">class</span> <span class="pre">abt():</span></tt>.</li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="module-abtserver.rpc_account">
+<span id="account"></span><h3>Account<a class="headerlink" href="#module-abtserver.rpc_account" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="abtserver.rpc_account.account">
+<em class="property">class </em><tt class="descclassname">abtserver.rpc_account.</tt><tt class="descname">account</tt><a class="headerlink" href="#abtserver.rpc_account.account" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li>This rpc module do all the functionality related to account like
+create,edit,delete and give info about balances .</li>
+</ul>
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_accountCodeExists">
+<tt class="descname">xmlrpc_accountCodeExists</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_accountCodeExists" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>Function for finding if an accountcode already 
+exists with the supplied code.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>accountode(datatype:string)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>return &#8220;1&#8221; if accountcode exists and &#8220;0&#8221; if not.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_accountExists">
+<tt class="descname">xmlrpc_accountExists</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_accountExists" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function for finding if an account already exists 
+with the supplied name.</li>
+<li>queryParams which is a list containing one element, 
+accountname as string.</li>
+<li>querys the account table and sees if an account 
+name similar to one provided as a parameter exists.</li>
+<li>We can ensure that no duplicate account is ever entered because 
+if a similar account exists.</li>
+<li>like the one in queryparams[0] then we won&#8217;t allow another 
+entry with same name.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>if account name exists returns 1 else 0 .</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_deleteAccount">
+<tt class="descname">xmlrpc_deleteAccount</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_deleteAccount" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function for deleting accountname row.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>accountname as string.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns 1 when account is deleted</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_deleteAccountNameMaster">
+<tt class="descname">xmlrpc_deleteAccountNameMaster</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_deleteAccountNameMaster" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:              </dt>
+<dd><ul class="first last simple">
+<li>function for deleting accounts.</li>
+<li>for this we have used <tt class="docutils literal"><span class="pre">hasOpeningBalance</span></tt> <tt class="docutils literal"><span class="pre">hasTransactions</span></tt> 
+&amp; <tt class="docutils literal"><span class="pre">deleteAccount</span></tt> rpc functions.</li>
+<li>with the help of <tt class="docutils literal"><span class="pre">hasTransactions</span></tt> we are able to find out whether 
+the given account has any transactions or not.</li>
+<li>it tells that if there is any voucher entry of that accountname 
+return 1 or else return 0</li>
+<li>The function <tt class="docutils literal"><span class="pre">hasOpeningBalance</span></tt> returns <tt class="docutils literal"><span class="pre">1</span></tt> if opening balance 
+for that account exists or else returns <tt class="docutils literal"><span class="pre">0</span></tt></li>
+<li>third function <tt class="docutils literal"><span class="pre">deleteAccount</span></tt> deletes that particular accountname</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[accountname,flag] or [accountcode,flag]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:  </dt>
+<dd><ul class="first last simple">
+<li>if hasOpenibalance is 0 and hasTransaction is 0 returns string &#8220;account deleted&#8221;
+if <tt class="docutils literal"><span class="pre">hasOpenibalance</span></tt> is 1 and <tt class="docutils literal"><span class="pre">hasTransaction</span></tt> is 1</li>
+<li>returns string &#8220;has both opening balance and trasaction&#8221;</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_editAccount">
+<tt class="descname">xmlrpc_editAccount</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_editAccount" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>Modifies an account based on account code.</li>
+<li>alters account name and opening balance.</li>
+<li>This function will edit an account and change 
+either account name, oepning balance or both.</li>
+<li>the account is fetched internally by the software 
+on the basis of account code, even if it was 
+searched by client using account name.</li>
+<li>If the function is successful,it will return the string</li>
+<li>If the groupname sent in the queryParams is direct or 
+indirect income, or direct or indirect expence, 
+then the oepning balance is sent as 0.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[accountname, accountcode, groupname and new_opening_balance]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns string <tt class="docutils literal"><span class="pre">edit</span> <span class="pre">successfully</span></tt></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getAccount">
+<tt class="descname">xmlrpc_getAccount</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getAccount" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>Searches and returns account details.</li>
+<li>Search is based on either accountcode or account name.</li>
+<li>it query to <tt class="docutils literal"><span class="pre">group_subgroup_account</span></tt> view from <tt class="docutils literal"><span class="pre">rpc_main</span></tt></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>searchFlag as integer (1 means search by account code and 2 means account name )</li>
+<li>searchValue as text (value depends on the searchFlag)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: list of below values</dt>
+<dd><ul class="first last simple">
+<li>groupname,subgroupname,accountcode,accountname,openingbalance</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getAccountCodeByAccountName">
+<tt class="descname">xmlrpc_getAccountCodeByAccountName</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getAccountCodeByAccountName" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>Function for get an accountcode for given accountname.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>queryParams which is a list containing one element, 
+accountname as string.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns accountcode if it exist for given accountname
+else returns empty list</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getAccountNameByAccountCode">
+<tt class="descname">xmlrpc_getAccountNameByAccountCode</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getAccountNameByAccountCode" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function to get accountname provided the accountcode</li>
+<li>querys the account table and sees if an acountcode
+similar to one provided as a parameter.</li>
+<li>if it exists then it will return accountname</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[accountcode]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>return accountname if present else empty list</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getAccountNamesByGroupCode">
+<tt class="descname">xmlrpc_getAccountNamesByGroupCode</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getAccountNamesByGroupCode" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>to get accountname accourding to given groupcode.</li>
+<li>it query to the <tt class="docutils literal"><span class="pre">Account</span></tt> tables.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[groupcode]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>it will return list of accountname else return empty list</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getAccountNamesByProjectName">
+<tt class="descname">xmlrpc_getAccountNamesByProjectName</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getAccountNamesByProjectName" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>call <tt class="docutils literal"><span class="pre">getProjectcoeByProjectName</span></tt> to get projectcode</li>
+<li>using projectcode we will get accountnames used in transaction 
+for given projectname.</li>
+<li>function will return list of accountnames for particular projectname</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[projectname]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>list of accountnames</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getAllAccountCodes">
+<tt class="descname">xmlrpc_getAllAccountCodes</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getAllAccountCodes" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>it will return list of all accountcodes present in the account table.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>no input argument</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns the list of all accountcode else it returns empty list.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getAllAccountNames">
+<tt class="descname">xmlrpc_getAllAccountNames</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getAllAccountNames" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>Function to get the list of all accountnames in the database.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns the list of all acountnameselse returns empty list</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getAllBankAccounts">
+<tt class="descname">xmlrpc_getAllBankAccounts</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getAllBankAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose</dt>
+<dd><ul class="first last simple">
+<li>To get all accountnames which is under <tt class="docutils literal"><span class="pre">Bank</span></tt> subgroup.</li>
+<li>it will query the <tt class="docutils literal"><span class="pre">group_subgroup_account</span></tt> view from <tt class="docutils literal"><span class="pre">rpc_main</span></tt>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>Returns list of accountnames</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getCashFlowOpening">
+<tt class="descname">xmlrpc_getCashFlowOpening</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getCashFlowOpening" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>to get all accountnames which is in under Bank and cash subgroup</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns list of [accountname,openingbalance]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getCashFlowPaidAccounts">
+<tt class="descname">xmlrpc_getCashFlowPaidAccounts</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getCashFlowPaidAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>to get sum of amount for those transaction in which only cash and bank
+accountname(with Cr) are involve in startdate and todate</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>cfaccountname,cbaccountname,startdate,enddate</li>
+<li>cfaccountname will be except <tt class="docutils literal"><span class="pre">cash</span></tt> and <tt class="docutils literal"><span class="pre">bank</span></tt> accounts.</li>
+<li>cbaccountname will be <tt class="docutils literal"><span class="pre">cash</span></tt> and <tt class="docutils literal"><span class="pre">bank</span></tt> accounts.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>cfamount</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getCashFlowReceivedAccounts">
+<tt class="descname">xmlrpc_getCashFlowReceivedAccounts</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getCashFlowReceivedAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>to get sum of amount for those transaction in which only <tt class="docutils literal"><span class="pre">Cash</span></tt> 
+and <tt class="docutils literal"><span class="pre">Bank</span></tt> accountname(with Dr) are involve in startdate and todate</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>cfaccountname,cbaccountname,startdate,enddate</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>cfamount</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getCrOpeningBalance">
+<tt class="descname">xmlrpc_getCrOpeningBalance</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getCrOpeningBalance" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>This function calculates the total credit opening balance 
+for all accounts with <tt class="docutils literal"><span class="pre">Cr</span></tt> opening balance.</li>
+<li>groups who has <tt class="docutils literal"><span class="pre">Cr</span></tt> opening balances are <tt class="docutils literal"><span class="pre">Corpus</span></tt> <tt class="docutils literal"><span class="pre">Capital</span></tt>
+<tt class="docutils literal"><span class="pre">Current</span> <span class="pre">Liability</span></tt> <tt class="docutils literal"><span class="pre">Loans(Liability)</span></tt> <tt class="docutils literal"><span class="pre">Reserves</span></tt>.</li>
+<li>when adding an account we tend to know what is the total of 
+all debit and credit opening balances.</li>
+<li>This function calculates the total for all accounts with Cr as 
+opening balance.</li>
+<li>function executes <tt class="docutils literal"><span class="pre">statement</span></tt> for the expected result as float.</li>
+<li>refer <tt class="docutils literal"><span class="pre">rpc_main.py</span></tt> for the said <tt class="docutils literal"><span class="pre">group_subgroup_account</span></tt> view.</li>
+<li>it takes no arguement and returns a float value.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>total amount credit balances</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getDrOpeningBalance">
+<tt class="descname">xmlrpc_getDrOpeningBalance</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getDrOpeningBalance" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>This function calculates the total debit opening balance 
+for all accounts with Dr opening balance.</li>
+<li>groups who has Dr opening balances are <tt class="docutils literal"><span class="pre">Current</span> <span class="pre">Asset</span></tt> 
+<tt class="docutils literal"><span class="pre">Fixed</span> <span class="pre">Assets</span></tt> <tt class="docutils literal"><span class="pre">Investment</span></tt> <tt class="docutils literal"><span class="pre">Loans(Asset)</span></tt> 
+<tt class="docutils literal"><span class="pre">Miscellaneous</span> <span class="pre">Expenses(Asset)</span></tt>.</li>
+<li>Functions takes no arguement and returns a float value.</li>
+<li>function executes the <cite>statement</cite> for the expected result as float.</li>
+<li>refer <tt class="docutils literal"><span class="pre">rpc_main.py</span></tt> for the said <tt class="docutils literal"><span class="pre">group_subgroup_account</span></tt> view</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>total amount credit balances</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getSuggestedCode">
+<tt class="descname">xmlrpc_getSuggestedCode</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getSuggestedCode" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>To get code on the basis of provided 3 characters at list queryParams[0]</li>
+<li>function takes the 2 characters of selected group and first character of account.</li>
+<li>The 2 characters of the selected group are determined in the front end.</li>
+<li>The first character of the entered account is then appended to the former.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last">
+<li><p class="first">first two charector of groupname and first character of the accountname
+returns a string containing the suggested code.</p>
+</li>
+<li><dl class="first docutils">
+<dt>for example</dt>
+<dd><ul class="first last simple">
+<li>an account SBI in group Current Asset will send CAS 
+as the 3 characters as queryParams[0].</li>
+<li>check for account exist if an account did exist then the 
+given 3 characters will be postfixed. 
+with total count of existing similar account codes + 100.</li>
+<li>If no such account is found then 100 will be concatinated 
+to the first 3 chars.</li>
+<li>for example if no account exists with an account code starting with CAS, 
+then the suggested code will be CAS100.</li>
+<li>Next time an account with 3 chars as CAS is entered, 
+then it will be CAS101.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_hasOpeningBalance">
+<tt class="descname">xmlrpc_hasOpeningBalance</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_hasOpeningBalance" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function to find out whether the given account has opening balance</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>accountname(datatype:string)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>if opening balance of accountname is 0 then return &#8220;0&#8221; else return &#8220;1&#8221;</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_hasTransactions">
+<tt class="descname">xmlrpc_hasTransactions</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_hasTransactions" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function to find out whether the given account has any transactions or not.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>accountname as string.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>if there is any voucher entry of that accountname 
+return 1 or else return 0</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_setAccount">
+<tt class="descname">xmlrpc_setAccount</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_setAccount" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>it call <tt class="docutils literal"><span class="pre">getGroupCodeByGroupName()</span></tt> from <tt class="docutils literal"><span class="pre">rpc_groups</span></tt> 
+pass param groupname will return groupcode</li>
+<li>adds an account in the account table, under a selected group and optionally a subgroup.</li>
+<li>depending on the preference choosen by the user.</li>
+<li>this function insert a row in the account table.</li>
+<li>connection made with engine of sessions using client_id.</li>
+<li>add query will be execute.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>queryParams[groupname,subgroupname,newsubgroupname,accountname,</dt>
+<dd><p class="first last">accountcodetype,openingbalance,currentBalance,suggestedcode]</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns String &#8220;success&#8221;</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-abtserver.rpc_groups">
+<span id="groups"></span><h3>Groups<a class="headerlink" href="#module-abtserver.rpc_groups" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="abtserver.rpc_groups.groups">
+<em class="property">class </em><tt class="descclassname">abtserver.rpc_groups.</tt><tt class="descname">groups</tt><a class="headerlink" href="#abtserver.rpc_groups.groups" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li>This is the class <tt class="docutils literal"><span class="pre">groups</span></tt> provides the information about tha <tt class="docutils literal"><span class="pre">groups</span></tt> and <tt class="docutils literal"><span class="pre">subgroups</span></tt>
+as per accounting rule .</li>
+<li>we already have some <tt class="docutils literal"><span class="pre">groups</span></tt> and <tt class="docutils literal"><span class="pre">subgroups</span></tt> for the given organisation while deploying.
+or creating organisation.</li>
+<li>to know present groupnames and subgroupnames see <tt class="docutils literal"><span class="pre">rpc_Deploy</span></tt> function from <tt class="docutils literal"><span class="pre">rpc_main</span></tt> module.</li>
+<li>import liabraries as needed.</li>
+</ul>
+<dl class="method">
+<dt id="abtserver.rpc_groups.groups.xmlrpc_getAllGroups">
+<tt class="descname">xmlrpc_getAllGroups</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_groups.groups.xmlrpc_getAllGroups" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>function to get all groups present in the groups table</li>
+<li>querys the <tt class="docutils literal"><span class="pre">Groups</span></tt> table,it retrieves all rows of groups table based on groupname.</li>
+<li>when successful it returns the list of lists</li>
+<li>list contain each row that are retrived from groups table</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>client_id(datatype:integer) from client side.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns list containing groupcode(datatype:integer),groupname(datatype:text),groupdescription(datatype:text).</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_groups.groups.xmlrpc_getGroupCodeByGroupName">
+<tt class="descname">xmlrpc_getGroupCodeByGroupName</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_groups.groups.xmlrpc_getGroupCodeByGroupName" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function for extracting groupcpde of group based on groupname.</li>
+<li>query to retrive groupcode requested groupname by client.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>groupname(datatype:text) , client_id(datatype:integer)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns list containing groupcode if its not None else will return false.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_groups.groups.xmlrpc_getGroupNameByAccountName">
+<tt class="descname">xmlrpc_getGroupNameByAccountName</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_groups.groups.xmlrpc_getGroupNameByAccountName" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function for extracting groupname from group table by account name</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>accountname</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>groupname</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_groups.groups.xmlrpc_getSubGroupCodeBySubGroupName">
+<tt class="descname">xmlrpc_getSubGroupCodeBySubGroupName</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_groups.groups.xmlrpc_getSubGroupCodeBySubGroupName" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function for extracting subgroupcpde of group based on subgroupname</li>
+<li>query the subgroup table to retrive subgroupcode for reqested subgroupname</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>subgroupname(datatype:text),client_id(datatype:integer)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns list containing subgroupcode if its not None else will return false.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_groups.groups.xmlrpc_getSubGroupsByGroupName">
+<tt class="descname">xmlrpc_getSubGroupsByGroupName</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_groups.groups.xmlrpc_getSubGroupsByGroupName" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function for extracting all rows of view_group_subgroup based on groupname</li>
+<li>querys the <tt class="docutils literal"><span class="pre">view_group_subgroup</span></tt> which is created based on the account,
+subgroups and groups table.</li>
+<li>it retrieves all rows of view_group_subgroup based on groupname order by subgroupname.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:        </dt>
+<dd><ul class="first last simple">
+<li>list containing groupname(datatype:text)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>When successful it returns the list of lists in which         
+each list contain each row that are retrived from view otherwise 
+it returns list in which two default subgroup strings.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_groups.groups.xmlrpc_setSubGroup">
+<tt class="descname">xmlrpc_setSubGroup</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_groups.groups.xmlrpc_setSubGroup" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>used <tt class="docutils literal"><span class="pre">subGroups</span></tt> table to query .</li>
+<li>function for adding new subgroups in table subgroups</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:        </dt>
+<dd><ul class="first last simple">
+<li>groupname(datatype:text), subgroupname(datatype:text) , client_id (datatype:integer)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns 1 when successful, 0 when subgroupname(datatype:text) is null</li>
+<li>When successful it returns 1 otherwise it returns 0.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_groups.groups.xmlrpc_subgroupExists">
+<tt class="descname">xmlrpc_subgroupExists</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_groups.groups.xmlrpc_subgroupExists" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>checks if the new subgroup typed by the user already exists.</li>
+<li>This will validate and prevent any duplication.</li>
+<li>The function takes queryParams as its parameter and contains one element, 
+the subgroupname as string.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>subgroupname(datatype:text)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns <tt class="docutils literal"><span class="pre">1</span></tt> if the subgroup exists else <tt class="docutils literal"><span class="pre">0</span></tt>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-abtserver.dbconnect">
+<span id="dbconnect"></span><h3>dbconnect<a class="headerlink" href="#module-abtserver.dbconnect" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="abtserver.dbconnect.getConnection">
+<tt class="descclassname">abtserver.dbconnect.</tt><tt class="descname">getConnection</tt><big>(</big><em>queryParams</em><big>)</big><a class="headerlink" href="#abtserver.dbconnect.getConnection" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>The getConnection function will actually establish connection and</li>
+<li>return the id of the latest engine added to the list.</li>
+<li>first check if the file exists in the given path.</li>
+<li>if this is the first time we are running the server 
+then we need to create the <tt class="docutils literal"><span class="pre">abt.xml</span></tt> file.</li>
+<li>engine in this analogy is a connection maintained as a session.</li>
+<li>so every time a new client connects to the rpc server,</li>
+<li>a new engine is appended to the list and the index returned as the id.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[organisationame,finanialyear_from,financialyear_to]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns index of last created engine as a client_id</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="abtserver.dbconnect.getOrgList">
+<tt class="descclassname">abtserver.dbconnect.</tt><tt class="descname">getOrgList</tt><big>(</big><big>)</big><a class="headerlink" href="#abtserver.dbconnect.getOrgList" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>This function create opens the configuration file abt.xml (path : opt/abt)</li>
+<li>used xml.etree to cerate xml file and parsing it .</li>
+<li>Write root node <cite>&lt;abt&gt; &lt;/abt&gt;</cite>.</li>
+<li>if any organisation present then and gets the list of all organisations registered on the server.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns list of clildnode(organisaton)</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="module-abtserver.rpc_getaccountsbyrule">
+<span id="getaccountsbyrule"></span><h3>getaccountsbyrule<a class="headerlink" href="#module-abtserver.rpc_getaccountsbyrule" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="abtserver.rpc_getaccountsbyrule.getaccountsbyrule">
+<em class="property">class </em><tt class="descclassname">abtserver.rpc_getaccountsbyrule.</tt><tt class="descname">getaccountsbyrule</tt><a class="headerlink" href="#abtserver.rpc_getaccountsbyrule.getaccountsbyrule" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li>This file provides accoutnames as per transaction rule.</li>
+<li>In acounting there are different type of voucher and each of 
+them has different rule</li>
+</ul>
+<dl class="method">
+<dt id="abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getContraAccounts">
+<tt class="descname">xmlrpc_getContraAccounts</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getContraAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>fetches the list of all accounts which are
+used in a <tt class="docutils literal"><span class="pre">contra</span> <span class="pre">voucher</span></tt>.</li>
+<li>takes no arguments and returns list of accounts. 
+if no accounts are found for contra then returns false.</li>
+<li>this function is called for populating
+the account&#8217;s list with all the accounts for contra.</li>
+<li>Note that contra voucher only involves cash and bank
+accounts.</li>
+</ul>
+</dd>
+</dl>
+<ul>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>no input parameters</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>return list containing accountname which comes under
+<tt class="docutils literal"><span class="pre">cash</span></tt> and <tt class="docutils literal"><span class="pre">bank</span></tt></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getCreditNoteAccounts">
+<tt class="descname">xmlrpc_getCreditNoteAccounts</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getCreditNoteAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>gets the list of accounts for credit note either for credit or debit side.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[cr_dr flag]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns a list of accounts pertaining to credit note.</li>
+<li>if the input parameter is <tt class="docutils literal"><span class="pre">Cr</span></tt> then returns the accountnames under subgroupname
+<tt class="docutils literal"><span class="pre">Sundry</span> <span class="pre">Debtors</span></tt>.</li>
+<li>else returns account under groupname <tt class="docutils literal"><span class="pre">Direct</span> <span class="pre">Income</span></tt> <tt class="docutils literal"><span class="pre">Indirect</span> <span class="pre">Income</span></tt>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getDebitNoteAccounts">
+<tt class="descname">xmlrpc_getDebitNoteAccounts</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getDebitNoteAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>get the list of accounts for debit note
+either for credit or debit side.</li>
+<li>function takes one parameter cr_dr_flag.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[cr_dr flag]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns a list of accounts pertaining to
+debit note.</li>
+<li>if the input parameter is <tt class="docutils literal"><span class="pre">Cr</span></tt> then returns account
+under the groupnames <tt class="docutils literal"><span class="pre">Direct</span> <span class="pre">Expense</span></tt> <tt class="docutils literal"><span class="pre">Fixed</span> <span class="pre">Assets</span></tt> 
+<tt class="docutils literal"><span class="pre">Indirect</span> <span class="pre">Expense</span></tt></li>
+<li>else returns accountname under subgroupnames 
+<tt class="docutils literal"><span class="pre">Sundry</span> <span class="pre">Creditors</span> <span class="pre">for</span> <span class="pre">Expense</span></tt> <tt class="docutils literal"><span class="pre">Sundry</span> <span class="pre">Creditors</span> <span class="pre">for</span> <span class="pre">Purchase</span></tt>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getJournalAccounts">
+<tt class="descname">xmlrpc_getJournalAccounts</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getJournalAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>fetches the list of all accounts which are
+used in a <tt class="docutils literal"><span class="pre">journal</span> <span class="pre">voucher</span></tt>.</li>
+<li>takes no arguments and returns list of accounts.</li>
+<li>if no accounts are found for journal then returns false.</li>
+<li>this function is called for populating
+the account&#8217;s list with all the accounts for journal.</li>
+<li>Note that journal voucher involves all accounts,
+except cash and bank accounts.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>no input parameters</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>return list containing accountname which except
+<tt class="docutils literal"><span class="pre">cash</span></tt> and <tt class="docutils literal"><span class="pre">bank</span></tt></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getPaymentAccounts">
+<tt class="descname">xmlrpc_getPaymentAccounts</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getPaymentAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>fetches the list of all accounts which are
+used in a <tt class="docutils literal"><span class="pre">Payment</span> <span class="pre">voucher</span></tt>.</li>
+<li>take one argument <tt class="docutils literal"><span class="pre">Cr</span></tt> or <tt class="docutils literal"><span class="pre">Dr</span></tt> and 
+returns list of accounts accordingly.</li>
+</ul>
+</dd>
+</dl>
+<ul>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>if no accounts are found for payment then returns false.</li>
+<li>this function is called for populating
+the account&#8217;s list with all the accounts for payment.</li>
+<li>if type is <tt class="docutils literal"><span class="pre">Dr</span></tt> then it will returns list of account
+names, except <tt class="docutils literal"><span class="pre">cash</span></tt> and <tt class="docutils literal"><span class="pre">bank</span></tt> accounts.</li>
+<li>if type is <tt class="docutils literal"><span class="pre">Cr</span></tt> then returns only <tt class="docutils literal"><span class="pre">cash</span></tt> and <tt class="docutils literal"><span class="pre">bank</span></tt> accounts.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getPurchaseAccounts">
+<tt class="descname">xmlrpc_getPurchaseAccounts</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getPurchaseAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>gets the list of accounts for purchase
+accounts either for credit or debit side.</li>
+</ul>
+</dd>
+</dl>
+<ul>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[cr_dr flag]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns a list of accounts pertaining to
+purchase accounts.</li>
+<li>if the input parameter in queryParams[0] is <tt class="docutils literal"><span class="pre">Cr</span></tt> then 
+returns accountnames under subgroupname <tt class="docutils literal"><span class="pre">Bank</span></tt> <tt class="docutils literal"><span class="pre">Cash</span></tt> 
+<tt class="docutils literal"><span class="pre">Sundry</span> <span class="pre">Creditors</span> <span class="pre">for</span> <span class="pre">Expense</span></tt> <tt class="docutils literal"><span class="pre">Sundry</span> <span class="pre">Creditors</span> <span class="pre">for</span> <span class="pre">Purchase</span></tt></li>
+<li>else returns acountnames under groupnames <tt class="docutils literal"><span class="pre">Direct</span> <span class="pre">Expense</span></tt> <tt class="docutils literal"><span class="pre">Indirect</span> <span class="pre">Expense</span></tt>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getPurchaseReturnAccounts">
+<tt class="descname">xmlrpc_getPurchaseReturnAccounts</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getPurchaseReturnAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>gets the list of accounts for <tt class="docutils literal"><span class="pre">purchases</span>
+<span class="pre">return</span></tt> either for credit or debit side.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[cr_dr flag]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns a list of accounts pertaining to
+<tt class="docutils literal"><span class="pre">purchases</span> <span class="pre">return</span></tt>.</li>
+<li>if the input parameter in queryParams[0] is <tt class="docutils literal"><span class="pre">Cr</span></tt> 
+then returns accuntnames under groupname <tt class="docutils literal"><span class="pre">Direct</span>
+<span class="pre">Income</span></tt> <tt class="docutils literal"><span class="pre">Indirect</span> <span class="pre">Income</span></tt></li>
+<li>else returns accountname under subgroupname 
+<tt class="docutils literal"><span class="pre">Sundry</span> <span class="pre">Creditors</span> <span class="pre">for</span> <span class="pre">Expense</span></tt> <tt class="docutils literal"><span class="pre">Sundry</span> <span class="pre">Creditors</span> <span class="pre">for</span> <span class="pre">Purchase</span></tt> .</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getReceivableAccounts">
+<tt class="descname">xmlrpc_getReceivableAccounts</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getReceivableAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>fetches the list of all accounts which are
+used in a <tt class="docutils literal"><span class="pre">Receivable</span> <span class="pre">voucher</span></tt>.</li>
+<li>take one argument Cr or Dr and returns list of
+accounts according.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>if no accounts are found for Receivable then returns false.</li>
+<li>this function is called for populating
+the account&#8217;s list with all the accounts for Receivable.</li>
+<li>if account type is <tt class="docutils literal"><span class="pre">Cr</span></tt> then it will returns
+account name list, except <tt class="docutils literal"><span class="pre">cash</span></tt> and <tt class="docutils literal"><span class="pre">bank</span></tt> accounts.</li>
+<li>if account type is <tt class="docutils literal"><span class="pre">Dr</span></tt> then return only <tt class="docutils literal"><span class="pre">cash</span></tt> and <tt class="docutils literal"><span class="pre">bank</span></tt> accounts.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getSalesAccounts">
+<tt class="descname">xmlrpc_getSalesAccounts</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getSalesAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>gets the list of accounts for sales accounts
+either for credit or debit side.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[cr_dr flag]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns a list of accounts pertaining to
+sales accounts.</li>
+<li>if the input parameter in queryParams[0] is <tt class="docutils literal"><span class="pre">Cr</span></tt>
+then return the accountname under groupname <tt class="docutils literal"><span class="pre">Direct</span>
+<span class="pre">Income</span></tt> <tt class="docutils literal"><span class="pre">Indirect</span> <span class="pre">Income</span></tt></li>
+<li>else returns accountname under subgroupname <tt class="docutils literal"><span class="pre">Bank</span></tt> <tt class="docutils literal"><span class="pre">Cash</span></tt>
+<tt class="docutils literal"><span class="pre">Sundry</span> <span class="pre">Debtor</span></tt>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getSalesReturnAccounts">
+<tt class="descname">xmlrpc_getSalesReturnAccounts</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_getaccountsbyrule.getaccountsbyrule.xmlrpc_getSalesReturnAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>gets the list of accounts for <tt class="docutils literal"><span class="pre">salesreturn</span></tt>
+either for credit or debit side.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[cr_dr flag]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns a list of accounts pertaining to
+sales return accounts.</li>
+<li>If the input parameter in queryParams[0] is <tt class="docutils literal"><span class="pre">Cr</span></tt> 
+then returns the accountname under subgroupname <tt class="docutils literal"><span class="pre">Sundry</span> <span class="pre">Debtors</span></tt></li>
+<li>else returns accountnames under groupname <tt class="docutils literal"><span class="pre">Direct</span> <span class="pre">Expense</span></tt> 
+<tt class="docutils literal"><span class="pre">Indirect</span> <span class="pre">Expense</span></tt> .</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-abtserver.rpc_transaction">
+<span id="transaction"></span><h3>Transaction<a class="headerlink" href="#module-abtserver.rpc_transaction" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="abtserver.rpc_transaction.transaction">
+<em class="property">class </em><tt class="descclassname">abtserver.rpc_transaction.</tt><tt class="descname">transaction</tt><a class="headerlink" href="#abtserver.rpc_transaction.transaction" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li>This rpc module will proved details about all transactions</li>
+<li>It will save , edit , clone , delete and some other operations.</li>
+<li>create class <tt class="docutils literal"><span class="pre">transactions</span></tt> inherit the <tt class="docutils literal"><span class="pre">XMLRPC</span></tt> class</li>
+</ul>
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_deleteVoucher">
+<tt class="descname">xmlrpc_deleteVoucher</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_deleteVoucher" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>This function will not completely delete voucherdetails
+but it will set the flag 0 instead 1</li>
+<li>so it will be like disabled for search voucher</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[vouchercode]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns boolean True if deleted else False</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_deleteVoucherDetails">
+<tt class="descname">xmlrpc_deleteVoucherDetails</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_deleteVoucherDetails" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>it will delete voucher depend on given voucher code.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[vouchercode]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns string &#8220;deleted&#8221;</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_editVoucher">
+<tt class="descname">xmlrpc_editVoucher</tt><big>(</big><em>queryParams_master</em>, <em>queryParams_details</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_editVoucher" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>this function is used to create a edit voucher.</li>
+<li>adds a new voucher in the database given its reference number 
+and transaction details (dr and cr), along with narration and the date.</li>
+<li>The entire transaction is recorded in terms of Dr and Cr and the respected amounts.</li>
+<li>The function call four funtions from same file rpc_transation.py
+<tt class="docutils literal"><span class="pre">xmlrpc_getProjectcodeByProjectName</span></tt> <tt class="docutils literal"><span class="pre">xmlrpc_editVoucherMaster</span></tt>
+<tt class="docutils literal"><span class="pre">xmlrpc_deleteVoucherDetails</span></tt> <tt class="docutils literal"><span class="pre">xmlrpc_editVoucherDetails</span></tt>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li><tt class="docutils literal"><span class="pre">queryParams_master</span></tt> list will contain :
+[vouchercode,reffdate,project name,Narration]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li><tt class="docutils literal"><span class="pre">queryParams_details</span></tt> list will contain :
+[AccountName,dr amount,cr amount]</li>
+<li>returns &#8220;success&#8221;.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_editVoucherDetails">
+<tt class="descname">xmlrpc_editVoucherDetails</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_editVoucherDetails" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>this add the accountcode,typeflag and amount</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[vouchercode,accountname,amount,narration]</li>
+<li>output: String &#8220;success&#8221;</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_editVoucherMaster">
+<tt class="descname">xmlrpc_editVoucherMaster</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_editVoucherMaster" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:      </dt>
+<dd><ul class="first last simple">
+<li>it update vouchermaster table depend on given vouchercode</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[vouchercode,reffdate,projectcode,narration]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>String &#8220;success&#8221;</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_getLastReference">
+<tt class="descname">xmlrpc_getLastReference</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_getLastReference" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>To get last reference number for respective vouchertype</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[vouchertype]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>[reffno]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_getLastReffDate">
+<tt class="descname">xmlrpc_getLastReffDate</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_getLastReffDate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>To get last reference date for respective vouchertype</li>
+</ul>
+</dd>
+</dl>
+<ul>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[financial_start,voucher_type]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>[reference_date]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_getOnlyClearedTransactions">
+<tt class="descname">xmlrpc_getOnlyClearedTransactions</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_getOnlyClearedTransactions" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>This function will check for cleared transactions</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[accountname,vouchercode,financialstart,todate]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>if transaction is exist in bankrecon table</li>
+<li>it will return boolean True else False</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_getParticulars">
+<tt class="descname">xmlrpc_getParticulars</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_getParticulars" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last">
+<li><p class="first">to get list of Particulars from the database given input parameters</p>
+</li>
+<li><p class="first">it will retrive acount name list from view_voucherbook
+accounts which is involved in transactions</p>
+</li>
+<li><dl class="first docutils">
+<dt>if it is involve then </dt>
+<dd><ul class="first last simple">
+<li>it will query to &#8216;view_voucherbook&#8217; view in (rpc.main)
+and gives the list of account names</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>else </dt>
+<dd><ul class="first last simple">
+<li>it will query to &#8216;view_voucherbook&#8217; view in (rpc.main)
+and gives the empty list</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[voucher_code,type_flag]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>[accountnames]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_getProjectNameByProjectCode">
+<tt class="descname">xmlrpc_getProjectNameByProjectCode</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_getProjectNameByProjectCode" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function to get projectname acouding to projectcode</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>it will take only one input projectcode</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>it will return projectname if projectcode match
+else returns None String</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_getProjectcodeByProjectName">
+<tt class="descname">xmlrpc_getProjectcodeByProjectName</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_getProjectcodeByProjectName" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>function to get projectcode acouding to projectname</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>it will take only one input projectname</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>it will return projectcode if projectname match else returns 0</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_getTransactions">
+<tt class="descname">xmlrpc_getTransactions</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_getTransactions" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last">
+<li><p class="first">get voucher details from the database given input parameters</p>
+</li>
+<li><p class="first">it will chech for Project exist or not</p>
+</li>
+<li><dl class="first docutils">
+<dt>if &#8216;No Project&#8217; then </dt>
+<dd><ul class="first last simple">
+<li>it will query to <tt class="docutils literal"><span class="pre">view_voucherbook</span></tt> view in (rpc.main)</li>
+<li>gives the details of transactions which is under &#8216;No Project&#8217;</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>else </dt>
+<dd><ul class="first last simple">
+<li>it will query to <tt class="docutils literal"><span class="pre">view_voucherbook</span></tt> view in (rpc.main)</li>
+<li>gives the details of transactions which is under given project name.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">it will call <tt class="docutils literal"><span class="pre">xmlrpc_getProjectcodeByProjectName</span></tt> from same file 
+<tt class="docutils literal"><span class="pre">rpc_transation.py</span></tt> to get projectcode for given projectname</p>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[accountname,from_date,to_date,projectname]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>[vouchercode , voucherflag , reff_date , voucher_reference,
+transaction_amount,show_narration]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_getVoucherAmount">
+<tt class="descname">xmlrpc_getVoucherAmount</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_getVoucherAmount" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>to get amount of particular transaction</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[voucher_code]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>output:</dt>
+<dd><ul class="first last simple">
+<li>[totalamount]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_getVoucherDetails">
+<tt class="descname">xmlrpc_getVoucherDetails</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_getVoucherDetails" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>gets the transaction related details given a vouchercode.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[voucher_code]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns 2 dimentional list containing rows with 3 columns.</li>
+<li>[accountname,typeflag,amount]e,typeflag,amount]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_getVoucherMaster">
+<tt class="descname">xmlrpc_getVoucherMaster</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_getVoucherMaster" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>This function is used along with <tt class="docutils literal"><span class="pre">getVoucherDetails</span></tt> 
+to searchVoucher (get complete voucher) useful while editing or cloning.</li>
+<li>The function takes one parameter which is a list containing vouchercode.</li>
+<li>returns a record from the voucher master 
+containing single row data for a given transaction.</li>
+<li>This function call defination <tt class="docutils literal"><span class="pre">xmlrpc_getProjectNameByProjectCode</span></tt>
+which is in the same file <tt class="docutils literal"><span class="pre">rpc_transaction</span></tt> to get project name</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[voucher_code]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns list containing data from voucher_master.</li>
+<li>[reference,reffdate,vouchertype,projectname,narrartion]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_searchVoucher">
+<tt class="descname">xmlrpc_searchVoucher</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_searchVoucher" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>The function is used to get the list of vouchers on the basis 
+of either reference number (which can be duplicate),or date range,
+or some words from narration.</li>
+<li>This means one or more vouchers could be by the same reference 
+number or within a given date range.</li>
+<li>The list thus returned contains all details of a given voucher 
+except its exact transactions, i.e the records from voucher_master.</li>
+<li>The function calls 3 definations fron the same class file 
+<tt class="docutils literal"><span class="pre">xmlrpc_searchVouchers</span></tt>  <tt class="docutils literal"><span class="pre">xmlrpc_getVoucherAmount</span></tt>
+<tt class="docutils literal"><span class="pre">xmlrpc_getVoucherDetails</span></tt></li>
+<li>returns one or more vouchers given the reference number 
+or date range (which ever specified)takes one parameter queryParams 
+as list.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[searchFlag , refeence_no , from_date , to_date , narration ]</li>
+<li>searchFlag integer (1 implies serch by reference,2 as search by date range and 
+3 as search by narration.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns a 2 dimensional list containing one or more records from voucher_master</li>
+<li>[vouchercode , refeence_no , reffdate,vouchertype,dramount ,cramount ,
+totalamount , narration ]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_searchVouchers">
+<tt class="descname">xmlrpc_searchVouchers</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_searchVouchers" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>This function will be usefull in the searchVouchers 
+to get Complete details or information about transaction</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:  </dt>
+<dd><ul class="first last simple">
+<li>[searchFlag,ref_no,from_date, to_date ,narration]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>[vouchercode , refeence_no , reffdate,vouchertype,narration ]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_setTransaction">
+<tt class="descname">xmlrpc_setTransaction</tt><big>(</big><em>queryParams_master</em>, <em>queryParams_details</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_setTransaction" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>This function is used to create a new voucher.</li>
+<li>adds a new voucher in the database given its reference number 
+and transaction details (dr and cr), along with narration and the date.</li>
+<li>the entire transaction is recorded in terms of Dr and Cr and the respected amounts.</li>
+<li>the function call 3 funtions from same file rpc_transation.py
+<tt class="docutils literal"><span class="pre">xmlrpc_getProjectcodeByProjectName</span></tt> <tt class="docutils literal"><span class="pre">xmlrpc_setVoucherMaster</span></tt>
+<tt class="docutils literal"><span class="pre">xmlrpc_setVoucherDetails</span></tt></li>
+<li>and call <tt class="docutils literal"><span class="pre">xmlrpc_getAccountCodeByAccountName</span></tt> from rpc_account.py 
+to get accountcode by accountname</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>queryParams_master list will contain:</li>
+<li>reference number,transaction date ,voucher type,project name,narration</li>
+<li>queryParams_details list will contain:</li>
+<li>DrCr flag,AccountName,the amount for the respective account.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>function returns 1 integer.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_setVoucherDetails">
+<tt class="descname">xmlrpc_setVoucherDetails</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_setVoucherDetails" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>it set voucher details which will be use in setTransaction</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>Dr or Cr flag,AccountName,the amount for the respective account.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>it returns &#8220;success &#8221; as string</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_setVoucherMaster">
+<tt class="descname">xmlrpc_setVoucherMaster</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_setVoucherMaster" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>adds a new voucher in the database given its reference number 
+and transaction details (dr and cr), along with narration and the date.</li>
+<li>This function is used to create a new voucher.</li>
+<li>The entire transaction is recorded in terms of Dr and Cr and the respected amounts.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>queryParams list will contain :
+reference Number,the actual transaction date,voucher type ,project name , Narration</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>return vouchercode</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-abtserver.rpc_reports">
+<span id="reports"></span><h3>Reports<a class="headerlink" href="#module-abtserver.rpc_reports" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="abtserver.rpc_reports.reports">
+<em class="property">class </em><tt class="descclassname">abtserver.rpc_reports.</tt><tt class="descname">reports</tt><a class="headerlink" href="#abtserver.rpc_reports.reports" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li>This rpc module will provide details about all reports</li>
+<li>It privides calculation&#8217;s for all reports and it&#8217;s display</li>
+<li>it genarate Ledger,trial balance,balancesheet,profit and loss
+and so on ...</li>
+</ul>
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_calculateBalance">
+<tt class="descname">xmlrpc_calculateBalance</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_calculateBalance" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>calculate closing balance of given accounts</li>
+<li>Returns a grid of 4 columns and number of 
+rows depending on number of accounts.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[accountname,org_financial_from,report_from_date,report_to_date]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>[group_name,bal_brought,curbal,total_DrBal,total_CrBal,opening_baltype,baltype]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_deleteClearedRecon">
+<tt class="descname">xmlrpc_deleteClearedRecon</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_deleteClearedRecon" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Pupose:</dt>
+<dd><ul class="first last simple">
+<li>to uncleared the cleared trasaction and
+delete cleared entry from bankrecon table</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[accountcode,vouchercode,todate]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>If accountcode, vouchercode matches and clearencedate less than 
+input clearencedate then delete clearRecon and return True
+else return False</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getBalancesheet">
+<tt class="descname">xmlrpc_getBalancesheet</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getBalancesheet" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>gets trial balance as on the given date.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[org_financial_from,from_date,to_date]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns a grid of 4 columns and number of rows depending 
+on number of accounts.</li>
+<li>this function returns a grid of 4 columns contaning balancesheet.</li>
+<li>number of rows in this grid will depend on the number 
+of accounts in the database.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getBalancesheetDisplay">
+<tt class="descname">xmlrpc_getBalancesheetDisplay</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getBalancesheetDisplay" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>note that this function is not do any calculations
+it is just for the format for front end display.</li>
+<li>it will take the return grid of <tt class="docutils literal"><span class="pre">getBalancesheet</span></tt>.</li>
+<li>to rearrange the data in a particular manner for display.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[org_financial_from,from_date,to_date,reportflag,orgtype,balancesheet_type]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>if balancesheet type is <tt class="docutils literal"><span class="pre">Conventional</span> <span class="pre">Balance</span> <span class="pre">Sheet</span></tt></dt>
+<dd><ul class="first last simple">
+<li>list of list [groupname,debit amount,credit amount,total amount])</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>else </dt>
+<dd><ul class="first last simple">
+<li>list of list [Particulars,debit amount,credit amount,Amount,Amount]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getCashFlow">
+<tt class="descname">xmlrpc_getCashFlow</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getCashFlow" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>The function will return a grid with 4 columns.</li>
+<li>first 2 columns will have the account name and its sum of
+received amount, while next 2 columns will have the same</li>
+<li>for amount paid.first we make a call to get CashFlowAccounts</li>
+<li>for the list of accounts falling under Bank or Cash subgroups.</li>
+<li>Then a loop will run through the list and get the list of 
+payment and receipts as mentioned above.</li>
+<li>every row will contain a pair of as below
+account:amount for payment and receipt each.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>financial_from ,start_date and end_date</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getClearanceDate">
+<tt class="descname">xmlrpc_getClearanceDate</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getClearanceDate" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>to get the Clearancedate of cleared transaction</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[accountcode ,vouchercode]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>[clearance date , memo]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getExtendedTrialBalance">
+<tt class="descname">xmlrpc_getExtendedTrialBalance</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getExtendedTrialBalance" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>gets extended trial balance as on the given date.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns a grid of 7 columns and number of rows 
+depending on number of accounts.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getGrossTrialBalance">
+<tt class="descname">xmlrpc_getGrossTrialBalance</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getGrossTrialBalance" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>just like the getTrialBalance, this function returns
+list of balances of all accounts.</li>
+<li>instead of the current balance it provides the total Dr 
+and total Cr for all accounts.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[serial no , accountname , groupname , debit bal , creadit bal ]
+and [total debit , total credit]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getLedger">
+<tt class="descname">xmlrpc_getLedger</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getLedger" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>This function give a complete ledger for given account.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:  </dt>
+<dd><ul class="first last simple">
+<li>[accountname,financialStart,fromdate,todate,projectname]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns a grid (2 dimentional list ) with columns as</li>
+<li>[Date, Particulars, Reference number, Dr, Cr , vouchercode]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getProfitLossDisplay">
+<tt class="descname">xmlrpc_getProfitLossDisplay</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getProfitLossDisplay" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>it takes the return grid of getProfitLossReport</li>
+<li>this function is just for the arrangement of grid
+for display</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[org_financial_from,from_date,to_date,reportflag,orgtype]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns 3 dimentional list [[[&#8220;&#8221;,&#8221;Particulars&#8221;,&#8221;Amount&#8221;]]]</li>
+<li>list of list contan list for DE DI IE and II</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getProfitLossReport">
+<tt class="descname">xmlrpc_getProfitLossReport</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getProfitLossReport" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>gets profit and loss as on the given date.</li>
+<li>this function returns a grid of 4 columns 
+contaning profit and loss details.</li>
+<li>number of rows in this grid will depend on the number 
+of accounts in the database.</li>
+<li>For profit and loss the accounts from group <tt class="docutils literal"><span class="pre">direct</span> <span class="pre">income</span></tt>
+and <tt class="docutils literal"><span class="pre">indirect</span> <span class="pre">income</span></tt> and <tt class="docutils literal"><span class="pre">expence</span></tt> are invoke.</li>
+<li>The function first makes a call to the``getAccountsByGroupCode``
+and stores the list.</li>
+<li>then a loop runs through the list of accounts.
+on every iteration it calls the <tt class="docutils literal"><span class="pre">calculateBalance</span></tt> 
+and passes the account as a parameter along with the 
+financial start, Calculate_from and calculate_to.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Note: </dt>
+<dd><ul class="first last simple">
+<li>profit and loss is always calculated from 
+the starting of the financial year.</li>
+<li>the total of each group of accounts is calculated 
+separately for calculation purpose.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[org_financial_from,from_date,to_date]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns a grid of 4 columns and number of rows 
+depending on number of accounts.</li>
+<li>List of list [serial no,groupcode,accountname,amount,balancetype]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getProjectStatement">
+<tt class="descname">xmlrpc_getProjectStatement</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getProjectStatement" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>it gives project statement grid.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[projectname,accountname,financial_fromdate,fromdate,todate]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>[total_debit,total_credit]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getProjectStatementReport">
+<tt class="descname">xmlrpc_getProjectStatementReport</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getProjectStatementReport" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>it gives project statement report</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[projectname,financial_fromdate,fromdate,todate]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>list of list [serialno,accountname,groupname,totalDr,totalCr]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getReconLedger">
+<tt class="descname">xmlrpc_getReconLedger</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getReconLedger" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>to get a complete ledger for given bank account.</li>
+<li>information taken from view_voucherbook</li>
+<li>for getting ledger it takes the result of rpc_getLedger.</li>
+<li>it expects a list of queryParams which contains</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[accountname,financialStart,fromdate,todate,projectname]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns a grid (2 dimentional list ) with columns as 
+Date, Particulars, Reference number, Dr amount, Cr amount, 
+narration, Clearance Date and Memo.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Note:</dt>
+<dd><ul class="first last simple">
+<li>Note that It will display the value of clearance date and memo 
+for only those transactions which are cleared.</li>
+<li>The last row will just contain the grand total which will 
+be equal at credit and debit side.</li>
+<li>2nd last row contains the closing balance.</li>
+<li>3rd last row contains just the total Dr and total Cr.</li>
+<li>if the closing balance (carried forward ) is debit 
+then it will be shown at credit side and 
+if it is credit will be shown at debit side.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getTrialBalance">
+<tt class="descname">xmlrpc_getTrialBalance</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getTrialBalance" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>gets trial balance as on the given date.</li>
+<li>returns a grid of 4 columns and number of 
+rows depending on number of accounts.</li>
+<li>this function returns a grid of 4 columns contaning 
+trial balance.</li>
+<li>number of rows in this grid will depend on the number 
+of accounts in the database.</li>
+<li>the function first makes a call to the getAllAccounts 
+from rpc_account to get accountlist</li>
+<li>then a loop runs through the list of accounts.
+on every iteration it calls the <tt class="docutils literal"><span class="pre">calculateBalance</span></tt> and 
+passes the account as a parameter along with the financial start
+from_date and to_date</li>
+<li>note that trial balance is always calculated from the starting 
+of the financial year.</li>
+<li>also in the for loop we see if the typeflag for the balance 
+for given account is Dr or Cr.</li>
+<li>if the balance is Dr then we put the amount in the 4th column, 
+with the 5th column blank.</li>
+<li>if the typeflag is <tt class="docutils literal"><span class="pre">credit</span></tt> then we put the amount in the 5th row, 
+leaving the 4th as blank.
+and vice varsa</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[org_financial_from,from_date,to_date]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><dl class="first last docutils">
+<dt>-[serial no , accountname , groupname , debit bal , creadit bal ]</dt>
+<dd><p class="first last">and [total debit , total credit]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_setBankRecon">
+<tt class="descname">xmlrpc_setBankRecon</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_setBankRecon" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>to set the cleared transaction</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[vouchercode,reffdate,accountname,dramount,cramount,clearencedate,memo]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>returns String success</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_setBankReconciliation">
+<tt class="descname">xmlrpc_setBankReconciliation</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_setBankReconciliation" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>it sets the bankrecon table in database as saves 
+transaction details of those transactions which are
+cleared with clearance date and memo in table bankrecon</li>
+<li>Also sets the reconcode(reconciliation code) for the respective 
+transaction.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>it expects a list of queryParams which contains
+[vouchercode(datatype:integer),reffdate(datatype:timestamp),
+accountname(datatype:varchar),dramount(datatype:numeric),
+cramount(datatype:numeric),clearancedate(datatype:timestamp),
+memo(datatype:text)]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_updateBankRecon">
+<tt class="descname">xmlrpc_updateBankRecon</tt><big>(</big><em>queryParams</em>, <em>flags</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_updateBankRecon" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last">
+<li><p class="first">returns all uncleared transactions from the starting of 
+financial year to the end date of given period 
+<tt class="docutils literal"><span class="pre">OR</span></tt></p>
+</li>
+<li><p class="first">all uncleared transactions from the starting of 
+financial year to the end date of given period with all cleared transactions 
+of the given period if cleared_tran_flag is true 
+with`` Bank Reconciliation Statement`` for the given period of time.</p>
+</li>
+<li><p class="first">The function first makes a call to the previous function <tt class="docutils literal"><span class="pre">getLedger</span></tt> 
+and passes the account as a parameter along with the 
+financial start, Calculate_from and calculate_to.</p>
+</li>
+<li><p class="first">note that balance is always calculated from the starting of the financial year.</p>
+</li>
+<li><dl class="first docutils">
+<dt>Then, on every iteration it calls following functions </dt>
+<dd><ul class="first last simple">
+<li><tt class="docutils literal"><span class="pre">getTransactions</span></tt>: to get trnsactions from starting date of 
+financial year to the end date of given period</li>
+<li><tt class="docutils literal"><span class="pre">getParticulars</span></tt>: to get all particulars(account names) 
+for that period</li>
+<li><tt class="docutils literal"><span class="pre">getOnlyClearedTransactions</span></tt>: to filter out all uncleared 
+transactions and their details.</li>
+<li>if cleared_tran_flag is True, it calls <tt class="docutils literal"><span class="pre">getReconLedger</span></tt> function to 
+get the list of cleared transactionsand then it compares ReconGrid 
+with list of cleared transactions to ignore duplicate transactions
+and finally added bank reconciliation statement.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>list 1: [account name, financial start, fromdate and todate,projectname]</li>
+<li>list 2: [cleared_tran_flag]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last">
+<li><p class="first">this function returns a grid of 9 columns and number 
+of rows depending on number of uncleared 
+OR uncleared + cleared transactions in the database.</p>
+</li>
+<li><p class="first">After appending transactions in grid, 
+it appends Bank Reconciliation statement.</p>
+</li>
+<li><dl class="first docutils">
+<dt>A grid of 9 columns contains:</dt>
+<dd><ul class="first last simple">
+<li>[vouchercode, transaction date, accountname, reference number,dramount, cramount, narration, clearance date and memo]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-abtserver.rpc_organisation">
+<span id="organisation"></span><h3>Organisation<a class="headerlink" href="#module-abtserver.rpc_organisation" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="abtserver.rpc_organisation.organisation">
+<em class="property">class </em><tt class="descclassname">abtserver.rpc_organisation.</tt><tt class="descname">organisation</tt><a class="headerlink" href="#abtserver.rpc_organisation.organisation" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><p class="first">This rpc file provide the information about the organisation</p>
+</li>
+<li><p class="first">it performs the task like save,edit,update organisation information</p>
+</li>
+<li><p class="first">also perform some task related to project and preferences</p>
+</li>
+<li><dl class="first docutils">
+<dt>create class <tt class="docutils literal"><span class="pre">organisation</span></tt> inherit the <tt class="docutils literal"><span class="pre">XMLRPC</span></tt> class</dt>
+<dd><ul class="first last simple">
+<li>import the database connector</li>
+<li>import the twisted modules for executing rpc calls and also to implement the server</li>
+<li>reactor from the twisted library starts the server with a published object and 
+listens on a given port.</li>
+<li>inherit the class from XMLRPC to make it publishable as an rpc service.</li>
+<li>import rpc_transaction module to create its instance and functions</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="method">
+<dt id="abtserver.rpc_organisation.organisation.xmlrpc_deleteProject">
+<tt class="descname">xmlrpc_deleteProject</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_organisation.organisation.xmlrpc_deleteProject" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function for deleting project name</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[projectname(datatype:String)]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns 1 String , when project is deleted</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_organisation.organisation.xmlrpc_deleteProjectName">
+<tt class="descname">xmlrpc_deleteProjectName</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_organisation.organisation.xmlrpc_deleteProjectName" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>function for deleting project.</li>
+<li>for this we have used <tt class="docutils literal"><span class="pre">hasProjectTransactions</span></tt> 
+&amp; <tt class="docutils literal"><span class="pre">deleteProject</span></tt> rpc functions.</li>
+<li>with the help of <tt class="docutils literal"><span class="pre">hasProjectTransactions</span></tt> we are able to 
+find out whether the given project has any transactions or not.</li>
+<li><tt class="docutils literal"><span class="pre">deleteProject</span></tt> delete that particular projectname which has no transaction</li>
+</ul>
+</dd>
+</dl>
+<ul>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>queryParams[projectname(datatype:String)]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>if hasTransaction is &#8220;0&#8221; then it returns string &#8220;project deleted&#8221;
+else return &#8220;has transaction&#8221;.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_organisation.organisation.xmlrpc_editProject">
+<tt class="descname">xmlrpc_editProject</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_organisation.organisation.xmlrpc_editProject" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function for edit projectname</li>
+<li>it will alter projectname ans update it.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[projectcode,projectname]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>return string <tt class="docutils literal"><span class="pre">updated</span> <span class="pre">successfully</span></tt></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_organisation.organisation.xmlrpc_getAllProjects">
+<tt class="descname">xmlrpc_getAllProjects</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_organisation.organisation.xmlrpc_getAllProjects" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>function for get list of all projectnames for a particular organisation</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>output: </dt>
+<dd><ul class="first last simple">
+<li>if list is blank then return empty list</li>
+<li>else returns list of list projectcaode(datatype:Integer) 
+and projectname(datatype:text)</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_organisation.organisation.xmlrpc_getOrganisation">
+<tt class="descname">xmlrpc_getOrganisation</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_organisation.organisation.xmlrpc_getOrganisation" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function to get all the details of organisation from database</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>client_id</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>return list of organisation details</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_organisation.organisation.xmlrpc_getPreferences">
+<tt class="descname">xmlrpc_getPreferences</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_organisation.organisation.xmlrpc_getPreferences" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>finding the appropriate preferences for accountcode
+for given flag no</li>
+<li>if flag no is <tt class="docutils literal"><span class="pre">2</span></tt> then will return
+accountcode flag value.</li>
+<li>if flag no is <tt class="docutils literal"><span class="pre">1</span></tt> then will return refeno flag value</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[flagno]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>It returns flagname depnd on flagno</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_organisation.organisation.xmlrpc_getorgTypeByname">
+<tt class="descname">xmlrpc_getorgTypeByname</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_organisation.organisation.xmlrpc_getorgTypeByname" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function for get Organisation Type for provided organisation</li>
+<li>querys the Organisation table and sees if an orgname
+similar to one provided as a parameter.</li>
+<li>if it exists then it will return orgtype related orgname</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[orgname(datatype:string)]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns orgtype if orgname match else return false string</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_organisation.organisation.xmlrpc_hasProjectTransactions">
+<tt class="descname">xmlrpc_hasProjectTransactions</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_organisation.organisation.xmlrpc_hasProjectTransactions" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function to find out whether the given projectname 
+has any transactions or not</li>
+<li>it will take projectname as a first parameter and
+then getprojetcode to delete project</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>queryParams[projectname(datatype:String)]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>It returns strig &#8220;1&#8221; when transaction with projectname
+is present else return &#8220;0&#8221;</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_organisation.organisation.xmlrpc_setOrganisation">
+<tt class="descname">xmlrpc_setOrganisation</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_organisation.organisation.xmlrpc_setOrganisation" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function for add organisation details in database</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>if orgtype is <tt class="docutils literal"><span class="pre">NGO</span></tt> then    </dt>
+<dd><p class="first last">[orgname,orgtype,orgcountry,orgstate,orgcity,orgaddr,orgpincode,
+orgtelno, orgfax, orgwebsite, orgemail, orgpan, &#8220;&#8221;, &#8220;&#8221;,
+orgregno, orgregdate, orgfcrano, orgfcradate]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>else:</dt>
+<dd><p class="first last">[orgname,orgtype,orgcountry,orgstate,orgcity,orgaddr,orgpincode,
+orgtelno, orgfax, orgwebsite, orgemail, orgpan,orgmvat,orgstax,
+&#8220;&#8221;, &#8220;&#8221;, &#8220;&#8221;, &#8220;&#8221;]</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns boolean True if added successfully else False</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_organisation.organisation.xmlrpc_setPreferences">
+<tt class="descname">xmlrpc_setPreferences</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_organisation.organisation.xmlrpc_setPreferences" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function for update flags for project manually created account code and voucher
+reference number i/p parameters: Flag No(datatype:integer) , FlagName</li>
+<li>if flag no is <tt class="docutils literal"><span class="pre">2</span></tt> then will update accountcode flag value as either
+<tt class="docutils literal"><span class="pre">manually</span></tt> or <tt class="docutils literal"><span class="pre">automatic</span></tt> (default)</li>
+<li>if flag no is <tt class="docutils literal"><span class="pre">1</span></tt> then will update refeno flag value as either 
+<tt class="docutils literal"><span class="pre">mandatory</span></tt> or <tt class="docutils literal"><span class="pre">optional</span></tt> (datatype:text)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns boolean True</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_organisation.organisation.xmlrpc_setProjects">
+<tt class="descname">xmlrpc_setProjects</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_organisation.organisation.xmlrpc_setProjects" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>function for set projects for a particular
+organisation</li>
+<li>this will use to create the projects for organisation.</li>
+</ul>
+</dd>
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[projectname(datatype:text)]</li>
+</ul>
+</dd>
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>Returns boolean True if projectname added</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_organisation.organisation.xmlrpc_updateOrg">
+<tt class="descname">xmlrpc_updateOrg</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_organisation.organisation.xmlrpc_updateOrg" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>updating the orgdetails after edit organisation</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[orgcode,orgaddress,orgcountry,orgstate,orgcity,orgpincode,orgtelno,orgfax,orgemail,
+orgwebsite,orgmvat,orgstax,orgregno,orgregdate,orgfcrano,orgfcradate,orgpan],client_id</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>It will returns String &#8220;upadted successfully&#8221;</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-abtserver.rpc_data">
+<span id="data"></span><h3>Data<a class="headerlink" href="#module-abtserver.rpc_data" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="abtserver.rpc_data.data">
+<em class="property">class </em><tt class="descclassname">abtserver.rpc_data.</tt><tt class="descname">data</tt><a class="headerlink" href="#abtserver.rpc_data.data" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li>This file gives the information about states and cities present in the <tt class="docutils literal"><span class="pre">places.db</span></tt>.</li>
+<li>you can locate <tt class="docutils literal"><span class="pre">places.db</span></tt> in ABTcore/src before running ABTcore.</li>
+<li>if you have ABTcore running om your machine then locate it at <tt class="docutils literal"><span class="pre">/opt/abt/</span></tt></li>
+</ul>
+<dl class="method">
+<dt id="abtserver.rpc_data.data.xmlrpc_getCityNames">
+<tt class="descname">xmlrpc_getCityNames</tt><big>(</big><em>queryParams</em><big>)</big><a class="headerlink" href="#abtserver.rpc_data.data.xmlrpc_getCityNames" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>This is function to get city list present in the &#8220;/opt/abt/places.db&#8221;
+with its respective state name</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[statename]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>return list of all the city names present in &#8220;/opt/abt/places.db&#8221;</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_data.data.xmlrpc_getStateNames">
+<tt class="descname">xmlrpc_getStateNames</tt><big>(</big><big>)</big><a class="headerlink" href="#abtserver.rpc_data.data.xmlrpc_getStateNames" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>This is function to get state list present in the &#8220;/opt/abt/places.db&#8221;</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>return list of all the distinct states present in &#8220;/opt/abt/places.db&#8221;</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="modules">
+<h2>modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-modules.blankspace">
+<span id="blankspace"></span><h3>blankspace<a class="headerlink" href="#module-modules.blankspace" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="modules.blankspace.remove_whitespaces">
+<tt class="descclassname">modules.blankspace.</tt><tt class="descname">remove_whitespaces</tt><big>(</big><em>queryParams</em><big>)</big><a class="headerlink" href="#modules.blankspace.remove_whitespaces" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>function is use to trim the more than one blankspaes
+in words</li>
+<li>it will remove left, right and middel blank spaces</li>
+<li>it will iterate throughout list and stip it.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>queryParams contains list of integers and string values</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="src">
+<h2>src<a class="headerlink" href="#src" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li>This is useful for only devloper&#8217;s</li>
+<li>It will have dependencies like <tt class="docutils literal"><span class="pre">places.db</span></tt> file.</li>
+<li>also have some dummy databases for devloper&#8217;s</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to Aakash Business Tool&#8217;s documentation!</a><ul>
+<li><a class="reference internal" href="#abtstart">abtstart</a></li>
+<li><a class="reference internal" href="#abtserver">abtserver</a><ul>
+<li><a class="reference internal" href="#module-abtserver.rpc_main">main</a></li>
+<li><a class="reference internal" href="#module-abtserver.rpc_account">Account</a></li>
+<li><a class="reference internal" href="#module-abtserver.rpc_groups">Groups</a></li>
+<li><a class="reference internal" href="#module-abtserver.dbconnect">dbconnect</a></li>
+<li><a class="reference internal" href="#module-abtserver.rpc_getaccountsbyrule">getaccountsbyrule</a></li>
+<li><a class="reference internal" href="#module-abtserver.rpc_transaction">Transaction</a></li>
+<li><a class="reference internal" href="#module-abtserver.rpc_reports">Reports</a></li>
+<li><a class="reference internal" href="#module-abtserver.rpc_organisation">Organisation</a></li>
+<li><a class="reference internal" href="#module-abtserver.rpc_data">Data</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#modules">modules</a><ul>
+<li><a class="reference internal" href="#module-modules.blankspace">blankspace</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#src">src</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">Aakash Business Tool 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, androportal.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

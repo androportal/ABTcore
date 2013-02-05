@@ -6,88 +6,90 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.types import Numeric, TIMESTAMP, Enum 
 from xml.etree import ElementTree as et
 import os
-import datetime, time
-from time import strftime
 from sqlalchemy import *
 from types import * 
 from sqlite3 import dbapi2 as sqlite
-'''	
-creating an empty list of engines.
-engine in this analogy is a connection maintained as a session.
-so every time a new client connects to the rpc server,
-a new engine is appended to the list and the index returned as the id.
-'''
 engines = []
 session = sessionmaker()
-userlist = {}
-
 
 def getOrgList():
-    '''
-	def getOrgList  : Purpose
-	This function opens the configuration file abt.xml 
-	and gets the list of all organisations registered on the server.
-	Function takes no arguments.
-	Returns a list of organisations.
-	'''	
+	""" 
+	* Purpose:
+		- This function create opens the configuration file abt.xml (path : opt/abt)
+		- used xml.etree to cerate xml file and parsing it .
+		- Write root node `<abt> </abt>`.
+		- if any organisation present then and gets the list of all organisations registered on the server.
+
+	* Output:
+		- returns list of clildnode(organisaton)
+	""" 	
     
-    if os.path.exists("/opt/abt/abt.xml") == False:
-        print "file not found trying to create one."
-        try:
-            os.system("touch /opt/abt/abt.xml")
-            print "file created "
-            os.system("chmod 722 /opt/abt/abt.xml")
-            print "permissions granted "
-        except:
-            print "the software is finding trouble creating file."
-            return False
-        try:
-            gkconf = open("/opt/abt/abt.xml", "a")
-            gkconf.write("<abt>\n")
-            gkconf.write("</abt>")
-            gkconf.close()
-        except:
-            print "we can't write to the file, sorry!"
-            return False
-    #opening the abt.xml file by parsing it into a tree.	
-    abtconf = et.parse("/opt/abt/abt.xml")
-    #now since the file is opened we will get the root element.  
-    abtroot = abtconf.getroot()
-    #we will now extract the list of children (organisations ) into a variable named orgs. 
-    orgs = abtroot.getchildren() 
-    return orgs
+	if os.path.exists("/opt/abt/abt.xml") == False:
+		print "file not found trying to create one."
+		try:
+		    os.system("touch /opt/abt/abt.xml")
+		    print "file created "
+		    os.system("chmod 722 /opt/abt/abt.xml")
+		    print "permissions granted "
+		except:
+		    print "the software is finding trouble creating file."
+		    return False
+		try:
+		    gkconf = open("/opt/abt/abt.xml", "a")
+		    gkconf.write("<abt>\n")
+		    gkconf.write("</abt>")
+		    gkconf.close()
+		except:
+		    print "we can't write to the file, sorry!"
+		    return False
+	#opening the abt.xml file by parsing it into a tree.	
+	abtconf = et.parse("/opt/abt/abt.xml")
+	#now since the file is opened we will get the root element.  
+	abtroot = abtconf.getroot()
+	#we will now extract the list of children (organisations ) into a variable named orgs. 
+	orgs = abtroot.getchildren() 
+	return orgs
 
 
 def getConnection(queryParams):
-    '''
-	def getConnection: purpose	
-	The getConnection function will actually establish connection and 
-	return the id of the latest engine added to the list.
-	first check if the file exists in the given path.
-	if this is the first time we are running the server 
-	then we need to create the abt.xml file.
-	'''
-    dbname = "" #the dbname variable will hold the final database name for the given organisation. 
-    orgs = getOrgList() #we will use org as an iterator and go through the list of all the orgs.
-    
-    
-    for org in orgs:
-        orgname = org.find("orgname")
-        financialyear_from = org.find("financial_year_from")
-        financialyear_to = org.find("financial_year_to")
-        print orgname.text,queryParams[0],financialyear_from.text,queryParams[1],financialyear_to.text,queryParams[2]
-        if orgname.text == queryParams[0] and financialyear_from.text == queryParams[1] and financialyear_to.text == queryParams[2]:
-            #print "we r in if"
-            dbname = org.find("dbname")
-            database = dbname.text
-            
-	else:
-	    print "orgnisationname and financial year not match"
-    global engines #the engine has to be a global variable so that it is accessed throughout the module.
-    stmt = 'sqlite:////opt/abt/db/' + database
-    engine = create_engine(stmt, echo=False) #now we will create an engine instance to connect to the given database.
-    engines.append(engine)  #add the newly created engine instance to the list of engines.
-    return engines.index(engine) #returning the connection number for this engine.
+	"""
+	* Purpose:
+		- The getConnection function will actually establish connection and 
+		- return the id of the latest engine added to the list.
+		- first check if the file exists in the given path.
+		- if this is the first time we are running the server 
+		  then we need to create the ``abt.xml`` file.	
+		- engine in this analogy is a connection maintained as a session.
+		- so every time a new client connects to the rpc server,
+		- a new engine is appended to the list and the index returned as the id.
+	
+	* Input:
+		- [organisationame,finanialyear_from,financialyear_to]
+	
+	* Output:
+		- returns index of last created engine as a client_id
+	"""
+	dbname = "" #the dbname variable will hold the final database name for the given organisation. 
+	orgs = getOrgList() #we will use org as an iterator and go through the list of all the orgs.
+
+
+	for org in orgs:
+		orgname = org.find("orgname")
+		financialyear_from = org.find("financial_year_from")
+		financialyear_to = org.find("financial_year_to")
+
+		if orgname.text == queryParams[0] and financialyear_from.text == queryParams[1] and financialyear_to.text == queryParams[2]:
+		    #print "we r in if"
+		    dbname = org.find("dbname")
+		    database = dbname.text
+		    
+		else:
+		    print "orgnisationname and financial year not match"
+	global engines #the engine has to be a global variable so that it is accessed throughout the module.
+	stmt = 'sqlite:////opt/abt/db/' + database
+	engine = create_engine(stmt, echo=False) #now we will create an engine instance to connect to the given database.
+	engines.append(engine)  #add the newly created engine instance to the list of engines.
+	return engines.index(engine) #returning the connection number for this engine.
 
 Base = declarative_base()
 class Account(Base):
@@ -160,18 +162,18 @@ class BankRecon(Base):
     reconcode = Column(Integer,primary_key = True)
     vouchercode = Column(Integer,ForeignKey("voucher_master.vouchercode"))
     reffdate = Column(TIMESTAMP)
-    accountname = Column(String(40))
+    accountcode = Column(String(40), ForeignKey("account.accountcode"), nullable=False)
     dramount = Column(Numeric(13,2))
     cramount = Column(Numeric(13,2))
     clearancedate = Column(TIMESTAMP)
     memo = Column(Text)
 
-    def __init__(self,reconcode,vouchercode,reffdate,accountname,
+    def __init__(self,reconcode,vouchercode,reffdate,accountcode,
     dramount,cramount,clearancedate,memo):
         self.reconcode = reconcode
         self.vouchercode = vouchercode
         self.reffdate = reffdate
-        self.accountname = accountname
+        self.accountcode = accountcode
         self.dramount = dramount
         self.cramount = cramount
         self.clearancedate = clearancedate

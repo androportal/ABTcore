@@ -1,27 +1,38 @@
 
-import dbconnect #import the database connector and functions for stored procedure.
-from twisted.web import xmlrpc, server #import the twisted modules for executing rpc calls and also to implement the server
-from twisted.internet import reactor #reactor from the twisted library starts the server with a published object and listens on a given port.
+import dbconnect 
+from twisted.web import xmlrpc, server 
+from twisted.internet import reactor 
 from sqlalchemy.orm import join
 from decimal import *
 from sqlalchemy import or_ , func , and_
-import rpc_main
 from modules import blankspace
-#note that all the functions to be accessed by the client must have the xmlrpc_ prefix.
-#the client however will not use the prefix to call the functions. 
 
-class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishable as an rpc service.
+class groups(xmlrpc.XMLRPC):
+	'''
+	+ This is the class ``groups`` provides the information about tha ``groups`` and ``subgroups``
+	  as per accounting rule .
+	+ we already have some ``groups`` and ``subgroups`` for the given organisation while deploying.
+	  or creating organisation.
+	+ to know present groupnames and subgroupnames see ``rpc_Deploy`` function from ``rpc_main`` module.
+	+ import liabraries as needed.
+	
+	'''
 	def __init__(self):
 		xmlrpc.XMLRPC.__init__(self)
 	
 	
 	def xmlrpc_setSubGroup(self,queryParams,client_id):
 		'''
-		Purpose :function for adding new subgroups in table subgroups	
-		Parameters : groupname(datatype:text), subgroupname(datatype:text) , client_id (datatype:integer)
-		Returns : returns 1 when successful, 0 when subgroupname(datatype:text) is null
-		Description : Adds new subgroup to the database. 
-			When successful it returns 1 otherwise it returns 0. 
+		* Purpose:
+			- used ``subGroups`` table to query .
+			- function for adding new subgroups in table subgroups
+			
+		* Input: 	
+			- groupname(datatype:text), subgroupname(datatype:text) , client_id (datatype:integer)
+			
+		* Output: 
+			- returns 1 when successful, 0 when subgroupname(datatype:text) is null
+		  	- When successful it returns 1 otherwise it returns 0. 
 		'''
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		# call getGroupCodeByGroupName func to get groupcode
@@ -46,15 +57,18 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		
 	def xmlrpc_getAllGroups(self,client_id):
 		'''
-		purpose : function to get all groups present in the groups table
-		input parameters : client_id(datatype:integer) from client side
-		output : returns list containing group groupcode(datatype:integer),
-			          groupname(datatype:text),groupdescription(datatype:text).
-		Description : Querys the Groups table.
-			      It retrieves all rows of groups table  based on groupname.
-			      When successful it returns the list of lists , 
-			      in which each list contain each row that are retrived from groups table 
-			      otherwise it returns false.
+		* Purpose: 
+			- function to get all groups present in the groups table
+			- querys the ``Groups`` table,it retrieves all rows of groups table based on groupname.
+			- when successful it returns the list of lists
+			- list contain each row that are retrived from groups table 
+			
+		* Input:
+			- client_id(datatype:integer) from client side.
+			
+		* Output: 
+			- returns list containing groupcode(datatype:integer),groupname(datatype:text),groupdescription(datatype:text).
+		
 		'''
 		
 		connection = dbconnect.engines[client_id].connect()
@@ -74,14 +88,19 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			
 	def xmlrpc_getSubGroupsByGroupName(self,queryParams,client_id):
 		'''
-		Purpose :function for extracting all rows of view_group_subgroup based on groupname	
-		Parameters : QueryParams, list containing groupname(datatype:text)
-		Returns : List of all subgroups when successful, else list containing strings 
-		Description : Querys the view_group_subgroup which is created based on the account ,subgroups and groups table.
-			      It retrieves all rows of view_group_subgroup based on groupname order by subgroupname.
-			      When successful it returns the list of lists in which 
-			      each list contain each row that are retrived from view otherwise 
-			      it returns list in which two default subgroup strings. 
+		* Purpose:
+			- function for extracting all rows of view_group_subgroup based on groupname
+			- querys the ``view_group_subgroup`` which is created based on the account,
+			  subgroups and groups table.	
+			- it retrieves all rows of view_group_subgroup based on groupname order by subgroupname.
+		
+		* Input:	
+			- list containing groupname(datatype:text)
+			
+		* Output: 
+			- When successful it returns the list of lists in which 	
+			  each list contain each row that are retrived from view otherwise 
+			  it returns list in which two default subgroup strings.
 		
 		'''
 		queryParams = blankspace.remove_whitespaces(queryParams)
@@ -108,11 +127,15 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			
 	def xmlrpc_getGroupCodeByGroupName(self,queryParams,client_id):
 		'''
-		 purpose: function for extracting groupcpde of group based on groupname
-			
-			input parameters : groupname(datatype:text) , client_id(datatype:integer)
-			output : returns list containing groupcode if its not None else will return false.
-			Description : query to retrive groupcode requested groupname  by client
+		* Purpose:
+			- function for extracting groupcpde of group based on groupname.
+			- query to retrive groupcode requested groupname by client.
+		
+		* Input:
+			- groupname(datatype:text) , client_id(datatype:integer)
+		
+		* Output:
+			- returns list containing groupcode if its not None else will return false.
 		'''
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
@@ -130,10 +153,16 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			
 	def xmlrpc_getSubGroupCodeBySubGroupName(self,queryParams,client_id):
 		'''
-		purpose: function for extracting subgroupcpde of group based on subgroupname
-			input parameters : subgroupname(datatype:text) , client_id(datatype:integer)
-			output : returns list containing subgroupcode if its not None else will return false.
-			Description : query the subgroup table to retrive subgroupcode for reuested subgroupname 
+		* Purpose:
+			- function for extracting subgroupcpde of group based on subgroupname
+			- query the subgroup table to retrive subgroupcode for reqested subgroupname 
+			
+		* Input:
+			- subgroupname(datatype:text),client_id(datatype:integer)
+			
+		* Output:
+			- returns list containing subgroupcode if its not None else will return false.
+			
 		'''
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
@@ -151,10 +180,14 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			
 	def xmlrpc_getGroupNameByAccountName(self,queryParams,client_id):
 		'''
-		xmlrpc_getGroupNameByAccountName :purpose 
-			function for extracting groupname from group table by account name
-			i/p parameters : accountname
-			o/p parameters : groupname
+		* Purpose:
+			- function for extracting groupname from group table by account name
+			
+		* Input:
+			- accountname
+			
+		* Output:
+			- groupname
 		'''	
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
@@ -171,11 +204,17 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 			
 	def xmlrpc_subgroupExists(self,queryParams,client_id):	
 		'''
-		purpose: Checks if the new subgroup typed by the user already exists.
-		input parameters : subgroupname(datatype:text)	
-		output : Returns True if the subgroup exists and False otherwise
-		Description: This will validate and prevent any duplication.
-		The function takes queryParams as its parameter and contains one element, the subgroupname as string.
+		* Purpose:
+			- checks if the new subgroup typed by the user already exists.
+			- This will validate and prevent any duplication.
+			- The function takes queryParams as its parameter and contains one element, 
+			  the subgroupname as string.
+		
+		* Input:
+			- subgroupname(datatype:text)
+		
+		* Output:
+			- returns ``1`` if the subgroup exists else ``0``.
 		'''
 		queryParams = blankspace.remove_whitespaces(queryParams)	
 		connection = dbconnect.engines[client_id].connect()
@@ -184,8 +223,7 @@ class groups(xmlrpc.XMLRPC): #inherit the class from XMLRPC to make it publishab
 		      filter((func.lower(dbconnect.subGroups.subgroupname)) == queryParams[0].lower()).scalar()
 		Session.close()
 		connection.connection.close()
-		print "subgroup exist"
-		print result
+	
 		if result == 0:
 			return "0"
 		else:
