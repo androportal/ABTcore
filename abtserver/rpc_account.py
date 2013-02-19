@@ -629,8 +629,8 @@ class account(xmlrpc.XMLRPC):
 				order by account_name"  
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
 		accountname = []
-		for Row in accountname:
-			result.append(Row[0])
+		for Row in result:
+			accountname.append(Row[0])
 		return accountname       
 	
 	
