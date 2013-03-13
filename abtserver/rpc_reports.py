@@ -1334,9 +1334,7 @@ class reports(xmlrpc.XMLRPC):
 			if (amount != 0):
 			
 				RightList.append(["NET CURRENT ASSETS OR WORKING CAPITAL","","","",'%.2f'%float(amount)])	
-				RightList.append(["        CURRENT ASSETS","","","",""])	
-		
-			
+				
 			if (difamount != "0.00"):
 				amount= float(tot_fixedasset) + \
 					float(tot_investment) + \
