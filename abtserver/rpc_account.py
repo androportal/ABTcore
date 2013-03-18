@@ -723,7 +723,7 @@ class account(xmlrpc.XMLRPC):
 			- third function ``deleteAccount`` deletes that particular accountname
 		
 		* Input:
-			- [accountname,flag] or [accountcode,flag]
+			- [accountname,flag,edit_flag] or [accountcode,flag,edit_flag]
 		
 		* Output:  
 			- if hasOpenibalance is 0 and hasTransaction is 0 returns string "account deleted"
@@ -747,9 +747,11 @@ class account(xmlrpc.XMLRPC):
         	Session.close()
         	connection.connection.close()
         	
-		if(str(hasOpeningBalance) == "0" and str(hasTransactions) == "0"):
+		if(str(hasOpeningBalance) == "0" and str(hasTransactions) == "0" and queryParams[2] == 1):
 		    self.xmlrpc_deleteAccount([accName],client_id)
 		    return "account deleted"
+		if(str(hasOpeningBalance) == "0" and str(hasTransactions) == "0" and queryParams[2] == 0):
+		    return "account can be edited"
 		elif(str(hasOpeningBalance) == "1" and str(hasTransactions) == "1"):
 		    return "has both opening balance and trasaction"
 		elif(str(hasOpeningBalance) == "1"):
