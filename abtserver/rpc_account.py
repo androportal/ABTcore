@@ -726,9 +726,10 @@ class account(xmlrpc.XMLRPC):
 			- [accountname,flag,edit_flag] or [accountcode,flag,edit_flag]
 		
 		* Output:  
-			- if hasOpenibalance is 0 and hasTransaction is 0 returns string "account deleted"
-			  if ``hasOpenibalance`` is 1 and ``hasTransaction`` is 1
-			- returns string "has both opening balance and trasaction" 
+			- if hasOpenibalance is 0 and hasTransaction is 0 and edit_flag is 1
+			  returns string "account deleted"
+			- if ``hasOpenibalance`` is 1 and ``hasTransaction`` is 1
+			  returns string "has both opening balance and trasaction" 
 		"""
 		connection = dbconnect.engines[client_id].connect()
         	Session = dbconnect.session(bind=connection)
@@ -750,7 +751,7 @@ class account(xmlrpc.XMLRPC):
 		if(str(hasOpeningBalance) == "0" and str(hasTransactions) == "0" and queryParams[2] == 1):
 		    self.xmlrpc_deleteAccount([accName],client_id)
 		    return "account deleted"
-		if(str(hasOpeningBalance) == "0" and str(hasTransactions) == "0" and queryParams[2] == 0):
+		if(queryParams[2] == 0 and str(hasTransactions) == "0"):
 		    return "account can be edited"
 		elif(str(hasOpeningBalance) == "1" and str(hasTransactions) == "1"):
 		    return "has both opening balance and trasaction"

@@ -5,8 +5,7 @@
 
 Welcome to Aakash Business Tool's documentation!
 ================================================
-	**Aakash Business Tool core(ABTcore)** provides a Back-end to ABT 
-	which is derived from core_engine of `GNUKhata <http://www.gnukhata.org/>`_.
+	**Aakash Business Tool core(ABTcore)** provides a Back-end to ABT java client
 	
 	This provides all the accounting functionality completely written in `Python
 	<http://docs.python.org/2/tutorial/>`_ language.
@@ -21,7 +20,7 @@ Welcome to Aakash Business Tool's documentation!
   		#. abtstart
   		#. abtserver
   		#. modules
-  		#. src
+  		#. src  
   		
 .. toctree::
    :maxdepth: 2

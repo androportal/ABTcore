@@ -79,12 +79,10 @@ def getConnection(queryParams):
 		financialyear_to = org.find("financial_year_to")
 
 		if orgname.text == queryParams[0] and financialyear_from.text == queryParams[1] and financialyear_to.text == queryParams[2]:
-		    #print "we r in if"
+		 
 		    dbname = org.find("dbname")
 		    database = dbname.text
-		    
-		else:
-		    print "orgnisationname and financial year not match"
+		
 	global engines #the engine has to be a global variable so that it is accessed throughout the module.
 	stmt = 'sqlite:////opt/abt/db/' + database
 	engine = create_engine(stmt, echo=False) #now we will create an engine instance to connect to the given database.

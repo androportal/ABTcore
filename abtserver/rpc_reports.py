@@ -172,7 +172,7 @@ class reports(xmlrpc.XMLRPC):
 		#now for the total dRs and Crs, we have added them up nicely during the grid loop.
 		ledgerGrid.append(["","Total of Transactions","",'%.2f'%(totalDr),'%.2f'%(totalCr),"",""])
 		if queryParams[4] == "No Project":
-			ledgerGrid.append(["","","","","","",""])
+			#ledgerGrid.append(["","","","","","",""])
 			grandTotal = 0.00
 			closingdate = datetime.strptime(str(queryParams[3]),"%d-%m-%Y").strftime("%d-%m-%Y")
 			if balanceRow[6] == "Dr":
@@ -326,7 +326,7 @@ class reports(xmlrpc.XMLRPC):
 								 
 				total_cr_upto_from = total_cr_upto_from + opening_balance 
 				
-			if total_dr_upto_from > total_cr_upto_from: 
+			if total_dr_upto_from >= total_cr_upto_from: 
 				bal_brought = total_dr_upto_from - total_cr_upto_from
 				baltype = 'Dr'
 				opening_baltype = 'Dr'

@@ -49,8 +49,7 @@
   <div class="section" id="welcome-to-aakash-business-tool-s-documentation">
 <h1>Welcome to Aakash Business Tool&#8217;s documentation!<a class="headerlink" href="#welcome-to-aakash-business-tool-s-documentation" title="Permalink to this headline">¶</a></h1>
 <blockquote>
-<div><p><strong>Aakash Business Tool core(ABTcore)</strong> provides a Back-end to ABT
-which is derived from core_engine of <a class="reference external" href="http://www.gnukhata.org/">GNUKhata</a>.</p>
+<div><p><strong>Aakash Business Tool core(ABTcore)</strong> provides a Back-end to ABT java client</p>
 <p>This provides all the accounting functionality completely written in <a class="reference external" href="http://docs.python.org/2/tutorial/">Python</a> language.
 and used twisted liabrary to implement xmlrpc server and to access xmlrpc functions and
 android-xmlrpc client access liabrary at client side and used Sqlite3
@@ -314,6 +313,55 @@ organsation names found in abt.xml located at /opt/abt/</li>
 </ul>
 </dd></dl>
 
+<dl class="method">
+<dt id="abtserver.rpc_main.abt.xmlrpc_rollover">
+<tt class="descname">xmlrpc_rollover</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_main.abt.xmlrpc_rollover" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>This function is to forward the closing balance of current year 
+to next financial year as opening balance</li>
+<li>it will first get the all accountname and corrosponding closing 
+balance of current financial year.</li>
+<li>then its create the schema and dump of current year&#8217;s database
+and then get the reverse pattern match from both as save to file
+db.dump</li>
+<li>then from db.dump it will only give the dump of <tt class="docutils literal"><span class="pre">account</span></tt> <tt class="docutils literal"><span class="pre">subgroups</span></tt>
+and <tt class="docutils literal"><span class="pre">organisation</span></tt> table</li>
+<li>then <tt class="docutils literal"><span class="pre">rpc_Deploy</span></tt> function will deploy new databse for given
+newFinancialTo date and Organisation and OrganisationType
+where <tt class="docutils literal"><span class="pre">newFinancialFrom</span></tt> date will calculate by adding one day to 
+current <tt class="docutils literal"><span class="pre">financialTo</span></tt> date</li>
+<li>and the restore all the values of <tt class="docutils literal"><span class="pre">account</span></tt> <tt class="docutils literal"><span class="pre">subgroups</span></tt> and
+<tt class="docutils literal"><span class="pre">organisation</span></tt></li>
+<li>update <tt class="docutils literal"><span class="pre">openingbalance</span></tt> of the restored <tt class="docutils literal"><span class="pre">account</span></tt> table with 
+the calculated <tt class="docutils literal"><span class="pre">closingbalance</span></tt>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[organisationName,financialFrom,financialTo,newFinancialTo],client_id</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>boolean True</li>
+<li>created new financile year and database</li>
+<li>restore accounts its closingbalance as openingbalance and subgroups</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -456,7 +504,7 @@ for that account exists or else returns <tt class="docutils literal"><span class
 <li><dl class="first docutils">
 <dt>Input:</dt>
 <dd><ul class="first last simple">
-<li>[accountname,flag] or [accountcode,flag]</li>
+<li>[accountname,flag,edit_flag] or [accountcode,flag,edit_flag]</li>
 </ul>
 </dd>
 </dl>
@@ -464,9 +512,10 @@ for that account exists or else returns <tt class="docutils literal"><span class
 <li><dl class="first docutils">
 <dt>Output:  </dt>
 <dd><ul class="first last simple">
-<li>if hasOpenibalance is 0 and hasTransaction is 0 returns string &#8220;account deleted&#8221;
-if <tt class="docutils literal"><span class="pre">hasOpenibalance</span></tt> is 1 and <tt class="docutils literal"><span class="pre">hasTransaction</span></tt> is 1</li>
-<li>returns string &#8220;has both opening balance and trasaction&#8221;</li>
+<li>if hasOpenibalance is 0 and hasTransaction is 0 and edit_flag is 1
+returns string &#8220;account deleted&#8221;</li>
+<li>if <tt class="docutils literal"><span class="pre">hasOpenibalance</span></tt> is 1 and <tt class="docutils literal"><span class="pre">hasTransaction</span></tt> is 1
+returns string &#8220;has both opening balance and trasaction&#8221;</li>
 </ul>
 </dd>
 </dl>

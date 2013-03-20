@@ -78,7 +78,9 @@ class abt(xmlrpc.XMLRPC):
 			dbname = organisation.find("dbname").text
 			databasename = dbname
 			# Check respective organisation name 
-			if orgname == queryParams[0] and financialyear_from == queryParams[1] and financialyear_to == queryParams[2]:
+			if (orgname == queryParams[0] 
+				and financialyear_from == queryParams[1] 
+				and financialyear_to == queryParams[2]):
 				
 				root.remove(organisation)
 				tree.write("/opt/abt/abt.xml")
@@ -242,46 +244,46 @@ class abt(xmlrpc.XMLRPC):
 		
 		if (organisationType == "Profit Making"):
 
-			Session.add_all([\
-				dbconnect.Groups('Capital',''),\
-				dbconnect.Groups('Current Asset',''),\
-				dbconnect.Groups('Current Liability',''),\
+			Session.add_all([
+				dbconnect.Groups('Capital',''),
+				dbconnect.Groups('Current Asset',''),
+				dbconnect.Groups('Current Liability',''),
 				dbconnect.Groups('Direct Income','Income refers to consumption\
-		opportunity gained by an entity within a specified time frame.'),\
+		opportunity gained by an entity within a specified time frame.'),
 				dbconnect.Groups('Direct Expense','This are the expenses to be incurred for\
-		operating the buisness.'),\
-				dbconnect.Groups('Fixed Assets',''),\
+		operating the buisness.'),
+				dbconnect.Groups('Fixed Assets',''),
 				dbconnect.Groups('Indirect Income','Income refers to consumption opportunity\
-		gained by an entity within a specified time frame.'),\
+		gained by an entity within a specified time frame.'),
 				dbconnect.Groups('Indirect Expense','This are the expenses to be incurred\
 		for operating the buisness.'),\
-				dbconnect.Groups('Investment',''),\
-				dbconnect.Groups('Loans(Asset)',''),\
-				dbconnect.Groups('Loans(Liability)',''),\
-				dbconnect.Groups('Reserves',''),\
-				dbconnect.Groups('Miscellaneous Expenses(Asset)','')\
+				dbconnect.Groups('Investment',''),
+				dbconnect.Groups('Loans(Asset)',''),
+				dbconnect.Groups('Loans(Liability)',''),
+				dbconnect.Groups('Reserves',''),
+				dbconnect.Groups('Miscellaneous Expenses(Asset)','')
 			])
 			Session.commit()
 		
 		else:
 			Session.add_all([\
-				dbconnect.Groups('Corpus',''),\
-				dbconnect.Groups('Current Asset',''),\
-				dbconnect.Groups('Current Liability',''),\
+				dbconnect.Groups('Corpus',''),
+				dbconnect.Groups('Current Asset',''),
+				dbconnect.Groups('Current Liability',''),
 				dbconnect.Groups('Direct Income','Income refers to consumption\
-		opportunity gained by an entity within a specified time frame.'),\
+		opportunity gained by an entity within a specified time frame.'),
 				dbconnect.Groups('Direct Expense','This are the \
-		expenses to be incurred for operating the buisness.'),\
-				dbconnect.Groups('Fixed Assets',''),\
+		expenses to be incurred for operating the buisness.'),
+				dbconnect.Groups('Fixed Assets',''),
 				dbconnect.Groups('Indirect Income','Income refers to consumption \
-		opportunity gained by an entity within a specified time frame.'),\
+		opportunity gained by an entity within a specified time frame.'),
 				dbconnect.Groups('Indirect Expense','This are the \
-		expenses to be incurred for operating the buisness.'),\
-				dbconnect.Groups('Investment',''),\
-				dbconnect.Groups('Loans(Asset)',''),\
-				dbconnect.Groups('Loans(Liability)',''),\
-				dbconnect.Groups('Reserves',''),\
-				dbconnect.Groups('Miscellaneous Expenses(Asset)','')\
+		expenses to be incurred for operating the buisness.'),
+				dbconnect.Groups('Investment',''),
+				dbconnect.Groups('Loans(Asset)',''),
+				dbconnect.Groups('Loans(Liability)',''),
+				dbconnect.Groups('Reserves',''),
+				dbconnect.Groups('Miscellaneous Expenses(Asset)','')
 			])
 			Session.commit()
 		
@@ -315,6 +317,144 @@ class abt(xmlrpc.XMLRPC):
 		Session.close()
 		connection.close()
 		return True,self.client_id
+		
+	def xmlrpc_rollover(self,queryParams,client_id):
+		"""
+		* Purpose:
+			- This function is to forward the closing balance of current year 
+			  to next financial year as opening balance 
+			- it will first get the all accountname and corrosponding closing 
+			  balance of current financial year.
+			- then its create the schema and dump of current year's database
+			  and then get the reverse pattern match from both as save to file
+			  db.dump
+			- then from db.dump it will only give the dump of ``account`` ``subgroups``
+			  and ``organisation`` table 
+			- then ``rpc_Deploy`` function will deploy new databse for given
+			  newFinancialTo date and Organisation and OrganisationType
+			  where ``newFinancialFrom`` date will calculate by adding one day to 
+			  current ``financialTo`` date
+			- and the restore all the values of ``account`` ``subgroups`` and
+			  ``organisation``
+			- update ``openingbalance`` of the restored ``account`` table with 
+			  the calculated ``closingbalance``.
+			  
+		* Input: 
+		 	- [organisationName,financialFrom,financialTo,newFinancialTo],client_id
+		 	
+		* Output:
+			- boolean True
+			- created new financile year and database 
+			- restore accounts its closingbalance as openingbalance and subgroups 
+		"""
+		account = rpc_account.account()
+		accounts = account.xmlrpc_getAllAccountNames(client_id)
+		rollOverAccounts = {}
+		for acc in accounts:
+			report = rpc_reports.reports()
+			closingRow = report.xmlrpc_calculateBalance([acc,queryParams[1],queryParams[2],\
+									queryParams[3]],client_id)
+			# [group_name,bal_brought,curbal,total_DrBal,total_CrBal,opening_baltype,baltype]
+			closing_balance = 0.00
+			if (str(closingRow[6])  == "Cr" 
+				and (str(closingRow[0])== "Current Asset" 
+				or str(closingRow[0])== "Fixed Asset" 
+				or str(closingRow[0])== "Investment" 
+				or str(closingRow[0])== "Loans(Asset)" 
+				or str(closingRow[0])== "Miscellaneous Expenses(Asset)")):
+				
+				closing_balance = -int(closingRow[2])
+				rollOverAccounts[acc] = closing_balance
+				
+			if (str(closingRow[6])  == "Dr" 
+				and  (str(closingRow[0])== "Current Asset" 
+				or str(closingRow[0])== "Fixed Asset" 
+				or str(closingRow[0])== "Investment" 
+				or str(closingRow[0])== "Loans(Asset)" 
+				or str(closingRow[0])== "Miscellaneous Expenses(Asset)")):
+				
+				closing_balance = int(closingRow[2])
+				rollOverAccounts[acc] = closing_balance
+				
+			if (str(closingRow[6])  == "Cr"
+				and  (str(closingRow[0])== "Corpus" 
+				or str(closingRow[0])== "Capital" 
+				or str(closingRow[0])== "Current Liability" 
+				or str(closingRow[0])== "Loans(Liability)" 
+				or str(closingRow[0])== "Reserves")):
+				
+				closing_balance = int(closingRow[2])
+				rollOverAccounts[acc[0]] = closing_balance
+				
+			if (str(closingRow[6])  == "Dr"
+				and  (str(closingRow[0])== "Corpus" 
+				or str(closingRow[0])== "Capital" 
+				or str(closingRow[0])== "Current Liability" 
+				or str(closingRow[0])== "Loans(Liability)"
+				or str(closingRow[0])== "Reserves")):	
+				
+				closing_balance = -int(closingRow[2])
+				rollOverAccounts[acc] = closing_balance
+		
+		financialFrom = queryParams[1]
+		financialTo = queryParams[2]
+		newFinancialTo = queryParams[3]
+		orgs = dbconnect.getOrgList()
+		for org in orgs:
+			orgname = org.find("orgname")
+			financialyear_from = org.find("financial_year_from")#DD-MM-YYYY
+			financialyear_to = org.find("financial_year_to")
+			if (orgname.text == queryParams[0]
+					and financialyear_from.text == financialFrom 
+					and financialyear_to.text == financialTo):
+				dbname = org.find("dbname")
+		
+				database = dbname.text
+		print "the current database name is " + database
+		try:
+			os.system("sqlite3 /opt/abt/db/"+database+" .sch > schema")
+			os.system("sqlite3 /opt/abt/db/"+database+" .dump > dump")
+			os.system("grep -vxw -f schema dump > /opt/abt/db/db.dump")
+			os.system("grep -w 'account\|subgroups\|organisation' /opt/abt/db/db.dump > /opt/abt/db/db_dump.dump")
+		except:
+			print "problem to dump database"
+		oneDay = datetime.timedelta(days=1)
+		finalDate = datetime.date(int(financialTo[6:10]),int(financialTo[3:5]),int(financialTo[0:2]))
+		newStartDate = finalDate + oneDay
+		newFinancialFrom = newStartDate.strftime("%d-%m-%Y")
+
+		dbconnect.engines[client_id].dispose()
+		del dbconnect.engines[client_id]
+		self.client_id = self.xmlrpc_Deploy([queryParams[0],newFinancialFrom,newFinancialTo,queryParams[4]])
+		
+		newOrgs = dbconnect.getOrgList()
+		for newOrg in newOrgs:
+			orgname = newOrg.find("orgname")
+			financialyear_from = newOrg.find("financial_year_from")
+			financialyear_to = newOrg.find("financial_year_to")
+			
+			if (orgname.text == queryParams[0] 
+					and financialyear_from.text == newFinancialFrom 
+					and financialyear_to.text == queryParams[3]):
+					
+				newdbname = newOrg.find("dbname")
+				newDatabase = newdbname.text
+		print "deployment is done and the new dbname is " + newDatabase
+		connection = dbconnect.engines[self.client_id[1]].raw_connection()
+		dbconnect.engines[self.client_id[1]].execute("delete from subgroups;")
+		connection.commit()
+		try:
+			os.system("sqlite3 /opt/abt/db/"+ newDatabase+"< /opt/abt/db/db_dump.dump")
+			for account in rollOverAccounts.keys():
+				editStatement = "update account set openingbalance = "+str(rollOverAccounts[account])+\
+						" where accountname = '" + account + "'"
+				dbconnect.engines[self.client_id[1]].execute(editStatement)
+		
+			connection.commit()
+		except:
+			print "problem to restore data in to new database"
+			
+		return True	
 
 def runabt():
 	"""
