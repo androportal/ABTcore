@@ -98,18 +98,18 @@ class Account(Base):
     accountname = Column(Text, nullable=False)
     openingbalance = Column(Numeric(13, 2))
     openingdate = Column(TIMESTAMP)
-    balance = Column(Numeric(13, 2))
+    
    
 
     def __init__(self, accountcode, groupcode, subgroupcode, 
-    accountname, openingbalance, openingdate, balance):
+    accountname, openingbalance, openingdate):
         self.accountcode = accountcode
         self.groupcode = groupcode
         self.subgroupcode = subgroupcode
         self.accountname = accountname
         self.openingbalance = openingbalance
         self.openingdate = openingdate
-        self.balance = balance
+       
         
 
 account_table = Account.__table__

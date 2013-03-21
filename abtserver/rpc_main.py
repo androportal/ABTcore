@@ -234,8 +234,7 @@ class abt(xmlrpc.XMLRPC):
 			order by groupname;")
 		dbconnect.engines[self.client_id].execute(\
 			"create view group_subgroup_account as select groups.groupname,\
-			subgroups.subgroupname,account.accountcode,account.accountname,account.openingbalance,\
-			account.balance\
+			subgroups.subgroupname,account.accountcode,account.accountname,account.openingbalance \
 			from groups join account on (groups.groupcode = account.groupcode)\
 			left outer join subgroups\
 			on (account.subgroupcode = subgroups.subgroupcode) order by groupname;")
@@ -249,14 +248,14 @@ class abt(xmlrpc.XMLRPC):
 				dbconnect.Groups('Current Asset',''),
 				dbconnect.Groups('Current Liability',''),
 				dbconnect.Groups('Direct Income','Income refers to consumption\
-		opportunity gained by an entity within a specified time frame.'),
+						opportunity gained by an entity within a specified time frame.'),
 				dbconnect.Groups('Direct Expense','This are the expenses to be incurred for\
-		operating the buisness.'),
+						operating the buisness.'),
 				dbconnect.Groups('Fixed Assets',''),
 				dbconnect.Groups('Indirect Income','Income refers to consumption opportunity\
-		gained by an entity within a specified time frame.'),
+						gained by an entity within a specified time frame.'),
 				dbconnect.Groups('Indirect Expense','This are the expenses to be incurred\
-		for operating the buisness.'),\
+						for operating the buisness.'),\
 				dbconnect.Groups('Investment',''),
 				dbconnect.Groups('Loans(Asset)',''),
 				dbconnect.Groups('Loans(Liability)',''),
@@ -271,14 +270,14 @@ class abt(xmlrpc.XMLRPC):
 				dbconnect.Groups('Current Asset',''),
 				dbconnect.Groups('Current Liability',''),
 				dbconnect.Groups('Direct Income','Income refers to consumption\
-		opportunity gained by an entity within a specified time frame.'),
-				dbconnect.Groups('Direct Expense','This are the \
-		expenses to be incurred for operating the buisness.'),
+						opportunity gained by an entity within a specified time frame.'),
+				dbconnect.Groups('Direct Expense','This are the\
+						expenses to be incurred for operating the buisness.'),
 				dbconnect.Groups('Fixed Assets',''),
-				dbconnect.Groups('Indirect Income','Income refers to consumption \
-		opportunity gained by an entity within a specified time frame.'),
-				dbconnect.Groups('Indirect Expense','This are the \
-		expenses to be incurred for operating the buisness.'),
+				dbconnect.Groups('Indirect Income','Income refers to consumption\
+						opportunity gained by an entity within a specified time frame.'),
+				dbconnect.Groups('Indirect Expense','This are the\
+						expenses to be incurred for operating the buisness.'),
 				dbconnect.Groups('Investment',''),
 				dbconnect.Groups('Loans(Asset)',''),
 				dbconnect.Groups('Loans(Liability)',''),

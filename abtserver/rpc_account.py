@@ -64,11 +64,11 @@ class account(xmlrpc.XMLRPC):
 		sp_params.append(now) # append the current date of system while setting account
 		sp_params.append(sp_params[3]) # append accountname
 		
-		if queryParams[7] == "": # chech for suggested account code
+		if queryParams[6] == "": # chech for suggested account code
 		
 			sp_params.append("null") # if blank then append "null"
 		else:
-			sp_params.append(queryParams[7]) # else append suggestedcode
+			sp_params.append(queryParams[6]) # else append suggestedcode
 		
 		# execute here
 		connection = dbconnect.engines[client_id].connect()
@@ -98,10 +98,12 @@ class account(xmlrpc.XMLRPC):
 				sp_params[6] = int(maxcode) + 1;
 				
 		# check for new-subgropname if null	
+		print "account params"
+		print sp_params
 		if sp_params[2] == 'null': # then 
 			# add all values in the account table
 			Session.add(dbconnect.Account(\
-						sp_params[6],group_code[0],"",sp_params[1],sp_params[3],sp_params[4],sp_params[5]))
+						sp_params[6],group_code[0],"",sp_params[1],sp_params[3],sp_params[4]))
 			Session.commit()
 		else:
 			# if new-subgroupname is present then call getSubGroupCodeBySubGroupName pass params new-subgroupname
@@ -116,9 +118,11 @@ class account(xmlrpc.XMLRPC):
    				# call getSubGroupCodeBySubGroupName pass params new-subgroupname return subgroupcode
    				subgroup_code =  group.xmlrpc_getSubGroupCodeBySubGroupName([sp_params[2]], client_id); 
    			# add all the values in the account table 
+   			print "else params"
+   			print sp_params
    			Session.add(dbconnect.Account(\
    						sp_params[6],group_code[0],subgroup_code[0],sp_params[1],\
-   						sp_params[3],sp_params[4],sp_params[5]))
+   						sp_params[3],sp_params[4]))
    				
    			Session.commit()
                 	Session.close()
@@ -525,17 +529,17 @@ class account(xmlrpc.XMLRPC):
 		Session = dbconnect.session(bind=connection)
 		result = Session.query(dbconnect.Account).\
 			filter(dbconnect.Account.accountcode == spQueryParams[1]).first()
-		resultParams = [float(result.openingbalance),float(result.balance)]
+		resultParams = [float(result.openingbalance)]
 		if resultParams[0] == spQueryParams[2]:
 		
 			result = Session.query(dbconnect.Account).\
 				filter(dbconnect.Account.accountcode == spQueryParams[1]).\
 				update({'accountname': spQueryParams[0]})
 		else:
-			final_balance = (spQueryParams[2] - resultParams[0]) + resultParams[1]; 
+			#SSfinal_balance = (spQueryParams[2] - resultParams[0]) + resultParams[1]; 
 			result = Session.query(dbconnect.Account).\
 				filter(dbconnect.Account.accountcode == spQueryParams[1]).\
-				update({'accountname': spQueryParams[0],'openingbalance': spQueryParams[2],'balance': final_balance})
+				update({'accountname': spQueryParams[0],'openingbalance': spQueryParams[2]})
 			
 		Session.commit()
 		Session.close()
