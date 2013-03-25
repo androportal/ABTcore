@@ -346,6 +346,8 @@ class abt(xmlrpc.XMLRPC):
 			- created new financile year and database 
 			- restore accounts its closingbalance as openingbalance and subgroups 
 		"""
+		print "queyParams"
+		print queryParams
 		account = rpc_account.account()
 		accounts = account.xmlrpc_getAllAccountNames(client_id)
 		rollOverAccounts = {}

@@ -4,7 +4,6 @@ from datetime import datetime, time
 from sqlalchemy import func , and_ , or_
 from modules import blankspace
 import dbconnect
-import xmlrpclib
 import rpc_account
 
 class transaction(xmlrpc.XMLRPC):
@@ -652,7 +651,7 @@ class transaction(xmlrpc.XMLRPC):
 		"""
 		statement = "select count(vouchercode)\
 				from view_voucherbook\
-				where vouchertype = '"+queryParams[0]+"'"
+				where vouchertype = '"+queryParams[0]+"' and flag = 1"
 		maxcode = dbconnect.engines[client_id].execute(statement).fetchone()
 		
 		if maxcode[0] > 0:
@@ -682,7 +681,7 @@ class transaction(xmlrpc.XMLRPC):
 		"""
 		statement = "select count(vouchercode)\
 				from view_voucherbook\
-				where vouchertype = '"+queryParams[1]+"'"
+				where vouchertype = '"+queryParams[1]+"' and flag = 1"
 		maxcode = dbconnect.engines[client_id].execute(statement).fetchone()
 		
 		reff_date = datetime.strptime(str(queryParams[0]),"%d-%m-%Y")

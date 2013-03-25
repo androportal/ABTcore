@@ -9,7 +9,7 @@ if __name__ == "__main__":
 	try:
 		if os.path.exists("/opt/abt") == False: # check for abt directory , if false then 
 			try:
-				print "creating directory"
+				print "creating abt and db directory and copying places.db to abt"
 				os.system("mkdir -p /opt/abt/db") # create abt directory and db to host all databases
 				os.system("cp ./src/places.db /opt/abt/") # copy places.db from /src to abt
 				
@@ -19,7 +19,7 @@ if __name__ == "__main__":
 		else:
 		 	if os.path.exists("/opt/abt/db") == False: # check for abt/db directory , if false then
 				try:
-					print "creating directory"
+					print "creating db directory and copying places.db"
 					os.system("mkdir /opt/abt/db") # create db directory in abt
 					os.system("cp ./src/places.db /opt/abt/") # copy places.db from /src to abt
 				except:

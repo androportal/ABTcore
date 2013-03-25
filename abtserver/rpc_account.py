@@ -39,7 +39,8 @@ class account(xmlrpc.XMLRPC):
 			- returns String "success"
 		"""
 		group = rpc_groups.groups()
-		
+		print "queryParams "
+		print queryParams
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		sp_params = [queryParams[0], queryParams[3]] # create sp_params list contain  groupname , accountname 
 		if queryParams[2] == "": # check for the new-subgroupname if blank then 
