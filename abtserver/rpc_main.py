@@ -53,6 +53,7 @@ class abt(xmlrpc.XMLRPC):
 			# append the distinct orgname 
 			if orgname.text not in orgnames:
 				orgnames.append(orgname.text)
+			orgnames.sort()
 		return orgnames
 	
 	def xmlrpc_deleteOrganisation(self,queryParams): 
@@ -111,7 +112,7 @@ class abt(xmlrpc.XMLRPC):
 				financialyear_to = org.find("financial_year_to")
 				from_and_to = [financialyear_from.text, financialyear_to.text]
 				financialyearlist.append(from_and_to)
-		
+			financialyearlist.sort(reverse=True)
 		return financialyearlist
 		
 	def xmlrpc_getConnection(self,queryParams):
@@ -455,7 +456,7 @@ class abt(xmlrpc.XMLRPC):
 		except:
 			print "problem to restore data in to new database"
 			
-		return True	
+		return newFinancialFrom	
 
 def runabt():
 	"""
