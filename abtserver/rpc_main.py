@@ -200,7 +200,8 @@ class abt(xmlrpc.XMLRPC):
 		 		+ str(time.minute) + str(time.second) + new_microsecond
 			
 		dbname.text = result_dbname #assigning created database name value in dbname tag text of abt.xml
-		
+		rollover_flag = et.SubElement(org,"rolloverflag")
+		rollover_flag.text = "0"
 		abtconf.write("/opt/abt/abt.xml")
 		# getting client_id for the given orgnisation and from and to date
 		self.client_id = dbconnect.getConnection([name_of_org,db_from_date,db_to_date])
@@ -338,12 +339,13 @@ class abt(xmlrpc.XMLRPC):
 			  ``organisation``
 			- update ``openingbalance`` of the restored ``account`` table with 
 			  the calculated ``closingbalance``.
-			  
+			- after restoring values it also update ``rolloverflag`` of previous 
+			  organisation as ``1`` , so that organisation should not rollover again
 		* Input: 
 		 	- [organisationName,financialFrom,financialTo,newFinancialTo],client_id
 		 	
 		* Output:
-			- boolean True
+			- boolean newOrganisaionFromDate
 			- created new financile year and database 
 			- restore accounts its closingbalance as openingbalance and subgroups 
 		"""
@@ -410,7 +412,7 @@ class abt(xmlrpc.XMLRPC):
 					and financialyear_from.text == financialFrom 
 					and financialyear_to.text == financialTo):
 				dbname = org.find("dbname")
-		
+				
 				database = dbname.text
 		print "the current database name is " + database
 		try:
@@ -427,8 +429,10 @@ class abt(xmlrpc.XMLRPC):
 
 		dbconnect.engines[client_id].dispose()
 		del dbconnect.engines[client_id]
-		self.client_id = self.xmlrpc_Deploy([queryParams[0],newFinancialFrom,newFinancialTo,queryParams[4]])
-		
+		try:
+			self.client_id = self.xmlrpc_Deploy([queryParams[0],newFinancialFrom,newFinancialTo,queryParams[4]])
+		except:
+		        print "new database is not deployed"
 		newOrgs = dbconnect.getOrgList()
 		for newOrg in newOrgs:
 			orgname = newOrg.find("orgname")
@@ -441,6 +445,7 @@ class abt(xmlrpc.XMLRPC):
 					
 				newdbname = newOrg.find("dbname")
 				newDatabase = newdbname.text
+				
 		print "deployment is done and the new dbname is " + newDatabase
 		connection = dbconnect.engines[self.client_id[1]].raw_connection()
 		dbconnect.engines[self.client_id[1]].execute("delete from subgroups;")
@@ -453,11 +458,69 @@ class abt(xmlrpc.XMLRPC):
 				dbconnect.engines[self.client_id[1]].execute(editStatement)
 		
 			connection.commit()
+			# parsing abt.xml file
+			tree = et.parse("/opt/abt/abt.xml") 
+			root = tree.getroot() # getting root node.
+			orgs = root.getchildren() # get list children node (orgnisation)
+			for organisation in orgs:
+		
+				orgname = organisation.find("orgname").text
+				financialyear_from = organisation.find("financial_year_from").text
+				financialyear_to = organisation.find("financial_year_to").text
+				dbname = organisation.find("dbname").text
+				databasename = dbname
+				# Check respective organisation name 
+				if (orgname == queryParams[0] 
+					and financialyear_from == financialFrom 
+					and financialyear_to == financialTo):
+					rollover_tag = organisation.find("rolloverflag")
+					rollover_tag.text = "1"
+					tree.write("/opt/abt/abt.xml")
+					
 		except:
 			print "problem to restore data in to new database"
 			
 		return newFinancialFrom	
-
+		
+	def xmlrpc_existRollOver(self,queryParams):
+		"""
+		Purpose:
+			- This is to check if given organisation has rollovered 
+			- if it return ``rollover_exit`` then it cannot rollover
+			  again
+			- else it return ``rollover_notexist`` then it is capable 
+			  to rollover to next financial year
+		Input:
+			- orgname,financilefrom,financiaeto,client_id
+			
+		Output: 
+			- if rolloverflag is ``1`` then ``rollover_exit``
+			- else rollover_notexist
+		"""
+		orglist = dbconnect.getOrgList()
+		flaglist = []
+		for org in orglist:
+			orgname = org.find("orgname")
+			financialyear_from = org.find("financial_year_from")#DD-MM-YYYY
+			financialyear_to = org.find("financial_year_to")
+			if (orgname.text == queryParams[0]
+					and financialyear_from.text == queryParams[1]
+					and financialyear_to.text == queryParams[2]):
+				rolloverflag = org.find("rolloverflag").text
+		#rolloverflag = org.find("rolloverflag").text
+		#flaglist.append(rolloverflag)
+		#for flag in flaglist:
+			#if flag == str(0):
+				#result = "rollover_exist"
+				#break;
+			#else:
+				#result = "rollover_notexist"
+		if rolloverflag == str(1):
+			
+			return "rollover_exist"
+		else:
+			
+		 	return "rollover_notexist"
 def runabt():
 	"""
 	+ As we have imported all the nested XMLRPC resource,so that create one handler ``abt`` 
