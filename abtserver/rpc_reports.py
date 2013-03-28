@@ -1839,7 +1839,6 @@ class reports(xmlrpc.XMLRPC):
 		del ledgerResult[len(ledgerResult)-1] # grand total row
 		del ledgerResult[len(ledgerResult)-1] # closing balance row
 		del ledgerResult[len(ledgerResult)-1] # total Dr and Cr row
-		del ledgerResult[len(ledgerResult)-1] # empty row
 		voucherCodes = []
 		for vc in vouchercodeRecords:
 			voucherCodes.append(int(vc[0]))
@@ -2171,7 +2170,7 @@ class reports(xmlrpc.XMLRPC):
 		#lets get the closing row for closing balance
 		closingBalRow = ledgerResult[len(ledgerResult)-2]
 		#total of Dr and Cr
-		TotalDrCrRow = ledgerResult[len(ledgerResult)-4]
+		TotalDrCrRow = ledgerResult[len(ledgerResult)-3]
 		
 		# if opening balance is debit then add opening balance to 
 		# total debit amount else to total credit amount
