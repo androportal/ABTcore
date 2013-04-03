@@ -10,6 +10,7 @@ import os
 from sqlalchemy import *
 from types import * 
 from sqlite3 import dbapi2 as sqlite
+import psycopg2
 engines = []
 session = sessionmaker()
 #---------------------------------
@@ -36,7 +37,7 @@ def getOrgList():
 		    print "permissions granted "
 		except:
 		    print "the software is finding trouble creating file."
-		    return False
+		   
 		try:
 		    gkconf = open("/opt/abt/abt.xml", "a")
 		    gkconf.write("<abt>\n")
@@ -44,7 +45,23 @@ def getOrgList():
 		    gkconf.close()
 		except:
 		    print "we can't write to the file, sorry!"
-		    return False
+		   
+		try:
+			conn = psycopg2.connect("dbname='template1' user='postgres' host='localhost'")
+			print "template1 connected"
+			cur = conn.cursor()
+			cur.execute("create user abt with password 'abt';")
+			print "created role abt"
+			cur.execute("grant all privileges on database template1 to abt;")
+			print "permission granted"
+			conn.commit()
+			cur.close()
+			conn.close()
+			print "job done "
+		except:
+			print "role already exists"
+		
+		   
 	#opening the abt.xml file by parsing it into a tree.	
 	abtconf = et.parse("/opt/abt/abt.xml")
 	#now since the file is opened we will get the root element.  
@@ -88,20 +105,15 @@ def getConnection(queryParams):
 		    
 	#the engine has to be a global variable so that it is accessed throughout the module.
 	global engines
-	stmt = 'postgresql://gnukhata:gnukhata@localhost/' + database
-#now we will create an engine instance to connect to the given database.
+	stmt = 'postgresql://abt:abt@localhost/' + database
+	#stmt = 'sqlite:////opt/abt/db/' + database
+	#now we will create an engine instance to connect to the given database.
 	engine = create_engine(stmt, echo=False)
 	#add the newly created engine instance to the list of engines.
 	engines.append(engine)
-#returning the connection number for this engine.
+	#returning the connection number for this engine.
 	return engines.index(engine)
-	'''	
-	global engines #the engine has to be a global variable so that it is accessed throughout the module.
-	stmt = 'sqlite:////opt/abt/db/' + database
-	engine = create_engine(stmt, echo=False) #now we will create an engine instance to connect to the given database.
-	engines.append(engine)  #add the newly created engine instance to the list of engines.
-	return engines.index(engine) #returning the connection number for this engine.
-	'''
+	
 
 Base = declarative_base()
 class Account(Base):
