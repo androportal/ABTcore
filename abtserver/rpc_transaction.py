@@ -196,7 +196,7 @@ class transaction(xmlrpc.XMLRPC):
 			     		where account_name = '"+queryParams[0]+"'\
 			     		and reffdate >= '"+from_date+"'\
 					and reffdate <= '"+to_date+"'\
-					and flag == 1\
+					and flag = 1\
 					order by reffdate"
 			result = dbconnect.engines[client_id].execute(statement).fetchall()
 		else:
@@ -208,7 +208,7 @@ class transaction(xmlrpc.XMLRPC):
 					and projectcode = '"+str(project_code)+"'\
 					and reffdate >= '"+from_date +"'\
 					and reffdate <= '"+to_date+"'\
-					and flag == 1\
+					and flag = 1\
 					order by reffdate"
 			result = dbconnect.engines[client_id].execute(statement).fetchall()
 			

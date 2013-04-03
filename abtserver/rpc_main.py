@@ -85,7 +85,8 @@ class abt(xmlrpc.XMLRPC):
 				
 				root.remove(organisation)
 				tree.write("/opt/abt/abt.xml")
-				os.system("rm /opt/abt/db/"+databasename)
+				#os.system("rm /opt/abt/db/"+databasename)
+				os.system("dropdb -U postgres "+databasename)
 		return True	
 
 	def xmlrpc_getFinancialYear(self,arg_orgName):
@@ -200,9 +201,15 @@ class abt(xmlrpc.XMLRPC):
 		 		+ str(time.minute) + str(time.second) + new_microsecond
 			
 		dbname.text = result_dbname #assigning created database name value in dbname tag text of abt.xml
+		
 		rollover_flag = et.SubElement(org,"rolloverflag")
 		rollover_flag.text = "0"
+		
 		abtconf.write("/opt/abt/abt.xml")
+		
+		os.system("createdb -U postgres "+result_dbname)
+		#os.system("createlang plpgsql -U postgres "+result_dbname)
+		
 		# getting client_id for the given orgnisation and from and to date
 		self.client_id = dbconnect.getConnection([name_of_org,db_from_date,db_to_date])
 		
@@ -349,8 +356,6 @@ class abt(xmlrpc.XMLRPC):
 			- created new financile year and database 
 			- restore accounts its closingbalance as openingbalance and subgroups 
 		"""
-		print "queyParams"
-		print queryParams
 		account = rpc_account.account()
 		accounts = account.xmlrpc_getAllAccountNames(client_id)
 		rollOverAccounts = {}
@@ -367,7 +372,7 @@ class abt(xmlrpc.XMLRPC):
 				or str(closingRow[0])== "Loans(Asset)" 
 				or str(closingRow[0])== "Miscellaneous Expenses(Asset)")):
 				
-				closing_balance = -int(closingRow[2])
+				closing_balance = -float(closingRow[2])
 				rollOverAccounts[acc] = closing_balance
 				
 			if (str(closingRow[6])  == "Dr" 
@@ -377,7 +382,7 @@ class abt(xmlrpc.XMLRPC):
 				or str(closingRow[0])== "Loans(Asset)" 
 				or str(closingRow[0])== "Miscellaneous Expenses(Asset)")):
 				
-				closing_balance = int(closingRow[2])
+				closing_balance = float(closingRow[2])
 				rollOverAccounts[acc] = closing_balance
 				
 			if (str(closingRow[6])  == "Cr"
@@ -387,7 +392,7 @@ class abt(xmlrpc.XMLRPC):
 				or str(closingRow[0])== "Loans(Liability)" 
 				or str(closingRow[0])== "Reserves")):
 				
-				closing_balance = int(closingRow[2])
+				closing_balance = float(closingRow[2])
 				rollOverAccounts[acc[0]] = closing_balance
 				
 			if (str(closingRow[6])  == "Dr"
@@ -397,7 +402,7 @@ class abt(xmlrpc.XMLRPC):
 				or str(closingRow[0])== "Loans(Liability)"
 				or str(closingRow[0])== "Reserves")):	
 				
-				closing_balance = -int(closingRow[2])
+				closing_balance = -float(closingRow[2])
 				rollOverAccounts[acc] = closing_balance
 		
 		financialFrom = queryParams[1]
@@ -415,6 +420,9 @@ class abt(xmlrpc.XMLRPC):
 				
 				database = dbname.text
 		print "the current database name is " + database
+		
+		os.system("pg_dump -U postgres -a -t organisation -t subgroups -t account -Fc "+  database + " > /opt/abt/db.dump")
+		'''
 		try:
 			os.system("sqlite3 /opt/abt/db/"+database+" .sch > schema")
 			os.system("sqlite3 /opt/abt/db/"+database+" .dump > dump")
@@ -422,6 +430,7 @@ class abt(xmlrpc.XMLRPC):
 			os.system("grep -w 'account\|subgroups\|organisation' /opt/abt/db/db.dump > /opt/abt/db/db_dump.dump")
 		except:
 			print "problem to dump database"
+		'''
 		oneDay = datetime.timedelta(days=1)
 		finalDate = datetime.date(int(financialTo[6:10]),int(financialTo[3:5]),int(financialTo[0:2]))
 		newStartDate = finalDate + oneDay
@@ -450,8 +459,10 @@ class abt(xmlrpc.XMLRPC):
 		connection = dbconnect.engines[self.client_id[1]].raw_connection()
 		dbconnect.engines[self.client_id[1]].execute("delete from subgroups;")
 		connection.commit()
+		
 		try:
-			os.system("sqlite3 /opt/abt/db/"+ newDatabase+"< /opt/abt/db/db_dump.dump")
+			os.system("pg_restore -U postgres -d " + newDatabase + " /opt/abt/db.dump")
+			#os.system("sqlite3 /opt/abt/db/"+ newDatabase+"< /opt/abt/db/db_dump.dump")
 			for account in rollOverAccounts.keys():
 				editStatement = "update account set openingbalance = "+str(rollOverAccounts[account])+\
 						" where accountname = '" + account + "'"

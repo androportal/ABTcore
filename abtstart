@@ -28,7 +28,7 @@ if __name__ == "__main__":
 				print "db already exist"
 				
 			print "abt already exist"
-		
+		os.system("sudo su -c '/usr/bin/postgres -D /var/data &' postgres")
 		abtserver.rpc_main.runabt()
 		
 	except:

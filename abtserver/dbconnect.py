@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, func, select, literal_column
+from sqlalchemy.engine import create_engine
 from sqlalchemy import orm
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, select, Text, DECIMAL, Enum
 from sqlalchemy.ext.declarative import declarative_base
@@ -11,6 +12,8 @@ from types import *
 from sqlite3 import dbapi2 as sqlite
 engines = []
 session = sessionmaker()
+#---------------------------------
+import datetime, time
 
 def getOrgList():
 	""" 
@@ -82,12 +85,23 @@ def getConnection(queryParams):
 		 
 		    dbname = org.find("dbname")
 		    database = dbname.text
-		
+		    
+	#the engine has to be a global variable so that it is accessed throughout the module.
+	global engines
+	stmt = 'postgresql://gnukhata:gnukhata@localhost/' + database
+#now we will create an engine instance to connect to the given database.
+	engine = create_engine(stmt, echo=False)
+	#add the newly created engine instance to the list of engines.
+	engines.append(engine)
+#returning the connection number for this engine.
+	return engines.index(engine)
+	'''	
 	global engines #the engine has to be a global variable so that it is accessed throughout the module.
 	stmt = 'sqlite:////opt/abt/db/' + database
 	engine = create_engine(stmt, echo=False) #now we will create an engine instance to connect to the given database.
 	engines.append(engine)  #add the newly created engine instance to the list of engines.
 	return engines.index(engine) #returning the connection number for this engine.
+	'''
 
 Base = declarative_base()
 class Account(Base):
