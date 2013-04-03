@@ -39,8 +39,6 @@ class account(xmlrpc.XMLRPC):
 			- returns String "success"
 		"""
 		group = rpc_groups.groups()
-		print "queryParams "
-		print queryParams
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		sp_params = [queryParams[0], queryParams[3]] # create sp_params list contain  groupname , accountname 
 		if queryParams[2] == "": # check for the new-subgroupname if blank then 
@@ -104,7 +102,7 @@ class account(xmlrpc.XMLRPC):
 		if sp_params[2] == 'null': # then 
 			# add all values in the account table
 			Session.add(dbconnect.Account(\
-						sp_params[6],group_code[0],"",sp_params[1],sp_params[3],sp_params[4]))
+						sp_params[6],group_code[0],None,sp_params[1],sp_params[3],sp_params[4]))
 			Session.commit()
 		else:
 			# if new-subgroupname is present then call getSubGroupCodeBySubGroupName pass params new-subgroupname
@@ -118,9 +116,7 @@ class account(xmlrpc.XMLRPC):
    				group.xmlrpc_setSubGroup([sp_params[0],sp_params[2]],client_id); 
    				# call getSubGroupCodeBySubGroupName pass params new-subgroupname return subgroupcode
    				subgroup_code =  group.xmlrpc_getSubGroupCodeBySubGroupName([sp_params[2]], client_id); 
-   			# add all the values in the account table 
-   			print "else params"
-   			print sp_params
+   			# add all the values in the account table
    			Session.add(dbconnect.Account(\
    						sp_params[6],group_code[0],subgroup_code[0],sp_params[1],\
    						sp_params[3],sp_params[4]))
@@ -574,10 +570,13 @@ class account(xmlrpc.XMLRPC):
 			     		where accountname = '"+queryParams[1]+"'"	
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		
+		
 		if result[1] == None:
-			return [result[2], result[0],"No subgroup", result[3], result[4]]
+			#print [result[2], result[0],"No subgroup", result[3], '%.2f'%(result[4])]
+			return [result[2], result[0],"No subgroup", result[3], '%.2f'%(result[4])]
 		else:
-			return [result[2], result[0], result[1], result[3], result[4]]
+			#print [result[2], result[0], result[1], result[3], '%.2f'%(result[4])]
+			return [result[2], result[0], result[1], result[3], '%.2f'%(result[4])]
 			
 	
 	def xmlrpc_getAccountNamesByGroupCode(self,queryParams,client_id):
@@ -793,3 +792,4 @@ class account(xmlrpc.XMLRPC):
 		else:
 			return result[0]
 		
+

@@ -41,7 +41,7 @@ class reports(xmlrpc.XMLRPC):
 		#(queryparams[4]) will be "No Project".
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		balanceRow = self.xmlrpc_calculateBalance([queryParams[0],queryParams[1],queryParams[2],queryParams[3]],client_id)
-		
+
 		if queryParams[4] == "No Project":
 			# calculateBalance will return opening balance 
 			openingBalance = balanceRow[1]
@@ -62,10 +62,10 @@ class reports(xmlrpc.XMLRPC):
 				#this makes the first row of the grid.
 				#note that the total Dr is also set.  Same will happen in the next condition for Cr.
 				openingdate = datetime.strptime(str(queryParams[1]),"%d-%m-%Y").strftime("%d-%m-%Y")
-				ledgerGrid.append([openingdate,"Opening Balance b/f","",'%.2f'%(openingBalance),"","",""])
+				ledgerGrid.append([openingdate,"Opening Balance b/f","",'%.2f'%float(openingBalance),"","",""])
 			if balanceRow[5] == "Cr":
 				openingdate = datetime.strptime(str(queryParams[1]),"%d-%m-%Y").strftime("%d-%m-%Y")
-				ledgerGrid.append([openingdate,"Opening Balance b/f","","",'%.2f'%(openingBalance),"",""])
+				ledgerGrid.append([openingdate,"Opening Balance b/f","","",'%.2f'%float(openingBalance),"",""])
 				
 		else:
 			#its 0 so will be set to 0.
@@ -170,7 +170,7 @@ class reports(xmlrpc.XMLRPC):
 			ledgerGrid.append(ledgerRow)
 		#the transactions have been filled up duly.
 		#now for the total dRs and Crs, we have added them up nicely during the grid loop.
-		ledgerGrid.append(["","Total of Transactions","",'%.2f'%(totalDr),'%.2f'%(totalCr),"",""])
+		ledgerGrid.append(["","Total of Transactions","",'%.2f'%float(totalDr),'%.2f'%float(totalCr),"",""])
 		if queryParams[4] == "No Project":
 			#ledgerGrid.append(["","","","","","",""])
 			grandTotal = 0.00
@@ -178,14 +178,14 @@ class reports(xmlrpc.XMLRPC):
 			if balanceRow[6] == "Dr":
 			#this is a Dr balance which will be shown at Cr side.
 			#Difference will be also added to Cr for final balancing.
-				ledgerGrid.append([closingdate,"Closing Balance b/f","","",'%.2f'%(balanceRow[2]),"",""])
+				ledgerGrid.append([closingdate,"Closing Balance b/f","","",'%.2f'%float(balanceRow[2]),"",""])
 				grandTotal =float(balanceRow[4])  + float(balanceRow[2])
 			if balanceRow[6] == "Cr":
 			#now exactly the opposit, see the explanation in the if condition preceding this one.
 
-				ledgerGrid.append([closingdate,"Closing Balance b/f","",'%.2f'%(balanceRow[2]),"","",""])
+				ledgerGrid.append([closingdate,"Closing Balance b/f","",'%.2f'%float(balanceRow[2]),"","",""])
 				grandTotal =float(balanceRow[3])  + float(balanceRow[2])
-			ledgerGrid.append(["","Grand Total","",'%.2f'%(grandTotal),'%.2f'%(grandTotal),"",""])
+			ledgerGrid.append(["","Grand Total","",'%.2f'%float(grandTotal),'%.2f'%float(grandTotal),"",""])
 		#we are ready with the complete ledger, so lets send it out!
 		return ledgerGrid
 			
@@ -336,7 +336,6 @@ class reports(xmlrpc.XMLRPC):
 		                baltype = 'Cr'
 				opening_baltype = 'Cr'
 				
-		
 		statement = "select sum(amount) as dr_amount\
 				from view_voucherbook\
 				where typeflag = 'Dr'\
@@ -374,7 +373,8 @@ class reports(xmlrpc.XMLRPC):
 			curbal = total_CrBal - total_DrBal
 			baltype = 'Cr'
 
-		calculate_balancelist = [group_name,bal_brought,curbal,total_DrBal,total_CrBal,opening_baltype,baltype]
+		calculate_balancelist = [group_name,'%.2f'%(bal_brought),'%.2f'%(curbal),'%.2f'%(total_DrBal),'%.2f'%(total_CrBal),opening_baltype,baltype]
+		#print calculate_balancelist
 		return calculate_balancelist
 		
 		
@@ -569,8 +569,9 @@ class reports(xmlrpc.XMLRPC):
 			
 			if(('%.2f'%float(resultRow[0])!= "0.00" )or('%.2f'%float(resultRow[1])!="0.00")):
 				statementRow = [srno,accountRow,accountGroup,'%.2f'%float(resultRow[0]),'%.2f'%float(resultRow[1])]
-				totalDr = totalDr + resultRow[0]
-				totalCr = totalCr + resultRow[1]
+				
+				totalDr = float(totalDr) + float(resultRow[0])
+				totalCr = float(totalCr) + float(resultRow[1])
 				srno = srno +1
 				projectStatement.append(statementRow)
 		projectStatement.append(["","","",'%.2f'%float(totalDr),'%.2f'%float(totalCr)])
@@ -889,7 +890,7 @@ class reports(xmlrpc.XMLRPC):
 				
 			if (tot_loanlia != "0.00"):
 				
-				corpuslist.append(["LOANS(Liability)","","",""])
+				corpuslist.append(["LOANS(LIABILITY)","","",""])
 				Lcount = Lcount+1		
 				
 				for i in range (0, ballength):
@@ -1005,7 +1006,7 @@ class reports(xmlrpc.XMLRPC):
 				
 			if (tot_loansasset != "0.00"):	
 			
-				groupname="LOANS(Asset)"
+				groupname="LOANS(ASSET)"
 				assetslist.append([groupname,"","",""])
 				Rcount = Rcount+1	
 				
@@ -1052,7 +1053,7 @@ class reports(xmlrpc.XMLRPC):
 			
 			if (tot_miscellaneous != "0.00"):
 				
-				groupname="MISCELLANEOUS EXPENSES(Asset)"
+				groupname="MISCELLANEOUS EXPENSES(ASSET)"
 				assetslist.append([groupname,"","",""])
 				Rcount = Rcount+1	
 				
@@ -1176,9 +1177,9 @@ class reports(xmlrpc.XMLRPC):
 				if (Flag == "netLoss"):
 					
 					if (orgtype != "NGO"):
-						flag ="Net Loss"
+						flag ="NET LOSS"
 					else:
-						flag="Net Deficit"
+						flag="NET DEFICIT"
 				
 					LeftList.append(["              "+flag,profitloss[1],"","",""])	
 					
@@ -1188,16 +1189,16 @@ class reports(xmlrpc.XMLRPC):
 				else:
 				
 					if (orgtype != "NGO"):
-						flag ="Net Profit"
+						flag ="NET PROFIT"
 					else:
-						flag ="Net Surplus"
+						flag ="NET SURPLUS"
 					
 					amount =float(tot_reserves) + float(profitloss[1])
 					LeftList.append(["              "+flag,profitloss[1],"","",""])	
 					LeftList.append(["TOTAL RESERVES & SURPLUS","","","",'%.2f'%float(amount)])			
 			
 			if (tot_miscellaneous != "0.00"):		
-				LeftList.append(["        LESS: MISCELLANEOUS EXPENSES(Asset)","","","",""])
+				LeftList.append(["        LESS: MISCELLANEOUS EXPENSES(ASSET)","","","",""])
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 13):
 						account =baltrialdata[i][2]
@@ -1207,7 +1208,7 @@ class reports(xmlrpc.XMLRPC):
 						else:
 							LeftList.append(["              "+account,'%.2f'%(amount),"","",""])
 							
-				LeftList.append(["TOTAL MISCELLANEOUS EXPENSES(Asset)","","",tot_miscellaneous,""])							
+				LeftList.append(["TOTAL MISCELLANEOUS EXPENSES(ASSET)","","",tot_miscellaneous,""])							
 			
 			if (Flag == "netLoss"):
 				amount = float(tot_reserves) - float(profitloss[1]) - float(tot_miscellaneous)
@@ -1219,7 +1220,7 @@ class reports(xmlrpc.XMLRPC):
 			
 			if (tot_loanlia != "0.00"):	
 				LeftList.append(["        BORROWED FUNDS","","","",""])
-				LeftList.append(["        LOANS(Liability)","","","",""])
+				LeftList.append(["        LOANS(LIABILITY)","","","",""])
 		
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 11):
@@ -1272,7 +1273,7 @@ class reports(xmlrpc.XMLRPC):
 							RightList.append(["              "+account,"",'%.2f'%(abs(amount)),"",""])
 						else:
 							RightList.append(["              "+account,'%.2f'%(amount),"","",""])
-				RightList.append(["TOTAL FIXED ASSETS(Net)","","","",tot_fixedasset])
+				RightList.append(["TOTAL FIXED ASSETS(NET)","","","",tot_fixedasset])
 			
 			if (tot_investment != "0.00"):
 				RightList.append(["        INVESTMENT","","","",""])	
@@ -1289,7 +1290,7 @@ class reports(xmlrpc.XMLRPC):
 			
 			
 			if (tot_loansasset != "0.00"):
-				RightList.append(["        LOANS(Asset)","","","",""])		
+				RightList.append(["        LOANS(ASSET)","","","",""])		
 		
 				for i in range (0, ballength):
 					if (baltrialdata[i][1] == 10):
@@ -1299,7 +1300,7 @@ class reports(xmlrpc.XMLRPC):
 							RightList.append(["              "+account,"",'%.2f'%(abs(amount)),"",""])
 						else:
 							RightList.append(["              "+account,'%.2f'%(amount),"","",""])
-				RightList.append(["TOTAL LOANS(Asset)","","","",tot_loansasset])
+				RightList.append(["TOTAL LOANS(ASSET)","","","",tot_loansasset])
 			
 			if (tot_currentasset != "0.00"):
 				RightList.append(["        WORKING CAPITAL","","","",""])		
@@ -2350,3 +2351,4 @@ class reports(xmlrpc.XMLRPC):
 		
 		return cashFlowGrid
 		
+
