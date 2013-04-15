@@ -273,4 +273,24 @@ class subGroups(Base):
         
 subgroups_table = subGroups.__table__
 
+class Users(Base):
+	__tablename__ = 'users'
+	userid = Column(Integer, primary_key=True)
+	firstname = Column(String)
+	lastname = Column(String)
+	username = Column(Text,nullable=False)
+	userpassword = Column(String)
+	gender = Column(String)
+	userrole = Column(String)
+
+	def __init__(self,firstname,lastname, username, userpassword,gender,userrole):
+		self.userid = None
+		self.firstname =firstname
+		self.lastname=lastname
+		self.username = username
+		self.userpassword = userpassword
+		self.gender=gender
+		self.userrole = userrole
+
+users_table = Users.__table__
 orm.compile_mappers()

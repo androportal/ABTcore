@@ -14,6 +14,7 @@ import rpc_account
 import rpc_transaction
 import rpc_data
 import rpc_reports
+import rpc_user
 import rpc_getaccountsbyrule
 from sqlalchemy.orm import join
 from modules import blankspace
@@ -549,8 +550,8 @@ def runabt():
 	reports=rpc_reports.reports()
 	abt.putSubHandler('reports',reports)
 
-	# user=rpc_user.user()
-	# abt.putSubHandler('user',user)
+	user=rpc_user.user()
+	abt.putSubHandler('user',user)
 
 	getaccountsbyrule=rpc_getaccountsbyrule.getaccountsbyrule()
 	abt.putSubHandler('getaccountsbyrule',getaccountsbyrule)
