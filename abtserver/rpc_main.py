@@ -550,7 +550,7 @@ def runabt():
 	reports=rpc_reports.reports()
 	abt.putSubHandler('reports',reports)
 
-	user=rpc_user.user()
+	user = rpc_user.user()
 	abt.putSubHandler('user',user)
 
 	getaccountsbyrule=rpc_getaccountsbyrule.getaccountsbyrule()

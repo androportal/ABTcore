@@ -282,15 +282,20 @@ class Users(Base):
 	userpassword = Column(String)
 	gender = Column(String)
 	userrole = Column(String)
+	mobileno = Column(Integer)
+	emailid = Column(String)
 
-	def __init__(self,firstname,lastname, username, userpassword,gender,userrole):
+	def __init__(self,firstname,lastname,username, userpassword,gender,userrole,mobileno,emailid):
 		self.userid = None
 		self.firstname =firstname
 		self.lastname=lastname
 		self.username = username
 		self.userpassword = userpassword
-		self.gender=gender
+		self.gender = gender
 		self.userrole = userrole
+		self.mobileno = mobileno
+		self.emailid = emailid
 
 users_table = Users.__table__
+
 orm.compile_mappers()
