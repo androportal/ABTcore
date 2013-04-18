@@ -276,25 +276,21 @@ subgroups_table = subGroups.__table__
 class Users(Base):
 	__tablename__ = 'users'
 	userid = Column(Integer, primary_key=True)
-	firstname = Column(String)
-	lastname = Column(String)
 	username = Column(Text,nullable=False)
 	userpassword = Column(String)
 	gender = Column(String)
 	userrole = Column(String)
-	mobileno = Column(Integer)
-	emailid = Column(String)
+	question = Column(Integer)
+	answer = Column(String)
 
-	def __init__(self,firstname,lastname,username, userpassword,gender,userrole,mobileno,emailid):
+	def __init__(self,username, userpassword,gender,userrole,question,answer):
 		self.userid = None
-		self.firstname =firstname
-		self.lastname=lastname
 		self.username = username
 		self.userpassword = userpassword
 		self.gender = gender
 		self.userrole = userrole
-		self.mobileno = mobileno
-		self.emailid = emailid
+		self.question = question
+		self.answer = answer
 
 users_table = Users.__table__
 

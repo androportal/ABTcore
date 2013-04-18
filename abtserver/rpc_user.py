@@ -18,7 +18,7 @@ class user(xmlrpc.XMLRPC):
 			- it will add all the input details in the user
 			  table present in the ``dbconnect.py``
 		* Input:
-			-[firstname,lastname,username,password,gender,userrole,mobile_no,emailId]
+			-[firstname,lastname,username,password,gender,userrole,question,answer]
 		"""
 		print queryParams
 		queryParams = blankspace.remove_whitespaces(queryParams)
@@ -26,12 +26,13 @@ class user(xmlrpc.XMLRPC):
 		print queryParams
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		username = queryParams[2]
-		password =queryParams[3].encode('base64')
-		user_role = queryParams[5]
+		username = queryParams[0]
+		password =queryParams[1].encode('base64')
+		user_role = queryParams[3]
 		Session.add(dbconnect.Users(\
-				queryParams[0],queryParams[1],username,password,queryParams[4],user_role,queryParams[6],queryParams[7]))
+				username,password,queryParams[2],user_role,queryParams[4],queryParams[5]))
 		Session.commit()
+		print "sign up"
 		return "Sign up sccessfull"
 		
 	def xmlrpc_getUser(self,queryParams,client_id):
