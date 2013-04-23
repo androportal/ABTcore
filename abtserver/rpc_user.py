@@ -35,37 +35,56 @@ class user(xmlrpc.XMLRPC):
 		print "sign up"
 		return "Sign up sccessfull"
 		
-	def xmlrpc_getUser(self,queryParams,client_id):
+	def xmlrpc_getUserNemeOfManagerRole(self,client_id):
 		'''
 		* Purpose:
-			- It will provide information of user based on
-		          username and password return list containing username
-		          userrole if condition is true else return false
-		* Input: 
-			- [username , password ]
-			
+			- It will provides list of all manager's present
+			  in user table
+		 
 		* Output
-		       - it returns list of username and userrole
+		       - it returns list of  usernames
 		'''
-		queryParams = blankspace.remove_whitespaces(queryParams)
+		
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		#password = bz2.compress(queryParams[1])
-		password = queryParams[1].encode('base64')
+		
 		result = Session.query(dbconnect.Users).\
-						filter(dbconnect.Users.username == queryParams[0]).\
-						filter(dbconnect.Users.userpassword == password).\
-						first()
+						filter(dbconnect.Users.userrole == "manager").first()
 		Session.close()
 		connection.connection.close()
+		userlist = []
 		if result != None:
-			#dbconnect.addUser(client_id,queryParams[0])
-			userlist =[result.username,result.userrole]
-			print userlist
+			userlist.append(result.username)
 			
    			return userlist
 		else:
 			return []
+	
+	def xmlrpc_getUserNemeOfOperatorRole(self,client_id):
+		'''
+		* Purpose:
+			- It will provides list of all operator's present
+			  in user table
+		 
+		* Output
+		       - it returns list of usernames
+		'''
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		
+		result = Session.query(dbconnect.Users).\
+						filter(dbconnect.Users.userrole == "operator").first()
+		Session.close()
+		connection.connection.close()
+		userlist = []
+		if result != None:
+		
+			userlist.append(result.username)
+			
+   			return userlist
+		else:
+			return []
+					
 			
 	def xmlrpc_getUserRole(self,queryParams,client_id):
 		'''
@@ -177,29 +196,70 @@ class user(xmlrpc.XMLRPC):
 			return False
 
 	def xmlrpc_changePassword(self,queryParams,client_id):
+               '''
+               * purpose:
+                       - It will provide to update password based on username, old password and userrole
+               
+               * Input:
+                       - [username,old_password,new_password,userrole]
+                       
+               * Output:
+                       - return ``password updated successully``
+                       
+               '''
+               connection = dbconnect.engines[client_id].connect()
+               Session = dbconnect.session(bind=connection)
+               queryParams = blankspace.remove_whitespaces(queryParams)
+               old_password =queryParams[1].encode('base64')
+               new_password =queryParams[2].encode('base64')
+               result = Session.query(dbconnect.Users.userid).filter(dbconnect.Users.username == queryParams[0]).\
+                                                       filter(dbconnect.Users.userpassword == old_password).\
+                                                       filter(dbconnect.Users.userrole == queryParams[3]).first()
+                                                       
+               if result == None:
+               		Session.close()
+               		connection.connection.close()
+               		return False
+               else:
+               		
+               		result = Session.query(dbconnect.Users).filter(dbconnect.Users.userid == result.userid).\
+               		 					update({'userpassword': new_password})
+               
+               		Session.commit()
+              		Session.close()
+               		connection.connection.close()
+               		return True
+               
+	def xmlrpc_AdminForgotPassword(self,queryParams,client_id):
 		'''
 		* purpose:
-			- It will provide to update password based on username
-		
+		       - this function is to check if userrole ``admin`` is pesent
+			 and provide access to organisation by cross checking
+			 security question and anwer provided in case of forgotten password.
 		* Input:
-			- [username,password]
-			
-		* Output: 
-			- return ``password updated successully``
-			
+		       - [question , answer , userrole]
+		       
+		* Output:
+		       - if ``admin`` then return ``true`` else retrun ``false``
 		'''
+
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		queryParams = blankspace.remove_whitespaces(queryParams)
-		password =queryParams[1].encode('base64')
-		Session.query(dbconnect.Users).\
-				filter(dbconnect.Users.username == queryParams[0]).\
-				update({'userpassword': password})
-		Session.commit()
+		role_exist = Session.query(dbconnect.Users).filter(dbconnect.Users.userrole == "admin").\
+								first()                        
+
+		if role_exist != None:
+		       result = Session.query(dbconnect.Users).filter(dbconnect.Users.question == queryParams[0]).\
+				                       filter(dbconnect.Users.answer == queryParams[1]).\
+				                       filter(dbconnect.Users.userrole == queryParams[2]).first()
 		Session.close()
 		connection.connection.close()
-		
-		return "password updated successfully"
+		if result == None:
+		       return False
+		else:        
+		       print "admin exist"
+		       return True
+         
 
 
 			
