@@ -48,13 +48,15 @@ class user(xmlrpc.XMLRPC):
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		
-		result = Session.query(dbconnect.Users).\
-						filter(dbconnect.Users.userrole == "manager").first()
+		result = Session.query(dbconnect.Users.username).\
+						filter(dbconnect.Users.userrole == "manager").all()
 		Session.close()
 		connection.connection.close()
 		userlist = []
-		if result != None:
-			userlist.append(result.username)
+		print result
+		if result != []:
+			for row in result:
+				userlist.append(row.username)
 			
    			return userlist
 		else:
@@ -72,18 +74,18 @@ class user(xmlrpc.XMLRPC):
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		
-		result = Session.query(dbconnect.Users).\
-						filter(dbconnect.Users.userrole == "operator").first()
+		result = Session.query(dbconnect.Users.username).\
+						filter(dbconnect.Users.userrole == "operator").all()
 		Session.close()
 		connection.connection.close()
 		userlist = []
-		if result != None:
-		
-			userlist.append(result.username)
+		if result != []:
+			for row in result:
+				userlist.append(row.username)
 			
    			return userlist
 		else:
-			return []
+			return result
 					
 			
 	def xmlrpc_getUserRole(self,queryParams,client_id):

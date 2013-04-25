@@ -176,21 +176,12 @@ class abt(xmlrpc.XMLRPC):
 			
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
-		abtconf=et.parse("/opt/abt/abt.xml")
-		abtroot = abtconf.getroot()	
-		org = et.SubElement(abtroot,"organisation") #creating an organisation tag
-		org_name = et.SubElement(org,"orgname")
+		
 		# assigning client queryparams values to variables
 		name_of_org = queryParams[0] # name of organisation
 		db_from_date = queryParams[1]# from date
 		db_to_date = queryParams[2] # to date
 		organisationType = queryParams[3] # organisation type
-		org_name.text = name_of_org #assigning orgnisation name value in orgname tag text of abt.xml
-		financial_year_from = et.SubElement(org,"financial_year_from") #creating a new tag for financial year fromto	
-		financial_year_from.text = db_from_date
-		financial_year_to = et.SubElement(org,"financial_year_to")
-		financial_year_to.text = db_to_date
-		dbname = et.SubElement(org,"dbname") 
 		
 		#creating database name for organisation		
 		org_db_name = name_of_org[0:1]
@@ -199,11 +190,13 @@ class abt(xmlrpc.XMLRPC):
 		new_microsecond = str_time[0:2]		
 		result_dbname = org_db_name + str(time.year) + str(time.month) + str(time.day) + str(time.hour)\
 		 		+ str(time.minute) + str(time.second) + new_microsecond
-			
-		dbname.text = result_dbname #assigning created database name value in dbname tag text of abt.xml
-		rollover_flag = et.SubElement(org,"rolloverflag")
-		rollover_flag.text = "0"
-		abtconf.write("/opt/abt/abt.xml")
+		
+		del queryParams[3] #delete orgtype
+		queryParams.append(result_dbname) #dbname
+		queryParams.append("0") #rollover flag
+		
+		self.xmlrpc_writeToXmlFile(queryParams,"/opt/abt/abt.xml");		
+		
 		# getting client_id for the given orgnisation and from and to date
 		self.client_id = dbconnect.getConnection([name_of_org,db_from_date,db_to_date])
 		
@@ -320,6 +313,210 @@ class abt(xmlrpc.XMLRPC):
 		connection.close()
 		return True,self.client_id
 		
+		
+	def xmlrpc_exportOrganisation(self,queryParams,client_id):
+		"""
+		* Purpose:
+			- backup all the tables and values of oraganisation database 
+			  in /opt/abt/export/*dbname and add organisation tags in /opt/abt/export/bckp.xml file
+			
+		* Input: 
+		 	- [organisationName,financialFrom,financialTo],client_id
+		 	
+		* Output:
+			- export database and add tag in bckp.xml
+			- return encrypted dbname
+		"""
+		print "queyParams"
+		print queryParams
+		#find the database name for selected organisation
+		financialFrom = queryParams[1]
+		financialTo = queryParams[2]
+		orgs = dbconnect.getOrgList()
+		for org in orgs:
+			orgname = org.find("orgname")
+			financialyear_from = org.find("financial_year_from")#DD-MM-YYYY
+			financialyear_to = org.find("financial_year_to")
+			if (orgname.text == queryParams[0]
+					and financialyear_from.text == financialFrom 
+					and financialyear_to.text == financialTo):
+				dbname = org.find("dbname")
+				rollover_flag = org.find("rolloverflag")
+				database = dbname.text
+		print rollover_flag.text
+		
+		queryParams.append(database)
+		queryParams.append(rollover_flag.text)
+		
+		print "the current database name is " + database
+		try:
+			#encrypt the database name
+			encrypted_db = blankspace.remove_whitespaces([database.encode('base64').rstrip()])
+			#dump the create and insert queries of sqlite database
+			os.system("sqlite3 /opt/abt/db/"+database+" .dump > /opt/abt/export/"+encrypted_db[0])
+			
+			#create bckp.xml file if not exist and add the organisation related tags
+			if os.path.exists("/opt/abt/export/bckp.xml") == False:
+				print "file not found trying to create one."
+				try:
+					os.system("touch /opt/abt/export/bckp.xml")
+					print "file created "
+					os.system("chmod 722 /opt/abt/export/bckp.xml")
+					print "permissions granted "
+					abtconf = open("/opt/abt/export/bckp.xml", "a")
+					abtconf.write("<abt>\n")
+			    		abtconf.write("</abt>")
+			    		abtconf.close()
+			    		
+					self.xmlrpc_writeToXmlFile(queryParams,"/opt/abt/export/bckp.xml");
+					
+				except:
+				    	print "the software is finding trouble in creating file."
+				    	return False
+			else:
+				self.xmlrpc_writeToXmlFile(queryParams,"/opt/abt/export/bckp.xml");
+		except:
+			print "problem in backup database"
+		return encrypted_db[0]
+		
+	def xmlrpc_writeToXmlFile(self,queryParams,file_path):
+		"""
+		* Purpose:
+			- Add all organisation related tags in provided xml file
+			
+		* Input: 
+		 	- qureyParams:[organisationName,financialFrom,financialTo,database,rollover_flag]
+		 	
+		* Output:
+			- writes the organisation tags in xml file. 
+		"""
+		#opening the xml file by parsing it into a tree.	
+		abtconf=et.parse(file_path)
+		#now since the file is opened we will get the root element.  
+		abtroot = abtconf.getroot()	
+		#we will now extract the list of children (organisations ) into a variable named orgs. 
+		orgs = abtroot.getchildren()
+		#lets set counter to find if the organisation is already present in xml file
+		count = 0
+		for org in orgs:
+			orgname = org.find("orgname")
+			financialyear_from = org.find("financial_year_from")#DD-MM-YYYY
+			financialyear_to = org.find("financial_year_to")
+			rolloverflag = org.find("rolloverflag")
+			if (orgname.text == queryParams[0]
+					and financialyear_from.text == queryParams[1] 
+					and financialyear_to.text == queryParams[2]):
+				print "organisation exist in bckp.xml"
+				#increase counter if organisation is present in bckp file
+				count = count + 1
+				#check for the rollover flag, if it differs in value update it
+				if(rolloverflag.text != queryParams[4]):
+					print "now rollover flag is different"
+					print "flag updated, no need to add org in xml"
+					rolloverflag.text = "1"
+					abtconf.write(file_path)	
+
+		#if organisation is not present in xml file, add its related tags	
+		if(count == 0):
+			print "writting to xml file"
+			org = et.SubElement(abtroot,"organisation") #creating an organisation tag
+			org_name = et.SubElement(org,"orgname")
+		
+			# assigning client queryparams values to variables
+			name_of_org = queryParams[0] # name of organisation
+			db_from_date = queryParams[1]# from date
+			db_to_date = queryParams[2] # to date
+		
+			#organisationType = queryParams[3] # organisation type
+			org_name.text = name_of_org #assigning orgnisation name value in orgname tag text of bckp.xml
+			financial_year_from = et.SubElement(org,"financial_year_from") #creating a new tag for financial year fromto	
+			financial_year_from.text = db_from_date
+		
+			financial_year_to = et.SubElement(org,"financial_year_to")
+			financial_year_to.text = db_to_date
+
+			dbname = et.SubElement(org,"dbname")
+			dbname.text = queryParams[3] #assigning created database name value in dbname tag text of bckp.xml
+
+			rollover_flag = et.SubElement(org,"rolloverflag")
+			print queryParams[4]
+			rollover_flag.text = queryParams[4]
+			abtconf.write(file_path)
+		
+		return count
+	
+	def xmlrpc_getAllExportedOrganisations(self):
+		"""
+		* Purpose:
+			- get details of all exported organisations from bckp.xml file
+			- open the bckp.xml file by parsing it into a tree. get the root element.  
+			- extract the list of children (organisations ) into a variable
+			- store org name, from date, to date, dbname and rollover flag of each 
+			  organisation in a separate lists
+			
+		* Input: 
+		 	- no input parameter
+		 	
+		* Output:
+			- a grid including list of each exported organisation details 
+			  such as org name, from date, to date, dbname, rollover
+		"""
+		print "we are in import"
+		#opening the bckp.xml file by parsing it into a tree.	
+		abtconf = et.parse("/opt/abt/export/bckp.xml")
+		#now since the file is opened we will get the root element.  
+		abtroot = abtconf.getroot()
+		#we will now extract the list of children (organisations ) into a variable named orgs. 
+		orgs = abtroot.getchildren()
+		#lets set counter to find if the organisation is already added in bckp.xml file
+		all_orgsGrid = []
+		orgnames = []
+		financial_year = []
+		dbname = []
+		rollover_flag = []
+		for org in orgs:
+			orgname = org.find("orgname")
+			financialyear_from = org.find("financial_year_from")#DD-MM-YYYY
+			financialyear_to = org.find("financial_year_to")
+			db_name = org.find("dbname")
+			rolloverflag = org.find("rolloverflag")
+			orgnames.append(orgname.text)
+			financial_year.append('%s to %s' %(financialyear_from.text,financialyear_to.text))
+			dbname.append(db_name.text)
+			rollover_flag.append(rolloverflag.text)
+		all_orgsGrid.append(orgnames)
+		all_orgsGrid.append(financial_year)
+		all_orgsGrid.append(dbname)
+		all_orgsGrid.append(rollover_flag)
+		print all_orgsGrid
+		return all_orgsGrid
+	
+	def xmlrpc_Import(self,queryParams):
+		"""
+		* Purpose:
+			- import database from /export directory to /opt/abt/db 
+			  and write org tags in /opt/abt/abt.xml file
+			
+		* Input: 
+		 	- qureyParams:[organisationName,financialFrom,financialTo,database,rollover_flag]
+		 	
+		* Output:
+			- import database and write org tags in xml file
+		"""
+		print queryParams
+		#writting to xml file
+		count = self.xmlrpc_writeToXmlFile(queryParams,"/opt/abt/abt.xml");
+		
+		if(count != 0):
+			print "deleting the existing database"
+			os.system("rm -rf /opt/abt/db/"+queryParams[3])
+		
+		#encrypt the database name
+		encrypted_db = blankspace.remove_whitespaces([queryParams[3].encode('base64').rstrip()])
+		#adding database with all data in db folder
+		os.system("sqlite3 /opt/abt/db/"+queryParams[3]+"< /opt/abt/export/"+encrypted_db[0])
+		return "success"
+	
 	def xmlrpc_rollover(self,queryParams,client_id):
 		"""
 		* Purpose:
@@ -368,7 +565,7 @@ class abt(xmlrpc.XMLRPC):
 				or str(closingRow[0])== "Loans(Asset)" 
 				or str(closingRow[0])== "Miscellaneous Expenses(Asset)")):
 				
-				closing_balance = -int(closingRow[2])
+				closing_balance = -float(closingRow[2])
 				rollOverAccounts[acc] = closing_balance
 				
 			if (str(closingRow[6])  == "Dr" 
@@ -378,7 +575,7 @@ class abt(xmlrpc.XMLRPC):
 				or str(closingRow[0])== "Loans(Asset)" 
 				or str(closingRow[0])== "Miscellaneous Expenses(Asset)")):
 				
-				closing_balance = int(closingRow[2])
+				closing_balance = float(closingRow[2])
 				rollOverAccounts[acc] = closing_balance
 				
 			if (str(closingRow[6])  == "Cr"
@@ -388,7 +585,7 @@ class abt(xmlrpc.XMLRPC):
 				or str(closingRow[0])== "Loans(Liability)" 
 				or str(closingRow[0])== "Reserves")):
 				
-				closing_balance = int(closingRow[2])
+				closing_balance = float(closingRow[2])
 				rollOverAccounts[acc[0]] = closing_balance
 				
 			if (str(closingRow[6])  == "Dr"
@@ -398,7 +595,7 @@ class abt(xmlrpc.XMLRPC):
 				or str(closingRow[0])== "Loans(Liability)"
 				or str(closingRow[0])== "Reserves")):	
 				
-				closing_balance = -int(closingRow[2])
+				closing_balance = -float(closingRow[2])
 				rollOverAccounts[acc] = closing_balance
 		
 		financialFrom = queryParams[1]
@@ -459,24 +656,8 @@ class abt(xmlrpc.XMLRPC):
 				dbconnect.engines[self.client_id[1]].execute(editStatement)
 		
 			connection.commit()
-			# parsing abt.xml file
-			tree = et.parse("/opt/abt/abt.xml") 
-			root = tree.getroot() # getting root node.
-			orgs = root.getchildren() # get list children node (orgnisation)
-			for organisation in orgs:
-		
-				orgname = organisation.find("orgname").text
-				financialyear_from = organisation.find("financial_year_from").text
-				financialyear_to = organisation.find("financial_year_to").text
-				dbname = organisation.find("dbname").text
-				databasename = dbname
-				# Check respective organisation name 
-				if (orgname == queryParams[0] 
-					and financialyear_from == financialFrom 
-					and financialyear_to == financialTo):
-					rollover_tag = organisation.find("rolloverflag")
-					rollover_tag.text = "1"
-					tree.write("/opt/abt/abt.xml")
+			# parsing abt.xml file to update rollover flag from '0' to '1'
+			self.xmlrpc_writeToXmlFile(queryParams,"/opt/abt/abt.xml");
 					
 		except:
 			print "problem to restore data in to new database"
@@ -522,6 +703,10 @@ class abt(xmlrpc.XMLRPC):
 		else:
 			
 		 	return "rollover_notexist"
+		 	
+
+	 
+		
 def runabt():
 	"""
 	+ As we have imported all the nested XMLRPC resource,so that create one handler ``abt`` 
