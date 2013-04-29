@@ -27,10 +27,11 @@ class user(xmlrpc.XMLRPC):
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		username = queryParams[0]
-		password =queryParams[1].encode('base64')
+		password = blankspace.remove_whitespaces([queryParams[1].encode('base64').rstrip()])
+		
 		user_role = queryParams[3]
 		Session.add(dbconnect.Users(\
-				username,password,queryParams[2],user_role,queryParams[4],queryParams[5]))
+				username,password[0],queryParams[2],user_role,queryParams[4],queryParams[5]))
 		Session.commit()
 		print "sign up"
 		return "Sign up sccessfull"
@@ -103,8 +104,7 @@ class user(xmlrpc.XMLRPC):
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		#password = bz2.compress(queryParams[1])
-		password = queryParams[1].encode('base64')
+		
 		result = Session.query(dbconnect.Users).\
 						filter(dbconnect.Users.username == queryParams[0]).\
 						first()
@@ -157,9 +157,9 @@ class user(xmlrpc.XMLRPC):
 		print queryParams
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		password = queryParams[1].encode('base64')
+		password = blankspace.remove_whitespaces([queryParams[1].encode('base64').rstrip()])
 		result = Session.query(dbconnect.Users).filter(dbconnect.Users.username == queryParams[0]).\
-							filter(dbconnect.Users.userpassword == password).\
+							filter(dbconnect.Users.userpassword == password[0]).\
 							filter(dbconnect.Users.userrole == queryParams[2]).first()			
 		Session.close()
 		connection.connection.close()
@@ -212,10 +212,10 @@ class user(xmlrpc.XMLRPC):
                connection = dbconnect.engines[client_id].connect()
                Session = dbconnect.session(bind=connection)
                queryParams = blankspace.remove_whitespaces(queryParams)
-               old_password =queryParams[1].encode('base64')
-               new_password =queryParams[2].encode('base64')
+               old_password = blankspace.remove_whitespaces([queryParams[1].encode('base64').rstrip()])
+               new_password = blankspace.remove_whitespaces([queryParams[2].encode('base64').rstrip()])
                result = Session.query(dbconnect.Users.userid).filter(dbconnect.Users.username == queryParams[0]).\
-                                                       filter(dbconnect.Users.userpassword == old_password).\
+                                                       filter(dbconnect.Users.userpassword == old_password[0]).\
                                                        filter(dbconnect.Users.userrole == queryParams[3]).first()
                                                        
                if result == None:
@@ -225,7 +225,7 @@ class user(xmlrpc.XMLRPC):
                else:
                		
                		result = Session.query(dbconnect.Users).filter(dbconnect.Users.userid == result.userid).\
-               		 					update({'userpassword': new_password})
+               		 					update({'userpassword': new_password[0]})
                
                		Session.commit()
               		Session.close()

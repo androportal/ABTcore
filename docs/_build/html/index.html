@@ -116,7 +116,7 @@ and execute the xmlrpc functions.</li>
 <li>also to publish the object and make it to listen on the given port through reactor 
 and start the service by running the reactor.</li>
 <li>It also create database and deploy organisation.</li>
-<li>note that all the functions to be accessed by the client must have the <a href="#id1"><span class="problematic" id="id2">xmlrpc_</span></a> prefix.</li>
+<li>note that all the functions to be accessed by the client must have the <a href="#id3"><span class="problematic" id="id4">xmlrpc_</span></a> prefix.</li>
 <li>the client however will not use the prefix to call the functions.</li>
 </ul>
 <dl class="method">
@@ -158,6 +158,38 @@ tables <tt class="docutils literal"><span class="pre">Groups</span></tt> and <tt
 <dt>Output: </dt>
 <dd><ul class="first last simple">
 <li>returns boolean True and client_id</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_main.abt.xmlrpc_Import">
+<tt class="descname">xmlrpc_Import</tt><big>(</big><em>queryParams</em><big>)</big><a class="headerlink" href="#abtserver.rpc_main.abt.xmlrpc_Import" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>import database from /export directory to /opt/abt/db 
+and write org tags in /opt/abt/abt.xml file</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>qureyParams:[organisationName,financialFrom,financialTo,database,rollover_flag]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>import database and write org tags in xml file</li>
 </ul>
 </dd>
 </dl>
@@ -248,6 +280,75 @@ to rollover to next financial year</li>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_main.abt.xmlrpc_exportOrganisation">
+<tt class="descname">xmlrpc_exportOrganisation</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_main.abt.xmlrpc_exportOrganisation" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>backup all the tables and values of oraganisation database 
+in /opt/abt/export/<a href="#id1"><span class="problematic" id="id2">*</span></a>dbname and add organisation tags in /opt/abt/export/bckp.xml file</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[organisationName,financialFrom,financialTo],client_id</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>export database and add tag in bckp.xml</li>
+<li>return encrypted dbname</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_main.abt.xmlrpc_getAllExportedOrganisations">
+<tt class="descname">xmlrpc_getAllExportedOrganisations</tt><big>(</big><big>)</big><a class="headerlink" href="#abtserver.rpc_main.abt.xmlrpc_getAllExportedOrganisations" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>get details of all exported organisations from bckp.xml file</li>
+<li>open the bckp.xml file by parsing it into a tree. get the root element.</li>
+<li>extract the list of children (organisations ) into a variable</li>
+<li>store org name, from date, to date, dbname and rollover flag of each 
+organisation in a separate lists</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>no input parameter</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>a grid including list of each exported organisation details 
+such as org name, from date, to date, dbname, rollover</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
 </dd></dl>
 
 <dl class="method">
@@ -384,6 +485,37 @@ organisation as <tt class="docutils literal"><span class="pre">1</span></tt> , s
 <li>boolean newOrganisaionFromDate</li>
 <li>created new financile year and database</li>
 <li>restore accounts its closingbalance as openingbalance and subgroups</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_main.abt.xmlrpc_writeToXmlFile">
+<tt class="descname">xmlrpc_writeToXmlFile</tt><big>(</big><em>queryParams</em>, <em>file_path</em><big>)</big><a class="headerlink" href="#abtserver.rpc_main.abt.xmlrpc_writeToXmlFile" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>Add all organisation related tags in provided xml file</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>qureyParams:[organisationName,financialFrom,financialTo,database,rollover_flag]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>writes the organisation tags in xml file.</li>
 </ul>
 </dd>
 </dl>
@@ -3691,13 +3823,15 @@ orgwebsite,orgmvat,orgstax,orgregno,orgregdate,orgfcrano,orgfcradate,orgpan],cli
 <li>this class will do all the task related to user.</li>
 </ul>
 <dl class="method">
-<dt id="abtserver.rpc_user.user.xmlrpc_changePassword">
-<tt class="descname">xmlrpc_changePassword</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_user.user.xmlrpc_changePassword" title="Permalink to this definition">¶</a></dt>
+<dt id="abtserver.rpc_user.user.xmlrpc_AdminForgotPassword">
+<tt class="descname">xmlrpc_AdminForgotPassword</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_user.user.xmlrpc_AdminForgotPassword" title="Permalink to this definition">¶</a></dt>
 <dd><ul>
 <li><dl class="first docutils">
 <dt>purpose:</dt>
 <dd><ul class="first last simple">
-<li>It will provide to update password based on username</li>
+<li>this function is to check if userrole <tt class="docutils literal"><span class="pre">admin</span></tt> is pesent
+and provide access to organisation by cross checking
+security question and anwer provided in case of forgotten password.</li>
 </ul>
 </dd>
 </dl>
@@ -3705,13 +3839,44 @@ orgwebsite,orgmvat,orgstax,orgregno,orgregdate,orgfcrano,orgfcradate,orgpan],cli
 <li><dl class="first docutils">
 <dt>Input:</dt>
 <dd><ul class="first last simple">
-<li>[username,password]</li>
+<li>[question , answer , userrole]</li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt>Output: </dt>
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>if <tt class="docutils literal"><span class="pre">admin</span></tt> then return <tt class="docutils literal"><span class="pre">true</span></tt> else retrun <tt class="docutils literal"><span class="pre">false</span></tt></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_user.user.xmlrpc_changePassword">
+<tt class="descname">xmlrpc_changePassword</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_user.user.xmlrpc_changePassword" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>purpose:</dt>
+<dd><ul class="first last simple">
+<li>It will provide to update password based on username, old password and userrole</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[username,old_password,new_password,userrole]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
 <dd><ul class="first last simple">
 <li>return <tt class="docutils literal"><span class="pre">password</span> <span class="pre">updated</span> <span class="pre">successully</span></tt></li>
 </ul>
@@ -3722,23 +3887,14 @@ orgwebsite,orgmvat,orgstax,orgregno,orgregdate,orgfcrano,orgfcradate,orgpan],cli
 </dd></dl>
 
 <dl class="method">
-<dt id="abtserver.rpc_user.user.xmlrpc_getUser">
-<tt class="descname">xmlrpc_getUser</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_user.user.xmlrpc_getUser" title="Permalink to this definition">¶</a></dt>
+<dt id="abtserver.rpc_user.user.xmlrpc_getUserNemeOfManagerRole">
+<tt class="descname">xmlrpc_getUserNemeOfManagerRole</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_user.user.xmlrpc_getUserNemeOfManagerRole" title="Permalink to this definition">¶</a></dt>
 <dd><ul>
 <li><dl class="first docutils">
 <dt>Purpose:</dt>
 <dd><ul class="first last simple">
-<li>It will provide information of user based on
-username and password return list containing username
-userrole if condition is true else return false</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>Input: </dt>
-<dd><ul class="first last simple">
-<li>[username , password ]</li>
+<li>It will provides list of all manager&#8217;s present
+in user table</li>
 </ul>
 </dd>
 </dl>
@@ -3746,7 +3902,31 @@ userrole if condition is true else return false</li>
 <li><dl class="first docutils">
 <dt>Output</dt>
 <dd><ul class="first last simple">
-<li>it returns list of username and userrole</li>
+<li>it returns list of  usernames</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_user.user.xmlrpc_getUserNemeOfOperatorRole">
+<tt class="descname">xmlrpc_getUserNemeOfOperatorRole</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_user.user.xmlrpc_getUserNemeOfOperatorRole" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>It will provides list of all operator&#8217;s present
+in user table</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output</dt>
+<dd><ul class="first last simple">
+<li>it returns list of usernames</li>
 </ul>
 </dd>
 </dl>
@@ -3902,7 +4082,7 @@ table present in the <tt class="docutils literal"><span class="pre">dbconnect.py
 </li>
 <li><dl class="first docutils">
 <dt>Input:</dt>
-<dd><p class="first last">-[firstname,lastname,username,password,gender,userrole,mobile_no,emailId]</p>
+<dd><p class="first last">-[firstname,lastname,username,password,gender,userrole,question,answer]</p>
 </dd>
 </dl>
 </li>

@@ -617,7 +617,7 @@ class abt(xmlrpc.XMLRPC):
 			os.system("sqlite3 /opt/abt/db/"+database+" .sch > schema")
 			os.system("sqlite3 /opt/abt/db/"+database+" .dump > dump")
 			os.system("grep -vxw -f schema dump > /opt/abt/db/db.dump")
-			os.system("grep -w 'account\|subgroups\|organisation' /opt/abt/db/db.dump > /opt/abt/db/db_dump.dump")
+			os.system("grep -w 'account\|subgroups\|organisation\|users' /opt/abt/db/db.dump > /opt/abt/db/db_dump.dump")
 		except:
 			print "problem to dump database"
 		oneDay = datetime.timedelta(days=1)
