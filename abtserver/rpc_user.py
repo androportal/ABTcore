@@ -20,10 +20,8 @@ class user(xmlrpc.XMLRPC):
 		* Input:
 			-[firstname,lastname,username,password,gender,userrole,question,answer]
 		"""
-		print queryParams
+		
 		queryParams = blankspace.remove_whitespaces(queryParams)
-		print "queryParams"
-		print queryParams
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		username = queryParams[0]
@@ -181,8 +179,8 @@ class user(xmlrpc.XMLRPC):
 			- [username]
 			
 		* Output:
-			- if given username exist the return ``true``
-			  else return ``false``
+			- if given username exist the return ``True``
+			  else return ``False``
 		'''
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		connection = dbconnect.engines[client_id].connect()
@@ -196,6 +194,41 @@ class user(xmlrpc.XMLRPC):
 		else:	
 			
 			return False
+			
+	def xmlrpc_changeUserName(self,queryParams,client_id):
+		'''
+		* Purpose:
+			- It will facilitate user to change username 
+			  based on there old_username and password 
+		* Input: 
+			- [old_username,new_username,password,userrole]
+			
+		* Output:
+		        - return ``False`` if given user is not present with old_password,userrole
+                          else it update username and return ``True`` 
+		
+		'''
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+                queryParams = blankspace.remove_whitespaces(queryParams)
+                password = blankspace.remove_whitespaces([queryParams[2].encode('base64').rstrip()])
+                result = Session.query(dbconnect.Users.userid).filter(dbconnect.Users.username == queryParams[0]).\
+                                                       filter(dbconnect.Users.userpassword == password[0]).\
+                                                       filter(dbconnect.Users.userrole == queryParams[3]).first()
+                
+                if result == None:
+                	Session.close()
+               		connection.connection.close()
+               		return False
+               	else:
+               		
+                        result = Session.query(dbconnect.Users).filter(dbconnect.Users.userid == result.userid).\
+               		 					update({'username':queryParams[1]})
+               
+               		Session.commit()
+              		Session.close()
+               		connection.connection.close()
+               		return True                               
 
 	def xmlrpc_changePassword(self,queryParams,client_id):
                '''
@@ -206,18 +239,21 @@ class user(xmlrpc.XMLRPC):
                        - [username,old_password,new_password,userrole]
                        
                * Output:
-                       - return ``password updated successully``
+                       - return ``False`` if given user is not present with old_password,userole
+                         else it update new_password and return ``True``
                        
                '''
                connection = dbconnect.engines[client_id].connect()
                Session = dbconnect.session(bind=connection)
                queryParams = blankspace.remove_whitespaces(queryParams)
+               
                old_password = blankspace.remove_whitespaces([queryParams[1].encode('base64').rstrip()])
                new_password = blankspace.remove_whitespaces([queryParams[2].encode('base64').rstrip()])
                result = Session.query(dbconnect.Users.userid).filter(dbconnect.Users.username == queryParams[0]).\
                                                        filter(dbconnect.Users.userpassword == old_password[0]).\
                                                        filter(dbconnect.Users.userrole == queryParams[3]).first()
-                                                       
+                   
+                                                
                if result == None:
                		Session.close()
                		connection.connection.close()
@@ -259,7 +295,7 @@ class user(xmlrpc.XMLRPC):
 		if result == None:
 		       return False
 		else:        
-		       print "admin exist"
+		       
 		       return True
          
 

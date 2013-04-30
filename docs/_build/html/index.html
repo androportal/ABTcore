@@ -3878,7 +3878,41 @@ security question and anwer provided in case of forgotten password.</li>
 <li><dl class="first docutils">
 <dt>Output:</dt>
 <dd><ul class="first last simple">
-<li>return <tt class="docutils literal"><span class="pre">password</span> <span class="pre">updated</span> <span class="pre">successully</span></tt></li>
+<li>return <tt class="docutils literal"><span class="pre">False</span></tt> if given user is not present with old_password,userole
+else it update new_password and return <tt class="docutils literal"><span class="pre">True</span></tt></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_user.user.xmlrpc_changeUserName">
+<tt class="descname">xmlrpc_changeUserName</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_user.user.xmlrpc_changeUserName" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>It will facilitate user to change username 
+based on there old_username and password</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[old_username,new_username,password,userrole]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>return <tt class="docutils literal"><span class="pre">False</span></tt> if given user is not present with old_password,userrole
+else it update username and return <tt class="docutils literal"><span class="pre">True</span></tt></li>
 </ul>
 </dd>
 </dl>
@@ -4057,8 +4091,8 @@ so, it avoid duplicate username</li>
 <li><dl class="first docutils">
 <dt>Output:</dt>
 <dd><ul class="first last simple">
-<li>if given username exist the return <tt class="docutils literal"><span class="pre">true</span></tt>
-else return <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li>if given username exist the return <tt class="docutils literal"><span class="pre">True</span></tt>
+else return <tt class="docutils literal"><span class="pre">False</span></tt></li>
 </ul>
 </dd>
 </dl>
