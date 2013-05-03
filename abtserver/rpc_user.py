@@ -2,6 +2,7 @@ import dbconnect
 from twisted.web import xmlrpc, server
 from twisted.internet import reactor
 from modules import blankspace
+from datetime import datetime,time
 
 class user(xmlrpc.XMLRPC):
 	"""
@@ -29,7 +30,7 @@ class user(xmlrpc.XMLRPC):
 		
 		user_role = queryParams[3]
 		Session.add(dbconnect.Users(\
-				username,password[0],queryParams[2],user_role,queryParams[4],queryParams[5]))
+				username,password[0],queryParams[2],user_role,queryParams[4],queryParams[5],None,None))
 		Session.commit()
 		print "sign up"
 		return "Sign up sccessfull"
@@ -47,7 +48,7 @@ class user(xmlrpc.XMLRPC):
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		
-		result = Session.query(dbconnect.Users.username).\
+		result = Session.query((dbconnect.Users.username),(dbconnect.Users.login_time),(dbconnect.Users.logout_time)).\
 						filter(dbconnect.Users.userrole == "manager").all()
 		Session.close()
 		connection.connection.close()
@@ -56,7 +57,10 @@ class user(xmlrpc.XMLRPC):
 		if result != []:
 			for row in result:
 				userlist.append(row.username)
-			
+				userlist.append(row.login_time)
+				userlist.append(row.logout_time)
+			print "user list"
+			print userlist
    			return userlist
 		else:
 			return []
@@ -73,7 +77,7 @@ class user(xmlrpc.XMLRPC):
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		
-		result = Session.query(dbconnect.Users.username).\
+		result = Session.query(dbconnect.Users.username,(dbconnect.Users.login_time),(dbconnect.Users.logout_time)).\
 						filter(dbconnect.Users.userrole == "operator").all()
 		Session.close()
 		connection.connection.close()
@@ -81,7 +85,10 @@ class user(xmlrpc.XMLRPC):
 		if result != []:
 			for row in result:
 				userlist.append(row.username)
-			
+				userlist.append(row.login_time)
+				userlist.append(row.logout_time)
+			print "user list"
+			print userlist
    			return userlist
 		else:
 			return result
@@ -230,6 +237,34 @@ class user(xmlrpc.XMLRPC):
                		connection.connection.close()
                		return True                               
 
+	def xmlrpc_setLoginLogoutTiming(self,queryParams,client_id):
+		'''
+		* Purpose: 
+			- function to update login and logout timing of user
+			  
+		* Input:
+			- [username , userrole, login_time, logout_time]
+		* Output:
+			- return ``True``
+		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		
+		login_time =  str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y %H:%M:%S"))
+		logout_time =  str(datetime.strptime(str(queryParams[3]),"%d-%m-%Y %H:%M:%S"))
+		
+       		#update
+                result = Session.query(dbconnect.Users).filter(dbconnect.Users.username == queryParams[0]).\
+						filter(dbconnect.Users.userrole == queryParams[1]).\
+       		 				update({'login_time':login_time,'logout_time':logout_time})
+               
+               	Session.commit()						
+		Session.close()
+		connection.connection.close()
+		return True
+		
+
 	def xmlrpc_changePassword(self,queryParams,client_id):
                '''
                * purpose:
@@ -299,7 +334,7 @@ class user(xmlrpc.XMLRPC):
 		       return True
          
 
-
+	
 			
 	
 	

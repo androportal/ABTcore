@@ -282,8 +282,10 @@ class Users(Base):
 	userrole = Column(String)
 	question = Column(Integer)
 	answer = Column(String)
+	login_time = Column(Text)
+	logout_time = Column(Text)
 
-	def __init__(self,username, userpassword,gender,userrole,question,answer):
+	def __init__(self,username, userpassword,gender,userrole,question,answer,login_time,logout_time):
 		self.userid = None
 		self.username = username
 		self.userpassword = userpassword
@@ -291,6 +293,8 @@ class Users(Base):
 		self.userrole = userrole
 		self.question = question
 		self.answer = answer
+		self.login_time = login_time
+		self.logout_time = logout_time
 
 users_table = Users.__table__
 
