@@ -72,6 +72,7 @@ class abt(xmlrpc.XMLRPC):
 		tree = et.parse("/opt/abt/abt.xml") 
 		root = tree.getroot() # getting root node.
 		orgs = root.getchildren() # get list children node (orgnisation)
+		
 		for organisation in orgs:
 		
 			orgname = organisation.find("orgname").text
@@ -80,6 +81,7 @@ class abt(xmlrpc.XMLRPC):
 			dbname = organisation.find("dbname").text
 			databasename = dbname
 			# Check respective organisation name 
+			deleteflag = False
 			if (orgname == queryParams[0] 
 				and financialyear_from == queryParams[1] 
 				and financialyear_to == queryParams[2]):
@@ -87,6 +89,28 @@ class abt(xmlrpc.XMLRPC):
 				root.remove(organisation)
 				tree.write("/opt/abt/abt.xml")
 				os.system("rm /opt/abt/db/"+databasename)
+				deleteflag = True
+			
+		for organisation in orgs:
+		
+			orgname = organisation.find("orgname").text
+			financialyear_to = organisation.find("financial_year_to").text	
+			
+			if deleteflag == True:
+				oneDay = datetime.timedelta(days=1)
+				finalDate = datetime.date(int(queryParams[1][6:10]),int(queryParams[1][3:5]),int(queryParams[1] [0:2]))
+				newStartDate = finalDate - oneDay
+				newFinancialFrom = newStartDate.strftime("%d-%m-%Y")
+				print "newFinancialFrom"
+				print newFinancialFrom
+				# Check respective organisation name 
+				if (orgname == queryParams[0] and financialyear_to == newFinancialFrom):
+					rolloverflag = organisation.find("rolloverflag")
+					rolloverflag.text = "0"
+					print "newFinancialFrom"
+					print rolloverflag
+					tree.write("/opt/abt/abt.xml")
+				
 		return True	
 
 	def xmlrpc_getFinancialYear(self,arg_orgName):
@@ -304,7 +328,6 @@ class abt(xmlrpc.XMLRPC):
 		Session.commit()
 
 		Session.add_all([\
-			dbconnect.Flags(None,'mandatory'),\
 			dbconnect.Flags(None,'automatic')\
 		])
 		Session.commit()
@@ -689,20 +712,13 @@ class abt(xmlrpc.XMLRPC):
 					and financialyear_from.text == queryParams[1]
 					and financialyear_to.text == queryParams[2]):
 				rolloverflag = org.find("rolloverflag").text
-		#rolloverflag = org.find("rolloverflag").text
-		#flaglist.append(rolloverflag)
-		#for flag in flaglist:
-			#if flag == str(0):
-				#result = "rollover_exist"
-				#break;
-			#else:
-				#result = "rollover_notexist"
+		
 		if rolloverflag == str(1):
 			
-			return "rollover_exist"
+			return True
 		else:
 			
-		 	return "rollover_notexist"
+		 	return False
 		 	
 
 	 

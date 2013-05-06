@@ -30,7 +30,7 @@ class user(xmlrpc.XMLRPC):
 		
 		user_role = queryParams[3]
 		Session.add(dbconnect.Users(\
-				username,password[0],queryParams[2],user_role,queryParams[4],queryParams[5],None,None))
+				username,password[0],queryParams[2],user_role,queryParams[4],queryParams[5],"",""))
 		Session.commit()
 		print "sign up"
 		return "Sign up sccessfull"
@@ -52,16 +52,17 @@ class user(xmlrpc.XMLRPC):
 						filter(dbconnect.Users.userrole == "manager").all()
 		Session.close()
 		connection.connection.close()
-		userlist = []
-		print result
+		resultList = []
 		if result != []:
 			for row in result:
+				userlist = []
 				userlist.append(row.username)
 				userlist.append(row.login_time)
 				userlist.append(row.logout_time)
+				resultList.append(userlist)
 			print "user list"
-			print userlist
-   			return userlist
+			print resultList
+   			return resultList
 		else:
 			return []
 	
@@ -81,15 +82,17 @@ class user(xmlrpc.XMLRPC):
 						filter(dbconnect.Users.userrole == "operator").all()
 		Session.close()
 		connection.connection.close()
-		userlist = []
+		resultList = []
 		if result != []:
 			for row in result:
+				userlist = []
 				userlist.append(row.username)
 				userlist.append(row.login_time)
 				userlist.append(row.logout_time)
+				resultList.append(userlist)
 			print "user list"
-			print userlist
-   			return userlist
+			print resultList
+   			return resultList
 		else:
 			return result
 					
@@ -334,7 +337,42 @@ class user(xmlrpc.XMLRPC):
 		       return True
          
 
-	
+	def xmlrpc_resetPassword(self,queryParams,client_id):
+               '''
+               * purpose:
+                       - It will provide to reset password based on username, old password and userrole
+               
+               * Input:
+                       - [username,new_password,userrole]
+                       
+               * Output:
+                       - return ``False`` if given user is not present with old_password,userole
+                         else it update new_password and return ``True``
+                       
+               '''
+               connection = dbconnect.engines[client_id].connect()
+               Session = dbconnect.session(bind=connection)
+               queryParams = blankspace.remove_whitespaces(queryParams)
+               
+              
+               new_password = blankspace.remove_whitespaces([queryParams[1].encode('base64').rstrip()])
+               result = Session.query(dbconnect.Users.userid).filter(dbconnect.Users.username == queryParams[0]).\
+                                                       filter(dbconnect.Users.userrole == queryParams[2]).first()
+                   
+                                                
+               if result == None:
+               		Session.close()
+               		connection.connection.close()
+               		return False
+               else:
+               		
+               		result = Session.query(dbconnect.Users).filter(dbconnect.Users.userid == result.userid).\
+               		 					update({'userpassword': new_password[0]})
+               
+               		Session.commit()
+              		Session.close()
+               		connection.connection.close()
+               		return True
 			
 	
 	
