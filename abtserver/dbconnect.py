@@ -23,7 +23,7 @@ def getOrgList():
 	* Output:
 		- returns list of clildnode(organisaton)
 	""" 	
-    
+    	print "getorglist"
 	if os.path.exists("/opt/abt/abt.xml") == False:
 		print "file not found trying to create one."
 		try:
@@ -69,6 +69,7 @@ def getConnection(queryParams):
 	* Output:
 		- returns index of last created engine as a client_id
 	"""
+	
 	dbname = "" #the dbname variable will hold the final database name for the given organisation. 
 	orgs = getOrgList() #we will use org as an iterator and go through the list of all the orgs.
 
