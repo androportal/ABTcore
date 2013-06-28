@@ -270,7 +270,7 @@ to rollover to next financial year</li>
 </dd>
 <dt>Input:</dt>
 <dd><ul class="first last simple">
-<li>orgname,financilefrom,financiaeto,client_id</li>
+<li>orgname,financilefrom,financialto</li>
 </ul>
 </dd>
 <dt>Output: </dt>
@@ -367,7 +367,7 @@ engine found in <tt class="docutils literal"><span class="pre">dbconnect.py</spa
 <li><dl class="first docutils">
 <dt>Input: </dt>
 <dd><ul class="first last simple">
-<li>[organisation name]</li>
+<li>[organisation name,finanialyear_from,financialyear_to]</li>
 </ul>
 </dd>
 </dl>
@@ -474,7 +474,7 @@ organisation as <tt class="docutils literal"><span class="pre">1</span></tt> , s
 <li><dl class="first docutils">
 <dt>Input: </dt>
 <dd><ul class="first last simple">
-<li>[organisationName,financialFrom,financialTo,newFinancialTo],client_id</li>
+<li>[organisationName,financialFrom,financialTo],client_id</li>
 </ul>
 </dd>
 </dl>
@@ -1991,7 +1991,7 @@ but it will set the flag 0 instead 1</li>
 <li><dl class="first docutils">
 <dt>Input: </dt>
 <dd><ul class="first last simple">
-<li>[vouchercode]</li>
+<li>[voucherno]</li>
 </ul>
 </dd>
 </dl>
@@ -2060,7 +2060,7 @@ and transaction details (dr and cr), along with narration and the date.</li>
 <dt>Input:</dt>
 <dd><ul class="first last simple">
 <li><tt class="docutils literal"><span class="pre">queryParams_master</span></tt> list will contain :
-[vouchercode,reffdate,project name,Narration]</li>
+[voucherno,reffdate,project name,Narration]</li>
 </ul>
 </dd>
 </dl>
@@ -2263,7 +2263,7 @@ and gives the empty list</li>
 <li><dl class="first docutils">
 <dt>Input: </dt>
 <dd><ul class="first last simple">
-<li>[voucher_code,type_flag]</li>
+<li>[voucherno,type_flag]</li>
 </ul>
 </dd>
 </dl>
@@ -2389,7 +2389,7 @@ else returns None String</li>
 <li><dl class="first docutils">
 <dt>Output:</dt>
 <dd><ul class="first last simple">
-<li>[vouchercode , voucherflag , reff_date , voucher_reference,
+<li>[voucherno , voucherflag , reff_date , voucher_reference,
 transaction_amount,show_narration]</li>
 </ul>
 </dd>
@@ -2413,7 +2413,7 @@ transaction_amount,show_narration]</li>
 <li><dl class="first docutils">
 <dt>Input:</dt>
 <dd><ul class="first last simple">
-<li>[voucher_code]</li>
+<li>[voucherno]</li>
 </ul>
 </dd>
 </dl>
@@ -2444,7 +2444,7 @@ transaction_amount,show_narration]</li>
 <li><dl class="first docutils">
 <dt>Input:</dt>
 <dd><ul class="first last simple">
-<li>[voucher_code]</li>
+<li>[voucherno]</li>
 </ul>
 </dd>
 </dl>
@@ -2482,7 +2482,7 @@ which is in the same file <tt class="docutils literal"><span class="pre">rpc_tra
 <li><dl class="first docutils">
 <dt>Input:</dt>
 <dd><ul class="first last simple">
-<li>[voucher_code]</li>
+<li>[voucherno]</li>
 </ul>
 </dd>
 </dl>
@@ -2570,7 +2570,7 @@ to get Complete details or information about transaction</li>
 <li><dl class="first docutils">
 <dt>Output:</dt>
 <dd><ul class="first last simple">
-<li>[vouchercode , refeence_no , reffdate,vouchertype,narration ]</li>
+<li>[vouchercode,refeence_no , reffdate,vouchertype,narration ]</li>
 </ul>
 </dd>
 </dl>
@@ -2670,7 +2670,8 @@ and transaction details (dr and cr), along with narration and the date.</li>
 <dt>Input:</dt>
 <dd><ul class="first last simple">
 <li>queryParams list will contain :
-reference Number,the actual transaction date,voucher type ,project name , Narration</li>
+reference Number,the actual transaction date,voucher type ,project name , Narration
+voucher_no</li>
 </ul>
 </dd>
 </dl>
@@ -2679,6 +2680,38 @@ reference Number,the actual transaction date,voucher type ,project name , Narrat
 <dt>Output:</dt>
 <dd><ul class="first last simple">
 <li>return vouchercode</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_transaction.transaction.xmlrpc_voucherNoExists">
+<tt class="descname">xmlrpc_voucherNoExists</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_transaction.transaction.xmlrpc_voucherNoExists" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>Function for finding if an voucherno already 
+exists with the supplied code.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>voucherno(datatype:string)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>return &#8220;1&#8221; if voucherno exists and &#8220;0&#8221; if not.</li>
 </ul>
 </dd>
 </dl>
@@ -3604,7 +3637,7 @@ accountcode flag value.</li>
 <li><dl class="first docutils">
 <dt>Output: </dt>
 <dd><ul class="first last simple">
-<li>It returns flagname depnd on flagno</li>
+<li>It returns flagname depend on flagno</li>
 </ul>
 </dd>
 </dl>
@@ -4093,6 +4126,69 @@ so, it avoid duplicate username</li>
 <dd><ul class="first last simple">
 <li>if given username exist the return <tt class="docutils literal"><span class="pre">True</span></tt>
 else return <tt class="docutils literal"><span class="pre">False</span></tt></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_user.user.xmlrpc_resetPassword">
+<tt class="descname">xmlrpc_resetPassword</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_user.user.xmlrpc_resetPassword" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>purpose:</dt>
+<dd><ul class="first last simple">
+<li>It will provide to reset password based on username, old password and userrole</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[username,new_password,userrole]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>return <tt class="docutils literal"><span class="pre">False</span></tt> if given user is not present with old_password,userole
+else it update new_password and return <tt class="docutils literal"><span class="pre">True</span></tt></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_user.user.xmlrpc_setLoginLogoutTiming">
+<tt class="descname">xmlrpc_setLoginLogoutTiming</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_user.user.xmlrpc_setLoginLogoutTiming" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>function to update login and logout timing of user</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[username , userrole, login_time, logout_time]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>return <tt class="docutils literal"><span class="pre">True</span></tt></li>
 </ul>
 </dd>
 </dl>

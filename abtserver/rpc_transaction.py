@@ -40,7 +40,8 @@ class transaction(xmlrpc.XMLRPC):
 		queryParams_master = blankspace.remove_whitespaces(queryParams_master)
 		projectcode = self.xmlrpc_getProjectcodeByProjectName([queryParams_master[3]],client_id)
 		
-		params_master = [queryParams_master[0],queryParams_master[1],queryParams_master[2],projectcode,queryParams_master[4]]
+		params_master = [queryParams_master[0],queryParams_master[1],queryParams_master[2],projectcode,\
+		queryParams_master[4],queryParams_master[5]]
 		
 		vouchercode = self.xmlrpc_setVoucherMaster(params_master,client_id)
 		
@@ -64,6 +65,7 @@ class transaction(xmlrpc.XMLRPC):
 		* Input:
 			- queryParams list will contain :
 			  reference Number,the actual transaction date,voucher type ,project name , Narration
+			  voucher_no
 
 		* Output:
 			- return vouchercode
@@ -71,12 +73,13 @@ class transaction(xmlrpc.XMLRPC):
 		# execute here
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		VoucherCode = Session.query(func.count(dbconnect.VoucherMaster.vouchercode)).scalar()
-		if VoucherCode == None:
-			VoucherCode = 0
-			VoucherCode = VoucherCode + 1
-		else:
-			VoucherCode = VoucherCode + 1
+		VoucherCode = queryParams[5]
+		#VoucherCode = Session.query(func.count(dbconnect.VoucherMaster.vouchercode)).scalar()
+		#if VoucherCode == None:
+			#VoucherCode = 0
+			#VoucherCode = VoucherCode + 1
+		#else:
+			#VoucherCode = VoucherCode + 1
 		
 		system_date = datetime.today() # sqlite take datetime or date object for TIMESTAMP
 		reffdate =  datetime.strptime(str(queryParams[1]),"%d-%m-%Y")
@@ -182,7 +185,7 @@ class transaction(xmlrpc.XMLRPC):
 			- [accountname,from_date,to_date,projectname]
 
 		* Output:
-			- [vouchercode , voucherflag , reff_date , voucher_reference,
+			- [voucherno , voucherflag , reff_date , voucher_reference,
 		          transaction_amount,show_narration]
 		 	
 		"""
@@ -232,7 +235,7 @@ class transaction(xmlrpc.XMLRPC):
 			  	  and gives the empty list
 
 		* Input: 
-			- [voucher_code,type_flag]
+			- [voucherno,type_flag]
 
 		* Output:
 			- [accountnames]
@@ -324,7 +327,7 @@ class transaction(xmlrpc.XMLRPC):
 			- [searchFlag,ref_no,from_date, to_date ,narration]
 
 		* Output:
-			- [vouchercode , refeence_no , reffdate,vouchertype,narration ]
+			- [vouchercode,refeence_no , reffdate,vouchertype,narration ]
 		
   		"""
  		connection = dbconnect.engines[client_id].connect()
@@ -374,7 +377,7 @@ class transaction(xmlrpc.XMLRPC):
 			- to get amount of particular transaction
 
 		* Input:
-			- [voucher_code]
+			- [voucherno]
 
 		*  output:
 			- [totalamount]
@@ -398,7 +401,7 @@ class transaction(xmlrpc.XMLRPC):
 			- gets the transaction related details given a vouchercode.  
 
 		* Input:
-			- [voucher_code]
+			- [voucherno]
 
 		* Output:
 			- returns 2 dimentional list containing rows with 3 columns. 
@@ -437,7 +440,7 @@ class transaction(xmlrpc.XMLRPC):
 			  which is in the same file ``rpc_transaction`` to get project name 
 
 		* Input:
-			- [voucher_code]
+			- [voucherno]
 
 		* Output:
 			- returns list containing data from voucher_master. 
@@ -473,7 +476,7 @@ class transaction(xmlrpc.XMLRPC):
 			- so it will be like disabled for search voucher 
 
 		* Input: 
-			- [vouchercode] 
+			- [voucherno] 
 
 		* Output:
 			- returns boolean True if deleted else False 
@@ -506,7 +509,7 @@ class transaction(xmlrpc.XMLRPC):
 
 		* Input:
 			- ``queryParams_master`` list will contain :
-			  [vouchercode,reffdate,project name,Narration]
+			  [voucherno,reffdate,project name,Narration]
 		* Output:
 			- ``queryParams_details`` list will contain :
 			  [AccountName,dr amount,cr amount]
@@ -702,4 +705,30 @@ class transaction(xmlrpc.XMLRPC):
 		return reff_date
 		
 	
-
+	def xmlrpc_voucherNoExists(self, queryParams, client_id):
+		"""
+		* Purpose:
+			- Function for finding if an voucherno already 
+			  exists with the supplied code.
+		  
+		* Input:
+			- voucherno(datatype:string)
+		
+		* Output:
+			- return "1" if voucherno exists and "0" if not.
+		
+		"""
+		queryParams = blankspace.remove_whitespaces(queryParams)
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(func.count(dbconnect.VoucherMaster.vouchercode)).\
+		      filter(dbconnect.VoucherMaster.vouchercode == queryParams[0]).\
+		      scalar()
+		Session.close()
+		connection.connection.close()
+		print "result"
+		print result
+		if result == 0:
+			return "0"
+		else:
+			return "1"

@@ -119,7 +119,7 @@ account_table = Account.__table__
 class VoucherMaster(Base):    
     __tablename__ = "voucher_master"
     vouchercode = Column(Integer, primary_key=True)
-    reference = Column(String(40), nullable=False)
+    reference = Column(String(40), nullable=True)
     voucherdate = Column(TIMESTAMP, nullable=False)
     reffdate = Column(TIMESTAMP)
     vouchertype = Column(String(40))
@@ -127,7 +127,7 @@ class VoucherMaster(Base):
     projectcode = Column(Integer)
     narration = Column(Text, nullable=False)
 
-    def __init__(self, vouchercode, reference, voucherdate, reffdate, 
+    def __init__(self, vouchercode,reference, voucherdate, reffdate, 
     vouchertype, flag, projectcode, narration):
         self.vouchercode = vouchercode
         self.reference = reference
