@@ -118,7 +118,7 @@ account_table = Account.__table__
 
 class VoucherMaster(Base):    
     __tablename__ = "voucher_master"
-    vouchercode = Column(Integer, primary_key=True)
+    vouchercode = Column(String(40), primary_key=True)
     reference = Column(String(40), nullable=True)
     voucherdate = Column(TIMESTAMP, nullable=False)
     reffdate = Column(TIMESTAMP)
@@ -143,7 +143,7 @@ vouchermaster_table = VoucherMaster.__table__
 class VoucherDetails(Base):
     __tablename__ = "voucher_details"
     cbdtcode = Column(Integer, primary_key=True)
-    vouchercode = Column(Integer, ForeignKey("voucher_master.vouchercode"))
+    vouchercode = Column(String(40), ForeignKey("voucher_master.vouchercode"))
     typeflag = Column(String(10), nullable=False)
     accountcode = Column(String(40), ForeignKey("account.accountcode"), nullable=False)
     amount = Column(Numeric(13, 2), nullable=False)
@@ -159,7 +159,7 @@ voucherdetails_table = VoucherDetails.__table__
 class BankRecon(Base):
     __tablename__ = "bankrecon"
     reconcode = Column(Integer,primary_key = True)
-    vouchercode = Column(Integer,ForeignKey("voucher_master.vouchercode"))
+    vouchercode = Column(String(40),ForeignKey("voucher_master.vouchercode"))
     reffdate = Column(TIMESTAMP)
     accountcode = Column(String(40), ForeignKey("account.accountcode"), nullable=False)
     dramount = Column(Numeric(13,2))

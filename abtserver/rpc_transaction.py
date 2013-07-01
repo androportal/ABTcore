@@ -324,10 +324,10 @@ class transaction(xmlrpc.XMLRPC):
 		          to get Complete details or information about transaction
 
 		* Input:  
-			- [searchFlag,ref_no,from_date, to_date ,narration]
+			- [searchFlag,ref_no,from_date, to_date ,narration,voucherno,groupname]
 
 		* Output:
-			- [vouchercode,refeence_no , reffdate,vouchertype,narration ]
+			- [vouchercode,refeence_no,reffdate,vouchertype,narration]
 		
   		"""
  		connection = dbconnect.engines[client_id].connect()
@@ -358,7 +358,20 @@ class transaction(xmlrpc.XMLRPC):
 			dbconnect.VoucherMaster.narration.like('%'+str(queryParams[4])))))).\
 			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
 			      		
-		
+		if queryParams[0] == 4: 
+			result = Session.query(dbconnect.VoucherMaster).\
+						filter(and_(dbconnect.VoucherMaster.vouchercode == queryParams[5],\
+						dbconnect.VoucherMaster.flag == 1)).\
+			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
+			print "search voucher by voucher no"
+			
+		if queryParams[0] == 4: 
+			result = Session.query(dbconnect.VoucherMaster).\
+						filter(and_(dbconnect.VoucherMaster.vouchercode == queryParams[5],\
+						dbconnect.VoucherMaster.flag == 1)).\
+			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
+			print "search voucher by group name"
+			
 		if result == []:
 			return result
 		else:

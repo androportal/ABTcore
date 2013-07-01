@@ -4,7 +4,7 @@ from twisted.internet import reactor
 from sqlalchemy.orm import sessionmaker,scoped_session
 from xml.etree import ElementTree as et
 from sqlite3 import dbapi2 as sqlite
-from dateutil.relativedelta import relativedelta
+#from dateutil.relativedelta import relativedelta
 import datetime
 import os,sys
 import getopt
@@ -590,7 +590,7 @@ class abt(xmlrpc.XMLRPC):
 		#print "financial from"
 		#print newFinancialFrom
 		
-		newEndDate = finalDate + relativedelta(years=1) # to get new finincial from cal one year difference
+		newEndDate = finalDate + datetime.timedelta(days=365) # to get new finincial from cal one year difference
 		newFinancialTo = newEndDate.strftime("%d-%m-%Y") # get bew financial to 
 		
 		#print "new financial year year"
