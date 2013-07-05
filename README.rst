@@ -85,6 +85,7 @@ Dependencies
 - python-pip 
 - python-sqlalchemy
 - python-twisted
+- python-dateutil
 
 On an Ubuntu machine, these dependencies can be installed using
 ``apt-get`` ::
@@ -93,7 +94,7 @@ On an Ubuntu machine, these dependencies can be installed using
    sudo apt-get install libreadline5 libreadline6-dev libpq5  
    sudo apt-get install python-pip python-sqlalchemy
    sudo apt-get install python-twisted
-
+   sudo apt-get install python-dateutil
 to run the server, ``cd`` to directory ``ABTcore/`` and type ::
    
    sudo ./abtstart
@@ -183,13 +184,8 @@ type ::
 Note
 ~~~~
 
-**ABTcore** was originally derived ``core_engine`` revision
-``159``. Original code can be obtained by typing ::
-
-  hg clone -r 159 http://gnukhata.org/core_engine
-
-you must have `mercurial <http://mercurial.selenic.com/>`_ installed
-on your system. We have `modified` the code to work with Android.
+**ABTcore** was originally derived ``core_engine``.
+We have `modified` the code to work with Android.
 
 
 Help, bugs, feedback
