@@ -91,14 +91,10 @@ class abt(xmlrpc.XMLRPC):
 				
 				root.remove(organisation)
 				tree.write("/opt/abt/abt.xml")
-<<<<<<< HEAD
 				#os.system("rm /opt/abt/db/"+databasename)
-				os.system("dropdb -U postgres "+databasename)
-=======
-				os.system("rm /opt/abt/db/"+databasename)
+				os.system("dropdb -U postgres "+databasename) 
 				
 		
->>>>>>> testing
 		return True	
 
 	def xmlrpc_getFinancialYear(self,arg_orgName):
@@ -224,26 +220,14 @@ class abt(xmlrpc.XMLRPC):
 		new_microsecond = str_time[0:2]		
 		result_dbname = org_db_name + str(time.year) + str(time.month) + str(time.day) + str(time.hour)\
 		 		+ str(time.minute) + str(time.second) + new_microsecond
-<<<<<<< HEAD
-			
-		dbname.text = result_dbname #assigning created database name value in dbname tag text of abt.xml
-		
-		rollover_flag = et.SubElement(org,"rolloverflag")
-		rollover_flag.text = "0"
-		
-		abtconf.write("/opt/abt/abt.xml")
-		
-		os.system("createdb -U postgres "+result_dbname)
-		#os.system("createlang plpgsql -U postgres "+result_dbname)
-=======
 		
 		del queryParams[3] #delete orgtype
 		queryParams.append(result_dbname) #dbname
 		queryParams.append("0") #rollover flag
 		
 		self.xmlrpc_writeToXmlFile(queryParams,"/opt/abt/abt.xml");		
->>>>>>> testing
-		
+		os.system("createdb -U postgres "+result_dbname) 
+
 		# getting client_id for the given orgnisation and from and to date
 		self.client_id = dbconnect.getConnection([name_of_org,db_from_date,db_to_date])
 		
@@ -594,26 +578,6 @@ class abt(xmlrpc.XMLRPC):
 			- created new financile year and database 
 			- restore accounts its closingbalance as openingbalance and subgroups 
 		"""
-<<<<<<< HEAD
-		account = rpc_account.account()
-		accounts = account.xmlrpc_getAllAccountNames(client_id)
-		rollOverAccounts = {}
-		for acc in accounts:
-			report = rpc_reports.reports()
-			closingRow = report.xmlrpc_calculateBalance([acc,queryParams[1],queryParams[2],\
-									queryParams[3]],client_id)
-			# [group_name,bal_brought,curbal,total_DrBal,total_CrBal,opening_baltype,baltype]
-			closing_balance = 0.00
-			if (str(closingRow[6])  == "Cr" 
-				and (str(closingRow[0])== "Current Asset" 
-				or str(closingRow[0])== "Fixed Asset" 
-				or str(closingRow[0])== "Investment" 
-				or str(closingRow[0])== "Loans(Asset)" 
-				or str(closingRow[0])== "Miscellaneous Expenses(Asset)")):
-				
-				closing_balance = -float(closingRow[2])
-				rollOverAccounts[acc] = closing_balance
-=======
 		#print "queyParams"
 		#print queryParams
 		organisation = rpc_organisation.organisation()
@@ -668,7 +632,6 @@ class abt(xmlrpc.XMLRPC):
 				
 					closing_balance = -float(closingRow[2])
 					rollOverAccounts[acc] = closing_balance
->>>>>>> testing
 				
 				if (str(closingRow[6])  == "Dr" 
 					and  (str(closingRow[0])== "Current Asset" 
@@ -677,13 +640,8 @@ class abt(xmlrpc.XMLRPC):
 					or str(closingRow[0])== "Loans(Asset)" 
 					or str(closingRow[0])== "Miscellaneous Expenses(Asset)")):
 				
-<<<<<<< HEAD
-				closing_balance = float(closingRow[2])
-				rollOverAccounts[acc] = closing_balance
-=======
 					closing_balance = float(closingRow[2])
 					rollOverAccounts[acc] = closing_balance
->>>>>>> testing
 				
 				if (str(closingRow[6])  == "Cr"
 					and  (str(closingRow[0])== "Corpus" 
@@ -692,13 +650,8 @@ class abt(xmlrpc.XMLRPC):
 					or str(closingRow[0])== "Loans(Liability)" 
 					or str(closingRow[0])== "Reserves")):
 				
-<<<<<<< HEAD
-				closing_balance = float(closingRow[2])
-				rollOverAccounts[acc[0]] = closing_balance
-=======
 					closing_balance = float(closingRow[2])
 					rollOverAccounts[acc[0]] = closing_balance
->>>>>>> testing
 				
 				if (str(closingRow[6])  == "Dr"
 					and  (str(closingRow[0])== "Corpus" 
@@ -707,13 +660,8 @@ class abt(xmlrpc.XMLRPC):
 					or str(closingRow[0])== "Loans(Liability)"
 					or str(closingRow[0])== "Reserves")):	
 				
-<<<<<<< HEAD
-				closing_balance = -float(closingRow[2])
-				rollOverAccounts[acc] = closing_balance
-=======
 					closing_balance = -float(closingRow[2])
 					rollOverAccounts[acc] = closing_balance
->>>>>>> testing
 		
 			orgs = dbconnect.getOrgList()
 			for org in orgs:
@@ -725,50 +673,21 @@ class abt(xmlrpc.XMLRPC):
 						and financialyear_to.text == financialTo):
 					dbname = org.find("dbname")
 				
-<<<<<<< HEAD
-				database = dbname.text
-		print "the current database name is " + database
-		
-		os.system("pg_dump -U postgres -a -t organisation -t subgroups -t account -Fc "+  database + " > /opt/abt/db.dump")
-		'''
-		try:
-			os.system("sqlite3 /opt/abt/db/"+database+" .sch > schema")
-			os.system("sqlite3 /opt/abt/db/"+database+" .dump > dump")
-			os.system("grep -vxw -f schema dump > /opt/abt/db/db.dump")
-			os.system("grep -w 'account\|subgroups\|organisation' /opt/abt/db/db.dump > /opt/abt/db/db_dump.dump")
-		except:
-			print "problem to dump database"
-		'''
-		oneDay = datetime.timedelta(days=1)
-		finalDate = datetime.date(int(financialTo[6:10]),int(financialTo[3:5]),int(financialTo[0:2]))
-		newStartDate = finalDate + oneDay
-		newFinancialFrom = newStartDate.strftime("%d-%m-%Y")
-
-		dbconnect.engines[client_id].dispose()
-		del dbconnect.engines[client_id]
-		try:
-			self.client_id = self.xmlrpc_Deploy([queryParams[0],newFinancialFrom,newFinancialTo,queryParams[4]])
-		except:
-		        print "new database is not deployed"
-		newOrgs = dbconnect.getOrgList()
-		for newOrg in newOrgs:
-			orgname = newOrg.find("orgname")
-			financialyear_from = newOrg.find("financial_year_from")
-			financialyear_to = newOrg.find("financial_year_to")
-=======
 					database = dbname.text
 			print "the current database name is " + database
 			try:
+				os.system("pg_dump -U postgres -a -t organisation -t subgroups -t account -t users -t flags -Fc "+  database + " > /opt/abt/db/db_dump.dump")
+				'''
 				os.system("sqlite3 /opt/abt/db/"+database+" .sch > schema")
 				os.system("sqlite3 /opt/abt/db/"+database+" .dump > dump")
 				os.system("grep -vxw -f schema dump > /opt/abt/db/db.dump")
 				os.system("grep -w 'account\|subgroups\|organisation\|users\|flags' /opt/abt/db/db.dump > /opt/abt/db/db_dump.dump")
+				'''
 			except:
 				print "problem to dump database"
 		
 			################################################################3
 			dbconnect.engines[client_id].dispose()
->>>>>>> testing
 			
 			orgType = organisation.xmlrpc_getorgTypeByname([queryParams[0]],client_id)
 			del dbconnect.engines[client_id]
@@ -788,28 +707,13 @@ class abt(xmlrpc.XMLRPC):
 					newdbname = newOrg.find("dbname")
 					newDatabase = newdbname.text
 				
-<<<<<<< HEAD
-		print "deployment is done and the new dbname is " + newDatabase
-		connection = dbconnect.engines[self.client_id[1]].raw_connection()
-		dbconnect.engines[self.client_id[1]].execute("delete from subgroups;")
-		connection.commit()
-		
-		try:
-			os.system("pg_restore -U postgres -d " + newDatabase + " /opt/abt/db.dump")
-			#os.system("sqlite3 /opt/abt/db/"+ newDatabase+"< /opt/abt/db/db_dump.dump")
-			for account in rollOverAccounts.keys():
-				editStatement = "update account set openingbalance = "+str(rollOverAccounts[account])+\
-						" where accountname = '" + account + "'"
-				dbconnect.engines[self.client_id[1]].execute(editStatement)
-		
-=======
 			print "deployment is done and the new dbname is " + newDatabase
 			connection = dbconnect.engines[self.client_id[1]].raw_connection()
 			dbconnect.engines[self.client_id[1]].execute("delete from subgroups;")
->>>>>>> testing
 			connection.commit()
 			try:
-				os.system("sqlite3 /opt/abt/db/"+ newDatabase+"< /opt/abt/db/db_dump.dump")
+				os.system("pg_restore -U postgres -d " + newDatabase + " /opt/abt/db/db_dump.dump") 
+				#os.system("sqlite3 /opt/abt/db/"+ newDatabase+"< /opt/abt/db/db_dump.dump")
 				for account in rollOverAccounts.keys():
 					editStatement = "update account set openingbalance = "+str(rollOverAccounts[account])+\
 							" where accountname = '" + account + "'"
@@ -969,3 +873,4 @@ def runabt():
 	#start the service by running the reactor.
 	reactor.run()
 	
+
