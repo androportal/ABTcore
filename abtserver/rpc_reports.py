@@ -2351,3 +2351,4 @@ class reports(xmlrpc.XMLRPC):
 		
 		return cashFlowGrid
 		
+

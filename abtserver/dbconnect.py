@@ -27,7 +27,7 @@ def getOrgList():
 	* Output:
 		- returns list of clildnode(organisaton)
 	""" 	
-    
+    	print "getorglist"
 	if os.path.exists("/opt/abt/abt.xml") == False:
 		print "file not found trying to create one."
 		try:
@@ -89,6 +89,7 @@ def getConnection(queryParams):
 	* Output:
 		- returns index of last created engine as a client_id
 	"""
+	
 	dbname = "" #the dbname variable will hold the final database name for the given organisation. 
 	orgs = getOrgList() #we will use org as an iterator and go through the list of all the orgs.
 
@@ -143,8 +144,8 @@ account_table = Account.__table__
 
 class VoucherMaster(Base):    
     __tablename__ = "voucher_master"
-    vouchercode = Column(Integer, primary_key=True)
-    reference = Column(String(40), nullable=False)
+    vouchercode = Column(String(40), primary_key=True)
+    reference = Column(String(40), nullable=True)
     voucherdate = Column(TIMESTAMP, nullable=False)
     reffdate = Column(TIMESTAMP)
     vouchertype = Column(String(40))
@@ -152,7 +153,7 @@ class VoucherMaster(Base):
     projectcode = Column(Integer)
     narration = Column(Text, nullable=False)
 
-    def __init__(self, vouchercode, reference, voucherdate, reffdate, 
+    def __init__(self, vouchercode,reference, voucherdate, reffdate, 
     vouchertype, flag, projectcode, narration):
         self.vouchercode = vouchercode
         self.reference = reference
@@ -168,7 +169,7 @@ vouchermaster_table = VoucherMaster.__table__
 class VoucherDetails(Base):
     __tablename__ = "voucher_details"
     cbdtcode = Column(Integer, primary_key=True)
-    vouchercode = Column(Integer, ForeignKey("voucher_master.vouchercode"))
+    vouchercode = Column(String(40), ForeignKey("voucher_master.vouchercode"))
     typeflag = Column(String(10), nullable=False)
     accountcode = Column(String(40), ForeignKey("account.accountcode"), nullable=False)
     amount = Column(Numeric(13, 2), nullable=False)
@@ -184,7 +185,7 @@ voucherdetails_table = VoucherDetails.__table__
 class BankRecon(Base):
     __tablename__ = "bankrecon"
     reconcode = Column(Integer,primary_key = True)
-    vouchercode = Column(Integer,ForeignKey("voucher_master.vouchercode"))
+    vouchercode = Column(String(40),ForeignKey("voucher_master.vouchercode"))
     reffdate = Column(TIMESTAMP)
     accountcode = Column(String(40), ForeignKey("account.accountcode"), nullable=False)
     dramount = Column(Numeric(13,2))
@@ -298,5 +299,30 @@ class subGroups(Base):
         self.subgroupname = subgroupname
         
 subgroups_table = subGroups.__table__
+
+class Users(Base):
+	__tablename__ = 'users'
+	userid = Column(Integer, primary_key=True)
+	username = Column(Text,nullable=False)
+	userpassword = Column(String)
+	gender = Column(String)
+	userrole = Column(String)
+	question = Column(Integer)
+	answer = Column(String)
+	login_time = Column(Text)
+	logout_time = Column(Text)
+
+	def __init__(self,username, userpassword,gender,userrole,question,answer,login_time,logout_time):
+		self.userid = None
+		self.username = username
+		self.userpassword = userpassword
+		self.gender = gender
+		self.userrole = userrole
+		self.question = question
+		self.answer = answer
+		self.login_time = login_time
+		self.logout_time = logout_time
+
+users_table = Users.__table__
 
 orm.compile_mappers()

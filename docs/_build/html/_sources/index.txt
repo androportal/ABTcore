@@ -29,7 +29,7 @@ abtstart
 --------
 	+ It is an executable file, it will responsible to run entire ``ABTcore``
  		- this is an executable file.
-		- this is calling function calls runabt() from ``rpc_main.py``and start the ``ABTcore``. 
+		- this is calling function calls runabt() from ``rpc_main.py`` and start the ``ABTcore``. 
 		
 	+ In ``abtstart`` you are able to see system command's , it's basically written to maintain databse files loacally.
 		- import rpc_main
@@ -84,6 +84,13 @@ Organisation
 .. automodule:: abtserver.rpc_organisation
    :members:
    
+   
+User
+++++
+.. automodule:: abtserver.rpc_user
+   :members:
+   
+
 Data
 ++++
 .. automodule:: abtserver.rpc_data

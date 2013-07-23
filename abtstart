@@ -11,6 +11,7 @@ if __name__ == "__main__":
 			try:
 				print "creating abt and db directory and copying places.db to abt"
 				os.system("mkdir -p /opt/abt/db") # create abt directory and db to host all databases
+				os.system("mkdir -p /opt/abt/export")
 				os.system("cp ./src/places.db /opt/abt/") # copy places.db from /src to abt
 				
 			except:
@@ -21,6 +22,7 @@ if __name__ == "__main__":
 				try:
 					print "creating db directory and copying places.db"
 					os.system("mkdir /opt/abt/db") # create db directory in abt
+					os.system("mkdir -p /opt/abt/export")
 					os.system("cp ./src/places.db /opt/abt/") # copy places.db from /src to abt
 				except:
 					print "can't create directory somthing is wrong"

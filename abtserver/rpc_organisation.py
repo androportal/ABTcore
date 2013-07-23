@@ -58,7 +58,7 @@ class organisation(xmlrpc.XMLRPC):
 		* Input: 
 			- [flagno]
 		* Output: 
-			- It returns flagname depnd on flagno
+			- It returns flagname depend on flagno
 
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
@@ -67,14 +67,14 @@ class organisation(xmlrpc.XMLRPC):
 		result = Session.query(dbconnect.Flags).\
 				filter(dbconnect.Flags.flagno == queryParams[0]).\
 				first()
-		
+		Session.close()
+		connection.connection.close()
 		if result == []:
 			return result
 		else:
 			return result.flagname
 		
-		Session.close()
-		connection.connection.close()
+		
 		
 	def xmlrpc_setProjects(self,queryParams,client_id):
 		"""
