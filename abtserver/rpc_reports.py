@@ -1842,7 +1842,7 @@ class reports(xmlrpc.XMLRPC):
 		del ledgerResult[len(ledgerResult)-1] # total Dr and Cr row
 		voucherCodes = []
 		for vc in vouchercodeRecords:
-			voucherCodes.append(int(vc[0]))
+			voucherCodes.append(str(vc[0]))
 		
 		for ledgerRow in ledgerResult:
 			if len(str(ledgerRow[0])) == 10:
@@ -2095,8 +2095,10 @@ class reports(xmlrpc.XMLRPC):
 				#may be more than one account was involved at the other side so loop through.
 				if len(particulars) == 1:
 					for particularRow in particulars:
+						print "row is"
+						print transactionRow[0]
 						cleared =transaction.xmlrpc_getOnlyClearedTransactions([\
-								str(particularRow),int(transactionRow[0]),\
+								str(particularRow),str(transactionRow[0]),\
 								queryParams[1],queryParams[3]],client_id)
 
 						if cleared == False:
@@ -2121,7 +2123,7 @@ class reports(xmlrpc.XMLRPC):
 				if len(particulars) == 1:
 					for particularRow in particulars:
 						cleared =transaction.xmlrpc_getOnlyClearedTransactions(\
-								[str(particularRow),int(transactionRow[0]),\
+								[str(particularRow),str(transactionRow[0]),\
 									queryParams[1],queryParams[3]],client_id)
 					
 						if cleared == False:
