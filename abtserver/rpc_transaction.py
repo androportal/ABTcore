@@ -665,22 +665,22 @@ class transaction(xmlrpc.XMLRPC):
 		* Output: 
 			- [reffno]
 		"""
-		statement = "select count(vouchercode)\
+		statement = "select reference\
 				from view_voucherbook\
-				where vouchertype = '"+queryParams[0]+"' and flag = 1"
-		maxcode = dbconnect.engines[client_id].execute(statement).fetchone()
-		
-		if maxcode[0] > 0:
-			statement = "select reference\
-					from view_voucherbook\
-					where vouchercode = (\
-								select max(vouchercode)from view_voucherbook \
-								where vouchertype = '"+queryParams[0]+"'\
-								and flag = 1)"
-			reffno = dbconnect.engines[client_id].execute(statement).fetchone()
-			reffno = reffno.reference
+				where vouchertype = '"+queryParams[0]+"'and flag = 1"
+
+		reff_no = dbconnect.engines[client_id].execute(statement).fetchall()
+		reffno = []
+		if reff_no == None:
+			reffno = str(1)
+			
 		else :
-			reffno = str(maxcode[0]+1)
+			for row in reff_no:
+				
+				reffno.append(row[0])
+			
+			reffno.reverse()
+			reffno = reffno[0]
 		
 		return reffno
 		
@@ -695,25 +695,24 @@ class transaction(xmlrpc.XMLRPC):
 		* Output:
 			- [reference_date]
 		"""
-		statement = "select count(vouchercode)\
+		statement = "select reffdate\
 				from view_voucherbook\
-				where vouchertype = '"+queryParams[1]+"' and flag = 1"
-		maxcode = dbconnect.engines[client_id].execute(statement).fetchone()
-		
-		reff_date = datetime.strptime(str(queryParams[0]),"%d-%m-%Y")
-		if maxcode[0] > 0:
-			statement = "select reffdate\
-					from view_voucherbook\
-					where vouchercode = (\
-								select max(vouchercode)from view_voucherbook \
-								where vouchertype = '"+queryParams[1]+"'\
-								and flag = 1)"
-			reff_date= dbconnect.engines[client_id].execute(statement).fetchone()
-			reff_date = str(reff_date.reffdate).split(" ")
+				where vouchertype = '"+queryParams[1]+"'and flag = 1"
+		reff_date= dbconnect.engines[client_id].execute(statement).fetchall()
+		reffdate = []
+		if reff_date == None:
+			reff_date = str(queryParams[0])
+		else:
+			
+			for row in reff_date:
+				
+				reffdate.append(row[0])
+			
+			reffdate.reverse()
+			
+			reff_date = str(reffdate[0]).split(" ")
 			reff_date = datetime.strptime(reff_date[0],"%Y-%m-%d").strftime("%d-%m-%Y")
 			
-		else :
-			reff_date = str(queryParams[0])
 			
 		return reff_date
 		
