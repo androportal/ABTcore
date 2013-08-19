@@ -655,6 +655,7 @@ class transaction(xmlrpc.XMLRPC):
 			return False
 				
 	def xmlrpc_getLastReference(self,queryParams,client_id):
+		
 		"""
 		* Purpose:
 			- To get last reference number for respective vouchertype
@@ -665,13 +666,16 @@ class transaction(xmlrpc.XMLRPC):
 		* Output: 
 			- [reffno]
 		"""
+		print queryParams[0]
 		statement = "select reference\
 				from view_voucherbook\
 				where vouchertype = '"+queryParams[0]+"'and flag = 1"
 
 		reff_no = dbconnect.engines[client_id].execute(statement).fetchall()
 		reffno = []
-		if reff_no == None:
+		print "reff no"
+		print reff_no
+		if reff_no == []:
 			reffno = str(1)
 			
 		else :
@@ -679,7 +683,8 @@ class transaction(xmlrpc.XMLRPC):
 				
 				reffno.append(row[0])
 			
-			reffno.reverse()
+			print "reffno.reverse()"
+			print reffno.reverse()
 			reffno = reffno[0]
 		
 		return reffno
@@ -700,7 +705,7 @@ class transaction(xmlrpc.XMLRPC):
 				where vouchertype = '"+queryParams[1]+"'and flag = 1"
 		reff_date= dbconnect.engines[client_id].execute(statement).fetchall()
 		reffdate = []
-		if reff_date == None:
+		if reff_date == []:
 			reff_date = str(queryParams[0])
 		else:
 			
