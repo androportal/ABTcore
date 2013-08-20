@@ -241,10 +241,12 @@ class Flags(Base):
     __tablename__ = 'flags'
     flagno = Column(Integer, primary_key=True)
     flagname = Column(Text)
+    set_flag = Column(Integer)
 
-    def __init__(self, flagno, flagname):
+    def __init__(self, flagno, flagname, set_flag):
         self.flagno = flagno
         self.flagname = flagname
+        self.set_flag = set_flag
 
 flags_table = Flags.__table__
 

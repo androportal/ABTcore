@@ -333,8 +333,8 @@ class abt(xmlrpc.XMLRPC):
 		Session.commit()
 
 		Session.add_all([\
-			dbconnect.Flags(None,'automatic'),
-			dbconnect.Flags(None,'automatic')\
+			dbconnect.Flags(None,'automatic',0),
+			dbconnect.Flags(None,'manually',0)\
 		])
 		Session.commit()
 

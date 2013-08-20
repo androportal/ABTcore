@@ -28,11 +28,13 @@ class organisation(xmlrpc.XMLRPC):
 		"""
 		* Purpose:
 			- function for update flags for project manually created account code and voucher
-			  reference number i/p parameters: Flag No(datatype:integer) , FlagName
-			- if flag no is ``2`` then will update accountcode flag value as either
+			  reference number i/p parameters: Flag No(datatype:integer) , FlagName and set flag
+			- if flag no is ``1`` then will update accountcode flag value as either
 			  ``manually`` or ``automatic`` (default) 
-			- if flag no is ``1`` then will update refeno flag value as either 
+			- if flag no is ``2`` then will update rollover flag value as either 
 			  ``mandatory`` or ``optional`` (datatype:text) 
+			- default set flag in flags table is 0. For 'manual' account code, set flag is 1 and
+			  for 'automatic' account code, set falg is 2.
 		* Output: 
 			- returns boolean True
 		"""
@@ -41,7 +43,7 @@ class organisation(xmlrpc.XMLRPC):
 		Session = dbconnect.session(bind=connection)
 		Session.query(dbconnect.Flags).\
 			filter(dbconnect.Flags.flagno == queryParams[0]).\
-			update({'flagname':queryParams[1]})
+			update({'flagname':queryParams[1],'set_flag':queryParams[2]})
 		Session.commit()
 		Session.close()
 		connection.connection.close()
@@ -54,11 +56,12 @@ class organisation(xmlrpc.XMLRPC):
 			  for given flag no 
 			- if flag no is ``2`` then will return
 			  accountcode flag value.
-			- if flag no is ``1`` then will return refeno flag value
+			- if flag no is ``1`` then will return rollover flag value
 		* Input: 
 			- [flagno]
 		* Output: 
-			- It returns flagname depend on flagno
+			- It returns list of flagname and set falg depend on flagno
+			- set flag is set to make it one time activity.
 
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
@@ -72,7 +75,8 @@ class organisation(xmlrpc.XMLRPC):
 		if result == []:
 			return result
 		else:
-			return result.flagname
+			print [result.flagname,result.set_flag]
+			return [result.flagname,result.set_flag]
 		
 		
 		
