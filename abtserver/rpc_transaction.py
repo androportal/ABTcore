@@ -332,8 +332,7 @@ class transaction(xmlrpc.XMLRPC):
   		"""
  		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
-		from_date = datetime.strptime(str(queryParams[2]),"%d-%m-%Y")
-		to_date = datetime.strptime(str(queryParams[3]),"%d-%m-%Y")
+		
 		if queryParams[0] == 1: 
 			result = Session.query(dbconnect.VoucherMaster).\
 						filter(and_(dbconnect.VoucherMaster.reference == queryParams[1],\
@@ -342,7 +341,8 @@ class transaction(xmlrpc.XMLRPC):
 			print "search voucher by reference no"
 			
 		if queryParams[0] == 2:	
-			
+			from_date = datetime.strptime(str(queryParams[2]),"%d-%m-%Y")
+		 	to_date = datetime.strptime(str(queryParams[3]),"%d-%m-%Y")
 			result = Session.query(dbconnect.VoucherMaster).\
 						filter(and_(dbconnect.VoucherMaster.reffdate >= from_date,\
 						dbconnect.VoucherMaster.reffdate <= to_date,\
@@ -353,19 +353,19 @@ class transaction(xmlrpc.XMLRPC):
 		if queryParams[0] == 3:	
 			result = Session.query(dbconnect.VoucherMaster).\
 			filter(and_(dbconnect.VoucherMaster.flag == 1,\
-			(or_(dbconnect.VoucherMaster.narration.like(str(queryParams[4])+'%'),\
-			dbconnect.VoucherMaster.narration.like('%'+str(queryParams[4])+'%'),\
-			dbconnect.VoucherMaster.narration.like('%'+str(queryParams[4])))))).\
+			(or_(dbconnect.VoucherMaster.narration.like(str(queryParams[1])+'%'),\
+			dbconnect.VoucherMaster.narration.like('%'+str(queryParams[1])+'%'),\
+			dbconnect.VoucherMaster.narration.like('%'+str(queryParams[1])))))).\
 			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
 			      		
 		if queryParams[0] == 4: 
 			result = Session.query(dbconnect.VoucherMaster).\
-						filter(and_(dbconnect.VoucherMaster.vouchercode == queryParams[5],\
+						filter(and_(dbconnect.VoucherMaster.vouchercode == queryParams[1],\
 						dbconnect.VoucherMaster.flag == 1)).\
 			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
 			print "search voucher by voucher no"
 			
-		if queryParams[0] == 4: 
+		if queryParams[0] == 5: 
 			result = Session.query(dbconnect.VoucherMaster).\
 						filter(and_(dbconnect.VoucherMaster.vouchercode == queryParams[5],\
 						dbconnect.VoucherMaster.flag == 1)).\
