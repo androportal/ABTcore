@@ -267,6 +267,33 @@ class user(xmlrpc.XMLRPC):
 		connection.connection.close()
 		return True
 		
+		
+	def xmlrpc_getLastLoginTiming(self,queryParams,client_id):
+		'''
+		* Purpose: 
+			- function to get the last login timing of user
+			  
+		* Input:
+			- [username , userrole]
+		* Output:
+			- return time
+		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		
+                result = Session.query(dbconnect.Users).\
+						filter(dbconnect.Users.userrole == queryParams[0]).\
+						filter(dbconnect.Users.username == queryParams[1]).\
+						first()
+               						
+		Session.close()
+		connection.connection.close()
+		if result != None:
+			 
+   			return result.login_time
+		else:
+			return []
 
 	def xmlrpc_changePassword(self,queryParams,client_id):
                '''
