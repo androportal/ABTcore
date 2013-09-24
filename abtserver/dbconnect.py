@@ -50,13 +50,37 @@ def getOrgList():
 	orgs = abtroot.getchildren() 
 	return orgs
 
-
+def getDatabaseName(queryParams):
+	"""
+	* Purpose: 
+		- To get database name stored in abt.xml file.
+		- Given organisation name , financial from , financial to.
+	* Input:
+		- [orgname,financialfrom,financialto]
+	* Output:
+		- return string database name
+	"""
+	orgs = getOrgList()
+	for org in orgs:
+		orgname = org.find("orgname")
+		financialyear_from = org.find("financial_year_from")#DD-MM-YYYY
+		financialyear_to = org.find("financial_year_to")
+		if (orgname.text == queryParams[0]
+				and financialyear_from.text ==  queryParams[1]
+				and financialyear_to.text ==  queryParams[2] ):
+			dbname = org.find("dbname")
+		
+			database = dbname.text
+		else:
+			database = "No Database"
+	return database
+	
 def getConnection(queryParams):
 	"""
 	* Purpose:
 		- The getConnection function will actually establish connection and 
 		- return the id of the latest engine added to the list.
-		- first check if the file exists in the given path.
+		- first it will check for 
 		- if this is the first time we are running the server 
 		  then we need to create the ``abt.xml`` file.	
 		- engine in this analogy is a connection maintained as a session.
@@ -71,24 +95,13 @@ def getConnection(queryParams):
 	"""
 	
 	dbname = "" #the dbname variable will hold the final database name for the given organisation. 
-	orgs = getOrgList() #we will use org as an iterator and go through the list of all the orgs.
-
-
-	for org in orgs:
-		orgname = org.find("orgname")
-		financialyear_from = org.find("financial_year_from")
-		financialyear_to = org.find("financial_year_to")
-
-		if orgname.text == queryParams[0] and financialyear_from.text == queryParams[1] and financialyear_to.text == queryParams[2]:
-		 
-		    dbname = org.find("dbname")
-		    database = dbname.text
-		
+	database = getDatabaseName([queryParams[0],queryParams[1],queryParams[2]])
 	global engines #the engine has to be a global variable so that it is accessed throughout the module.
 	stmt = 'sqlite:////opt/abt/db/' + database
 	engine = create_engine(stmt, echo=False) #now we will create an engine instance to connect to the given database.
 	engines.append(engine)  #add the newly created engine instance to the list of engines.
 	return engines.index(engine) #returning the connection number for this engine.
+	
 
 Base = declarative_base()
 class Account(Base):
