@@ -357,6 +357,7 @@ class transaction(xmlrpc.XMLRPC):
 			dbconnect.VoucherMaster.narration.like('%'+str(queryParams[1])+'%'),\
 			dbconnect.VoucherMaster.narration.like('%'+str(queryParams[1])))))).\
 			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
+			print "search by narration"
 			      		
 		if queryParams[0] == 4: 
 			result = Session.query(dbconnect.VoucherMaster).\
@@ -366,22 +367,40 @@ class transaction(xmlrpc.XMLRPC):
 			print "search voucher by voucher no"
 			
 		if queryParams[0] == 5: 
+			
+			
+			#statement = "select vouchercode,reference,reffdate,vouchertype,narration\
+			     		#from view_voucherbook\
+			     		#where account_name = '"+str(queryParams[3])+"'\
+			     		#and flag = 1 order by reffdate"
+			
+			statement = "select *\
+			     		from view_voucherbook\
+			     		where account_name = '"+str(queryParams[3])+"'\
+			     		and flag = 1 order by reffdate"
+			     		
+			result = dbconnect.engines[client_id].execute(statement).fetchall()
+			print "search voucher by account name"
+			print result
+			
+		if queryParams[0] == 6:
 			result = Session.query(dbconnect.VoucherMaster).\
-						filter(and_(dbconnect.VoucherMaster.vouchercode == queryParams[5],\
+						filter(and_(dbconnect.VoucherMaster.vouchertype == queryParams[3],\
 						dbconnect.VoucherMaster.flag == 1)).\
 			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
-			print "search voucher by group name"
+			print "search voucher by vouchertype"
 			
 		if result == []:
 			return result
 		else:
 			voucherlists = []
+			print result
 		
 			for row in result:
 				reffdate = str(row.reffdate).split(" ")
 				ref_date = datetime.strptime(reffdate[0],"%Y-%m-%d").strftime("%d-%m-%Y")
 				voucherlists.append([row.vouchercode,row.reference,ref_date,row.vouchertype,row.narration])
-			
+			print voucherlists
 			return voucherlists 
 			
 	def xmlrpc_getVoucherAmount(self,queryParams,client_id):

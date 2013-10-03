@@ -753,7 +753,7 @@ class account(xmlrpc.XMLRPC):
         	connection.connection.close()
         	
 		if(str(hasOpeningBalance) == "0" and str(hasTransactions) == "0" and queryParams[2] == 1):
-		    self.xmlrpc_deleteAccount([accName],client_id)
+		    #self.xmlrpc_deleteAccount([accName],client_id)
 		    return "account deleted"
 		if(queryParams[2] == 0 and str(hasTransactions) == "0"):
 		    return "account can be edited"
