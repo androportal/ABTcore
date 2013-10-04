@@ -60,6 +60,7 @@ def getDatabaseName(queryParams):
 	* Output:
 		- return string database name
 	"""
+	database = ""
 	orgs = getOrgList()
 	for org in orgs:
 		orgname = org.find("orgname")
@@ -67,12 +68,11 @@ def getDatabaseName(queryParams):
 		financialyear_to = org.find("financial_year_to")
 		if (orgname.text == queryParams[0]
 				and financialyear_from.text ==  queryParams[1]
-				and financialyear_to.text ==  queryParams[2] ):
+				and financialyear_to.text ==  queryParams[2]):
 			dbname = org.find("dbname")
 		
 			database = dbname.text
-		else:
-			database = "No Database"
+		
 	return database
 	
 def getConnection(queryParams):
@@ -94,7 +94,7 @@ def getConnection(queryParams):
 		- returns index of last created engine as a client_id
 	"""
 	
-	dbname = "" #the dbname variable will hold the final database name for the given organisation. 
+	#dbname = "" #the dbname variable will hold the final database name for the given organisation. 
 	database = getDatabaseName([queryParams[0],queryParams[1],queryParams[2]])
 	global engines #the engine has to be a global variable so that it is accessed throughout the module.
 	stmt = 'sqlite:////opt/abt/db/' + database
