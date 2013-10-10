@@ -5,6 +5,8 @@ from sqlalchemy.orm import sessionmaker,scoped_session
 from xml.etree import ElementTree as et
 from sqlite3 import dbapi2 as sqlite
 from dateutil.relativedelta import relativedelta
+from datetime import datetime, time
+from time import strftime
 import datetime
 import os,sys
 import getopt
@@ -596,12 +598,9 @@ class abt(xmlrpc.XMLRPC):
 		print NewFinancialYear[0]
 		print NewFinancialYear[1]
 		############# to get current system date #############
+		
 		now = datetime.datetime.now()
-		
-		
-		system_date = datetime.date(now.year,now.month,now.day)
-		print system_date.strftime("%d-%m-%Y")
-		if system_date.strftime("%d-%m-%Y") == NewFinancialYear[0]:
+		if now >= datetime.datetime.strptime(str(NewFinancialYear[0]),"%d-%m-%Y"):
 			print "yes it match"
 		##########################################################
 			account = rpc_account.account()
