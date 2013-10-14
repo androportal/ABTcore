@@ -280,6 +280,35 @@ class account(xmlrpc.XMLRPC):
 				accountnames.append(row.accountname)
 		
 			return accountnames
+			
+	
+	def xmlrpc_getAllAccountNamesOrderByDate(self, client_id):
+		"""
+		* Purpose: 
+			- Function to get the list of all accountnames in the database
+			  order by date.
+			
+		* Output: 
+			- returns the list of all acountnameselse returns empty list 
+		
+		"""
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Account.accountname).\
+		      		all()
+		Session.commit()
+		Session.close()
+		connection.connection.close()
+			
+		accountnames = []
+		if result == None:
+			return []
+		else: 
+			for row in result:
+				accountnames.append(row.accountname)
+		
+			return accountnames
+	
 	
 	def xmlrpc_getAllAccountCodes(self,client_id):
 		"""

@@ -415,7 +415,7 @@ class reports(xmlrpc.XMLRPC):
 	
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		account = rpc_account.account()
-		accounts = account.xmlrpc_getAllAccountNames(client_id)
+		accounts = account.xmlrpc_getAllAccountNamesOrderByDate(client_id)
 		trialBalance = []
 		srno = 1
 		total_dr = 0.00
@@ -458,7 +458,7 @@ class reports(xmlrpc.XMLRPC):
 			  and [total debit , total credit]
 		"""
 		account = rpc_account.account()
-		accounts = account.xmlrpc_getAllAccountNames(client_id)
+		accounts = account.xmlrpc_getAllAccountNamesOrderByDate(client_id)
 		trialBalance = []
 		srno =1
 		total_dr = 0.00
@@ -493,7 +493,7 @@ class reports(xmlrpc.XMLRPC):
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
 		account = rpc_account.account()
-		accounts = account.xmlrpc_getAllAccountNames(client_id)
+		accounts = account.xmlrpc_getAllAccountNamesOrderByDate(client_id)
 		trialBalance = []
 		srno =1
 		total_dr = 0.00
