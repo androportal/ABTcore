@@ -821,4 +821,25 @@ class account(xmlrpc.XMLRPC):
 		else:
 			return result[0]
 		
-
+	def xmlrpc_getAllCashAccounts(self,client_id):
+		"""
+		* Purpose
+			- To get all accountnames which is under ``Cash`` subgroup.
+			- it will query the ``group_subgroup_account`` view from ``rpc_main``.
+		
+		* Output:
+			- Returns list of accountnames
+		"""
+		statement = "select accountname\
+			     		from group_subgroup_account\
+			     		where subgroupname ='Cash'\
+					order by accountname"  
+		getallcashaccounts = dbconnect.engines[client_id].execute(statement).fetchall()
+		
+		if getallcashaccounts == []:
+			return []
+		else:
+			cashaccount = []
+			for row in getallcashaccounts:
+				cashaccount.append(row[0])
+			return cashaccount 
