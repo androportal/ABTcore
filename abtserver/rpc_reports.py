@@ -108,6 +108,7 @@ class reports(xmlrpc.XMLRPC):
 					drAmount = '%.2f'%(float(transactionRow[4]))
 					crAmount = ""
 					narration = transactionRow[5]
+					totalDr = totalDr +  float(drAmount)
 					for i in range (0, len(particular)):
 						if (i == len(particular)-1):
 							accountNames = accountNames + particular[i]
@@ -125,6 +126,8 @@ class reports(xmlrpc.XMLRPC):
 					ledgerRow.append(drAmount)
 					ledgerRow.append(crAmount)
 					ledgerRow.append(narration)
+					print "ledger row dr"
+					print ledgerRow
 					
 				
 			if transactionRow[1] == "Cr":
@@ -147,6 +150,7 @@ class reports(xmlrpc.XMLRPC):
 					refno = transactionRow[3]
 					drAmount = ""
 					crAmount = '%.2f'%(float(transactionRow[4]))
+					totalCr = totalCr + float(crAmount)
 					narration = transactionRow[5]
 					for i in range (0, len(particular)):
 						if (i == len(particular)-1):
@@ -165,12 +169,17 @@ class reports(xmlrpc.XMLRPC):
 					ledgerRow.append(drAmount)
 					ledgerRow.append(crAmount)
 					ledgerRow.append(narration)
+					print "ledger row cr "
+					print ledgerRow
 				
 			ledgerRow.append(transactionRow[0])
 			ledgerGrid.append(ledgerRow)
 		#the transactions have been filled up duly.
 		#now for the total dRs and Crs, we have added them up nicely during the grid loop.
 		ledgerGrid.append(["","Total of Transactions","",'%.2f'%float(totalDr),'%.2f'%float(totalCr),"",""])
+		print "ledger grid "
+		print totalDr
+		print totalCr
 		if queryParams[4] == "No Project":
 			#ledgerGrid.append(["","","","","","",""])
 			grandTotal = 0.00
