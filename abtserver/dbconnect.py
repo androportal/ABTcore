@@ -139,9 +139,10 @@ class VoucherMaster(Base):
     flag = Column(Integer)
     projectcode = Column(Integer)
     narration = Column(Text, nullable=False)
+    cheque_no = Column(String(40),nullable=True)
 
     def __init__(self, vouchercode,reference, voucherdate, reffdate, 
-    vouchertype, flag, projectcode, narration):
+    vouchertype, flag, projectcode, narration,cheque_no):
         self.vouchercode = vouchercode
         self.reference = reference
         self.voucherdate = voucherdate
@@ -150,6 +151,7 @@ class VoucherMaster(Base):
         self.flag = flag
         self.projectcode = projectcode
         self.narration = narration
+        self.cheque_no = cheque_no
 
 vouchermaster_table = VoucherMaster.__table__
 

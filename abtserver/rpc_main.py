@@ -242,7 +242,7 @@ class abt(xmlrpc.XMLRPC):
 			select voucher_master.vouchercode,voucher_master.flag,voucher_master.reference,\
 			voucher_master.voucherdate,voucher_master.reffdate,voucher_master.vouchertype,account.accountname\
 			as account_name,voucher_details.typeflag,voucher_details.amount,\
-			voucher_master.narration,voucher_master.projectcode\
+			voucher_master.narration,voucher_master.projectcode,voucher_master.cheque_no\
 			from voucher_master,voucher_details,account as account \
 			where voucher_master.vouchercode = voucher_details.vouchercode \
 			and voucher_details.accountcode = account.accountcode;")

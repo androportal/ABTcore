@@ -41,7 +41,7 @@ class transaction(xmlrpc.XMLRPC):
 		projectcode = self.xmlrpc_getProjectcodeByProjectName([queryParams_master[3]],client_id)
 		
 		params_master = [queryParams_master[0],queryParams_master[1],queryParams_master[2],projectcode,\
-		queryParams_master[4],queryParams_master[5]]
+		queryParams_master[4],queryParams_master[5],queryParams_master[6]]
 		
 		vouchercode = self.xmlrpc_setVoucherMaster(params_master,client_id)
 		
@@ -84,9 +84,12 @@ class transaction(xmlrpc.XMLRPC):
 		system_date = datetime.today() # sqlite take datetime or date object for TIMESTAMP
 		reffdate =  datetime.strptime(str(queryParams[1]),"%d-%m-%Y")
 		# add all values in the account table
-	
+		
+		if(queryParams[6] == ""):
+			queryParams[6]= None	
+
 		Session.add(dbconnect.VoucherMaster(\
-			VoucherCode,queryParams[0],system_date,reffdate,queryParams[2],1,queryParams[3],queryParams[4]))
+			VoucherCode,queryParams[0],system_date,reffdate,queryParams[2],1,queryParams[3],queryParams[4],queryParams[6]))
 			
 		Session.commit()
 		Session.close()
