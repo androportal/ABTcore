@@ -335,9 +335,11 @@ class transaction(xmlrpc.XMLRPC):
 		
 		if queryParams[0] == 1: 
 			result = Session.query(dbconnect.VoucherMaster).\
-						filter(and_(dbconnect.VoucherMaster.reference == queryParams[1],\
-						dbconnect.VoucherMaster.flag == 1)).\
-			      	 		order_by(dbconnect.VoucherMaster.reffdate).all()
+						filter(and_(dbconnect.VoucherMaster.flag == 1,\
+						(or_(dbconnect.VoucherMaster.reference.like(str(queryParams[1])+'%'),\
+							dbconnect.VoucherMaster.reference.like('%'+str(queryParams[1])+'%'),\
+							dbconnect.VoucherMaster.reference.like('%'+str(queryParams[1])))))).\
+			      	 			order_by(dbconnect.VoucherMaster.reffdate).all()
 			print "search voucher by reference no"
 			
 		if queryParams[0] == 2:	
@@ -367,12 +369,6 @@ class transaction(xmlrpc.XMLRPC):
 			print "search voucher by voucher no"
 			
 		if queryParams[0] == 5: 
-			
-			
-			#statement = "select vouchercode,reference,reffdate,vouchertype,narration\
-			     		#from view_voucherbook\
-			     		#where account_name = '"+str(queryParams[3])+"'\
-			     		#and flag = 1 order by reffdate"
 			
 			statement = "select *\
 			     		from view_voucherbook\
