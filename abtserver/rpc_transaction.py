@@ -189,7 +189,7 @@ class transaction(xmlrpc.XMLRPC):
 
 		* Output:
 			- [voucherno , voucherflag , reff_date , voucher_reference,
-		          transaction_amount,show_narration]
+		          transaction_amount,show_narration,cheque_no]
 		 	
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
@@ -197,7 +197,7 @@ class transaction(xmlrpc.XMLRPC):
 		to_date = str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
 		if queryParams[3] == 'No Project':
 			
-			statement = "select vouchercode,typeflag,reffdate,reference,amount,narration\
+			statement = "select vouchercode,typeflag,reffdate,reference,amount,narration,cheque_no\
 			     		from view_voucherbook\
 			     		where account_name = '"+queryParams[0]+"'\
 			     		and reffdate >= '"+from_date+"'\
@@ -208,7 +208,7 @@ class transaction(xmlrpc.XMLRPC):
 		else:
 			project_code = self.xmlrpc_getProjectcodeByProjectName([str(queryParams[3])],client_id)
 			
-			statement = "select vouchercode, typeflag ,reffdate,reference,amount,narration\
+			statement = "select vouchercode, typeflag ,reffdate,reference,amount,narration,cheque_no\
 					from view_voucherbook\
 					where account_name = '"+queryParams[0]+"'\
 					and projectcode = '"+str(project_code)+"'\
@@ -220,8 +220,10 @@ class transaction(xmlrpc.XMLRPC):
 			
 		transactionlist = []
 		for row in result:
-	
-			transactionlist.append([row[0],row[1],row[2],row[3],'%.2f'%(row[4]),row[5]])
+			if row[6] == None:
+				transactionlist.append([row[0],row[1],row[2],row[3],'%.2f'%(row[4]),row[5],""])
+			else:
+				transactionlist.append([row[0],row[1],row[2],row[3],'%.2f'%(row[4]),row[5],row[6]])
 		return transactionlist
 		
 	def xmlrpc_getParticulars(self,queryParams,client_id):
@@ -294,14 +296,17 @@ class transaction(xmlrpc.XMLRPC):
 		vouchers = self.xmlrpc_searchVouchers(queryParams,client_id)
 		voucherView = []
 		for voucherRow in vouchers:
-			
+			print voucherRow
 			amtRow = self.xmlrpc_getVoucherAmount([voucherRow[0]],client_id)
 			voucherAccounts = self.xmlrpc_getVoucherDetails([voucherRow[0]],client_id)
+			
 			drAccount = ""
 			crAccount = ""
 			drCounter = 1
 			crCounter = 1
 			for va in voucherAccounts:
+				print "va"
+				print va
 				if va[1] == "Dr" and drCounter == 2:
 					drAccount = va[0] + "+"
 				if va[1] == "Dr" and drCounter == 1:
@@ -316,8 +321,9 @@ class transaction(xmlrpc.XMLRPC):
 			totalAmount = '%.2f'%(amtRow)
 			
 			voucherView.append([voucherRow[0],voucherRow[1],voucherRow[2],voucherRow[3],\
-			drAccount,crAccount,totalAmount,voucherRow[4]])
-	
+			drAccount,crAccount,totalAmount,voucherRow[4],va[3]])
+			print "voucherView"
+			print voucherView
 		return voucherView	
 		
 	def xmlrpc_searchVouchers(self,queryParams,client_id):
@@ -444,7 +450,7 @@ class transaction(xmlrpc.XMLRPC):
 
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
-		statement = "select account_name,typeflag,amount\
+		statement = "select account_name,typeflag,amount,cheque_no\
 			     		from view_voucherbook\
 			     		where vouchercode = '"+str(queryParams[0])+"'\
 			     		and flag = 1 "
@@ -456,7 +462,11 @@ class transaction(xmlrpc.XMLRPC):
 			return []
 		else:
 			for row in result:
-				voucherdetails.append([row[0],row[1],'%.2f'%float(row[2])])
+				if row[3] == None:
+		
+					voucherdetails.append([row[0],row[1],'%.2f'%float(row[2]),""])
+				else:
+					voucherdetails.append([row[0],row[1],'%.2f'%float(row[2]),row[3]])
 		
 		return voucherdetails
 		
