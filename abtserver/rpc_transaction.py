@@ -550,7 +550,7 @@ class transaction(xmlrpc.XMLRPC):
 
 		* Input:
 			- ``queryParams_master`` list will contain :
-			  [voucherno,reffdate,project name,Narration, reffno]
+			  [voucherno,reffdate,project name,Narration, reffno, cheque no]
 		* Output:
 			- ``queryParams_details`` list will contain :
 			  [AccountName,dr amount,cr amount]
@@ -562,7 +562,7 @@ class transaction(xmlrpc.XMLRPC):
 			projectCode = 0 
 		del queryParams_master[2]
 		queryParams_master.insert(2,projectCode)
-		editParams=[queryParams_master[0],queryParams_master[1],queryParams_master[2],queryParams_master[3],queryParams_master[4]]
+		editParams=[queryParams_master[0],queryParams_master[1],queryParams_master[2],queryParams_master[3],queryParams_master[4], queryParams_master[5] ]
 		successRow = self.xmlrpc_editVoucherMaster(editParams,client_id)
 		if successRow == "success":
 			delete = self.xmlrpc_deleteVoucherDetails([queryParams_master[0]],client_id)
@@ -589,7 +589,7 @@ class transaction(xmlrpc.XMLRPC):
 			- it update vouchermaster table depend on given vouchercode
 		
 		* Input:
-			- [vouchercode,reffdate,projectcode,narration, reffno]
+			- [vouchercode,reffdate,projectcode,narration, reffno, cheque no]
 		
 		* Output:
 			- String "success"
@@ -600,7 +600,7 @@ class transaction(xmlrpc.XMLRPC):
 		result = Session.query(dbconnect.VoucherMaster ).\
 				filter(dbconnect.VoucherMaster.vouchercode == queryParams[0]).\
 				update({'reffdate': reff_date,'projectcode': queryParams[2],'narration':  queryParams[3],
-				'reference': queryParams[4]})
+				'reference': queryParams[4], 'cheque_no': queryParams[5]})
 		Session.commit()
 		Session.close()
 		connection.connection.close()

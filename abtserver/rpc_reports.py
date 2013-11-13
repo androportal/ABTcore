@@ -2397,104 +2397,96 @@ class reports(xmlrpc.XMLRPC):
 	def xmlrpc_getCashBook(self,queryParams,client_id):
 		"""
 		* Purpose:
-			- The function will return a grid with 4 columns.
-			- first 2 columns will have the account name and its sum of
-			  received amount, while next 2 columns will have the same 
-			- for amount paid.first we make a call to get CashFlowAccounts 
-			- for the list of accounts falling under Bank or Cash subgroups.
-			- Then a loop will run through the list and get the list of 
-			  payment and receipts as mentioned above.
-			- every row will contain a pair of as below
-			  account:amount for payment and receipt each.
-		  
-		* Input: 
-			- financial_from ,start_date and end_date
+		    - CashBook is the report to show all the ``cash accounts``
+		      and ``Bank accounts`` closing balances respected period.
+		    - It calculate total of all
+		 
+		* Input:
+		    - financial_from ,start_date and end_date
 		"""
-		#declare the cashFlowGrid, rlist, plist as a blank list.
-		#we will fill up cashFlowGrid by appending rlist and plist.
-		#rlist will contain the cashflow of received accounts.
-		#plist will contain the cashflow of paid accounts.
+		# declare empty list cash_total will hold total of all closing balance
+		# of Cash Accounts
+		# declare empty list bank_total will hold total of all closing balances
+		# of Bank Accounts
+		# cashbooklist is the final list hold cash_total list and bank_total list
 		cash_total = []
 		bank_total = []
-		rlist = []
-		
+		cashbooklist = []
+	       
+		# create the instance of account class
 		account = rpc_account.account()
-		getjournal = rpc_getaccountsbyrule.getaccountsbyrule()
-		rlist.append(["Particulars","Debit Balance","Credit Balance"])
-		
-		#rlist.append(["","Opening Balance",""])
-		#Let's start with 0 for totalreceivedamount(cash or bank) and totalpaid(cash or bank) amounts.
-		
-		#first let's get the list of all accounts coming under cash or 
-		#bank subgroup and their respective opening balance.
+	       
+		# first let's get the list of all accounts coming under cash or
+		# bank subgroup with respected closing balances .
 		AllCashAccounts=account.xmlrpc_getAllCashAccounts(client_id)
 		AllBankAccounts=account.xmlrpc_getAllBankAccounts(client_id)
-		#fill up the rlist with the rows for cashFlowAccounts.
-		#also maintaining a list of cash and bank accounts will facilitate 
-		#the loop for getting actual cash flow.
-		
+	   
+		# initilize variable to add total of dr and cr
 		total_cash_dr = 0.00
 		total_cash_cr = 0.00
 		total_bank_dr = 0.00
 		total_bank_cr = 0.00
-		
+	       
+		cashbooklist.append(["Particulars","Debit Balance","Credit Balance"])
+	       
 		if AllCashAccounts !=[]:
-		
-			cash_total.append("Cash Accounts")
-			for account in AllCashAccounts:
-			
-				closingRow = self.xmlrpc_calculateBalance([account,queryParams[0],queryParams[1],queryParams[2]],client_id)
-			
-				if float(closingRow[2])!= 0:
-					trialRow = []
-				
-					trialRow.append(account)
-				
-					if closingRow[6] == "Cr":
-						total_cash_cr = total_cash_cr + float(closingRow[2])
-						trialRow.append("")
-						trialRow.append('%.2f'%float(closingRow[2]))
-					if closingRow[6] == "Dr":
-						total_cash_dr = total_cash_dr + float(closingRow[2])
-						trialRow.append('%.2f'%float(closingRow[2]))
-						trialRow.append("")
-				
-					rlist.append(trialRow)
-			cash_total.append('%.2f'%total_cash_dr)
-			cash_total.append('%.2f'%total_cash_cr)
-			rlist.insert(1,cash_total)
-			
-			print "list of cash account balance"
-			print rlist
-			
+	       
+		    cash_total.append("Cash Accounts")
+		    # get list of Cash Accounts
+		    for account in AllCashAccounts:
+		   
+		        # calculate closing balance for perticular account in loop
+		        closingRow = self.xmlrpc_calculateBalance([account,queryParams[0],queryParams[1],queryParams[2]],client_id)
+		   
+		        if float(closingRow[2])!= 0:
+		            trialRow = []
+		       
+		            trialRow.append(account)
+		       
+		            if closingRow[6] == "Cr":
+		                total_cash_cr = total_cash_cr + float(closingRow[2])
+		                trialRow.append("")
+		                trialRow.append('%.2f'%float(closingRow[2]))
+		            if closingRow[6] == "Dr":
+		                total_cash_dr = total_cash_dr + float(closingRow[2])
+		                trialRow.append('%.2f'%float(closingRow[2]))
+		                trialRow.append("")
+		       
+		            cashbooklist.append(trialRow)
+		    cash_total.append('%.2f'%total_cash_dr)
+		    cash_total.append('%.2f'%total_cash_cr)
+		    cashbooklist.insert(1,cash_total)
+		   
 		if AllBankAccounts !=[]:
-		
-			last_index = len(rlist)
-			bank_total.append("Bank Accounts")
-			for account in AllBankAccounts:
-			
-				closingRow = self.xmlrpc_calculateBalance([account,queryParams[0],queryParams[1],queryParams[2]],client_id)
-			
-				if float(closingRow[2])!= 0:
-					trialRow = []
-					trialRow.append(account)
-				
-					if closingRow[6] == "Cr":
-						total_bank_cr = total_bank_cr + float(closingRow[2])
-						trialRow.append("")
-						trialRow.append('%.2f'%float(closingRow[2]))
-					
-					if closingRow[6] == "Dr":
-						total_bank_dr = total_bank_dr + float(closingRow[2])
-						trialRow.append('%.2f'%float(closingRow[2]))
-						trialRow.append("")
-				
-					rlist.append(trialRow)
-			
-			bank_total.append('%.2f'%total_bank_dr)
-			bank_total.append('%.2f'%total_bank_cr)
-			rlist.insert(last_index,bank_total)
-			rlist.append(["","",""])
-			print "list of bank account balance"
-			print rlist
-		return rlist
+	       
+		    last_index = len(cashbooklist)
+		    bank_total.append("Bank Accounts")
+		    # get list of Bank account
+		    for account in AllBankAccounts:
+		   
+		        # calculate the closing balance accourding to account
+		        closingRow = self.xmlrpc_calculateBalance([account,queryParams[0],queryParams[1],queryParams[2]],client_id)
+		   
+		        if float(closingRow[2])!= 0:
+		            trialRow = []
+		            trialRow.append(account)
+		       
+		            if closingRow[6] == "Cr":
+		                total_bank_cr = total_bank_cr + float(closingRow[2])
+		                trialRow.append("")
+		                trialRow.append('%.2f'%float(closingRow[2]))
+		           
+		            if closingRow[6] == "Dr":
+		                total_bank_dr = total_bank_dr + float(closingRow[2])
+		                trialRow.append('%.2f'%float(closingRow[2]))
+		                trialRow.append("")
+		       
+		            cashbooklist.append(trialRow)
+		   
+		    bank_total.append('%.2f'%total_bank_dr)
+		    bank_total.append('%.2f'%total_bank_cr)
+		    cashbooklist.insert(last_index,bank_total)
+		    cashbooklist.append(["","",""])
+		    print "list of bank account balance"
+		    print cashbooklist
+		return cashbooklist
