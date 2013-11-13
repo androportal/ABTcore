@@ -120,6 +120,30 @@ and start the service by running the reactor.</li>
 <li>the client however will not use the prefix to call the functions.</li>
 </ul>
 <dl class="method">
+<dt id="abtserver.rpc_main.abt.getListOfFinancialYear">
+<tt class="descname">getListOfFinancialYear</tt><big>(</big><em>arg_orgName</em><big>)</big><a class="headerlink" href="#abtserver.rpc_main.abt.getListOfFinancialYear" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>get the list of organisations from the /opt/abt/abt.xml file.</li>
+<li>call the getOrgList function to get the nodes.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input: </dt>
+<dd><ul class="first last simple">
+<li>[organisation name]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
 <dt id="abtserver.rpc_main.abt.xmlrpc_Deploy">
 <tt class="descname">xmlrpc_Deploy</tt><big>(</big><em>queryParams</em><big>)</big><a class="headerlink" href="#abtserver.rpc_main.abt.xmlrpc_Deploy" title="Permalink to this definition">¶</a></dt>
 <dd><ul>
@@ -213,7 +237,7 @@ for client_id</li>
 <li><dl class="first docutils">
 <dt>Input: </dt>
 <dd><ul class="first last simple">
-<li>client_id</li>
+<li>[client_id]</li>
 </ul>
 </dd>
 </dl>
@@ -392,6 +416,8 @@ engine found in <tt class="docutils literal"><span class="pre">dbconnect.py</spa
 <dd><ul class="first last simple">
 <li>This function will return a list of financial years for the 
 given organisation.</li>
+<li>It call getListOfFinancialYear takes one parameter organisationame
+and search for existing financialyear for given organisation.</li>
 </ul>
 </dd>
 </dl>
@@ -399,7 +425,7 @@ given organisation.</li>
 <li><dl class="first docutils">
 <dt>Input: </dt>
 <dd><ul class="first last simple">
-<li>[organisationname]</li>
+<li>[organisation name]</li>
 </ul>
 </dd>
 </dl>
@@ -947,6 +973,30 @@ for given projectname.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getAllAccountNamesOrderByDate">
+<tt class="descname">xmlrpc_getAllAccountNamesOrderByDate</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getAllAccountNamesOrderByDate" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>Function to get the list of all accountnames in the database
+order by date.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output: </dt>
+<dd><ul class="first last simple">
+<li>returns the list of all acountnameselse returns empty list</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
 <dt id="abtserver.rpc_account.account.xmlrpc_getAllBankAccounts">
 <tt class="descname">xmlrpc_getAllBankAccounts</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getAllBankAccounts" title="Permalink to this definition">¶</a></dt>
 <dd><ul>
@@ -954,6 +1004,30 @@ for given projectname.</li>
 <dt>Purpose</dt>
 <dd><ul class="first last simple">
 <li>To get all accountnames which is under <tt class="docutils literal"><span class="pre">Bank</span></tt> subgroup.</li>
+<li>it will query the <tt class="docutils literal"><span class="pre">group_subgroup_account</span></tt> view from <tt class="docutils literal"><span class="pre">rpc_main</span></tt>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>Returns list of accountnames</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_account.account.xmlrpc_getAllCashAccounts">
+<tt class="descname">xmlrpc_getAllCashAccounts</tt><big>(</big><em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_account.account.xmlrpc_getAllCashAccounts" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose</dt>
+<dd><ul class="first last simple">
+<li>To get all accountnames which is under <tt class="docutils literal"><span class="pre">Cash</span></tt> subgroup.</li>
 <li>it will query the <tt class="docutils literal"><span class="pre">group_subgroup_account</span></tt> view from <tt class="docutils literal"><span class="pre">rpc_main</span></tt>.</li>
 </ul>
 </dd>
@@ -1535,7 +1609,7 @@ the subgroupname as string.</li>
 <dd><ul class="first last simple">
 <li>The getConnection function will actually establish connection and</li>
 <li>return the id of the latest engine added to the list.</li>
-<li>first check if the file exists in the given path.</li>
+<li>first it will check for</li>
 <li>if this is the first time we are running the server 
 then we need to create the <tt class="docutils literal"><span class="pre">abt.xml</span></tt> file.</li>
 <li>engine in this analogy is a connection maintained as a session.</li>
@@ -1557,6 +1631,38 @@ then we need to create the <tt class="docutils literal"><span class="pre">abt.xm
 <dt>Output:</dt>
 <dd><ul class="first last simple">
 <li>returns index of last created engine as a client_id</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="abtserver.dbconnect.getDatabaseName">
+<tt class="descclassname">abtserver.dbconnect.</tt><tt class="descname">getDatabaseName</tt><big>(</big><em>queryParams</em><big>)</big><a class="headerlink" href="#abtserver.dbconnect.getDatabaseName" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>To get database name stored in abt.xml file.</li>
+<li>Given organisation name , financial from , financial to.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[orgname,financialfrom,financialto]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>return string database name</li>
 </ul>
 </dd>
 </dl>
@@ -2060,7 +2166,7 @@ and transaction details (dr and cr), along with narration and the date.</li>
 <dt>Input:</dt>
 <dd><ul class="first last simple">
 <li><tt class="docutils literal"><span class="pre">queryParams_master</span></tt> list will contain :
-[voucherno,reffdate,project name,Narration]</li>
+[voucherno,reffdate,project name,Narration, reffno, cheque no]</li>
 </ul>
 </dd>
 </dl>
@@ -2117,7 +2223,7 @@ and transaction details (dr and cr), along with narration and the date.</li>
 <li><dl class="first docutils">
 <dt>Input:</dt>
 <dd><ul class="first last simple">
-<li>[vouchercode,reffdate,projectcode,narration]</li>
+<li>[vouchercode,reffdate,projectcode,narration, reffno, cheque no]</li>
 </ul>
 </dd>
 </dl>
@@ -2390,7 +2496,7 @@ else returns None String</li>
 <dt>Output:</dt>
 <dd><ul class="first last simple">
 <li>[voucherno , voucherflag , reff_date , voucher_reference,
-transaction_amount,show_narration]</li>
+transaction_amount,show_narration,cheque_no]</li>
 </ul>
 </dd>
 </dl>
@@ -2877,6 +2983,31 @@ it is just for the format for front end display.</li>
 </dd>
 </dl>
 </li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_reports.reports.xmlrpc_getCashBook">
+<tt class="descname">xmlrpc_getCashBook</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_reports.reports.xmlrpc_getCashBook" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose:</dt>
+<dd><ul class="first last simple">
+<li>CashBook is the report to show all the <tt class="docutils literal"><span class="pre">cash</span> <span class="pre">accounts</span></tt>
+and <tt class="docutils literal"><span class="pre">Bank</span> <span class="pre">accounts</span></tt> closing balances respected period.</li>
+<li>It calculate total of all</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>financial_from ,start_date and end_date</li>
 </ul>
 </dd>
 </dl>
@@ -3621,7 +3752,7 @@ and projectname(datatype:text)</li>
 for given flag no</li>
 <li>if flag no is <tt class="docutils literal"><span class="pre">2</span></tt> then will return
 accountcode flag value.</li>
-<li>if flag no is <tt class="docutils literal"><span class="pre">1</span></tt> then will return refeno flag value</li>
+<li>if flag no is <tt class="docutils literal"><span class="pre">1</span></tt> then will return rollover flag value</li>
 </ul>
 </dd>
 </dl>
@@ -3637,7 +3768,8 @@ accountcode flag value.</li>
 <li><dl class="first docutils">
 <dt>Output: </dt>
 <dd><ul class="first last simple">
-<li>It returns flagname depend on flagno</li>
+<li>It returns list of flagname and set falg depend on flagno</li>
+<li>set flag is set to make it one time activity.</li>
 </ul>
 </dd>
 </dl>
@@ -3768,11 +3900,13 @@ orgtelno, orgfax, orgwebsite, orgemail, orgpan,orgmvat,orgstax,
 <dt>Purpose:</dt>
 <dd><ul class="first last simple">
 <li>function for update flags for project manually created account code and voucher
-reference number i/p parameters: Flag No(datatype:integer) , FlagName</li>
-<li>if flag no is <tt class="docutils literal"><span class="pre">2</span></tt> then will update accountcode flag value as either
+reference number i/p parameters: Flag No(datatype:integer) , FlagName and set flag</li>
+<li>if flag no is <tt class="docutils literal"><span class="pre">1</span></tt> then will update accountcode flag value as either
 <tt class="docutils literal"><span class="pre">manually</span></tt> or <tt class="docutils literal"><span class="pre">automatic</span></tt> (default)</li>
-<li>if flag no is <tt class="docutils literal"><span class="pre">1</span></tt> then will update refeno flag value as either 
+<li>if flag no is <tt class="docutils literal"><span class="pre">2</span></tt> then will update rollover flag value as either 
 <tt class="docutils literal"><span class="pre">mandatory</span></tt> or <tt class="docutils literal"><span class="pre">optional</span></tt> (datatype:text)</li>
+<li>default set flag in flags table is 0. For &#8216;manual&#8217; account code, set flag is 1 and
+for &#8216;automatic&#8217; account code, set falg is 2.</li>
 </ul>
 </dd>
 </dl>
@@ -3946,6 +4080,37 @@ based on there old_username and password</li>
 <dd><ul class="first last simple">
 <li>return <tt class="docutils literal"><span class="pre">False</span></tt> if given user is not present with old_password,userrole
 else it update username and return <tt class="docutils literal"><span class="pre">True</span></tt></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="abtserver.rpc_user.user.xmlrpc_getLastLoginTiming">
+<tt class="descname">xmlrpc_getLastLoginTiming</tt><big>(</big><em>queryParams</em>, <em>client_id</em><big>)</big><a class="headerlink" href="#abtserver.rpc_user.user.xmlrpc_getLastLoginTiming" title="Permalink to this definition">¶</a></dt>
+<dd><ul>
+<li><dl class="first docutils">
+<dt>Purpose: </dt>
+<dd><ul class="first last simple">
+<li>function to get the last login timing of user</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Input:</dt>
+<dd><ul class="first last simple">
+<li>[username , userrole]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output:</dt>
+<dd><ul class="first last simple">
+<li>return time</li>
 </ul>
 </dd>
 </dl>

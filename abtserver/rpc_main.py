@@ -686,7 +686,7 @@ class abt(xmlrpc.XMLRPC):
 							" where accountname = '" + account + "'"
 					dbconnect.engines[self.client_id[1]].execute(editStatement)
 		
-				connection.commit()
+					connection.commit()
 				queryParams.append(database) #dbname
 				queryParams.append("1") #rollover flag
 				# parsing abt.xml file to update rollover flag from '0' to '1'
