@@ -614,7 +614,7 @@ class abt(xmlrpc.XMLRPC):
 				closing_balance = 0.00
 				if (str(closingRow[6])  == "Cr" 
 					and (str(closingRow[0])== "Current Asset" 
-					or str(closingRow[0])== "Fixed Asset" 
+					or str(closingRow[0])== "Fixed Assets" 
 					or str(closingRow[0])== "Investment" 
 					or str(closingRow[0])== "Loans(Asset)" 
 					or str(closingRow[0])== "Miscellaneous Expenses(Asset)")):
@@ -624,7 +624,7 @@ class abt(xmlrpc.XMLRPC):
 				
 				if (str(closingRow[6])  == "Dr" 
 					and  (str(closingRow[0])== "Current Asset" 
-					or str(closingRow[0])== "Fixed Asset" 
+					or str(closingRow[0])== "Fixed Assets" 
 					or str(closingRow[0])== "Investment" 
 					or str(closingRow[0])== "Loans(Asset)" 
 					or str(closingRow[0])== "Miscellaneous Expenses(Asset)")):
@@ -640,7 +640,7 @@ class abt(xmlrpc.XMLRPC):
 					or str(closingRow[0])== "Reserves")):
 				
 					closing_balance = float(closingRow[2])
-					rollOverAccounts[acc[0]] = closing_balance
+					rollOverAccounts[acc] = closing_balance
 				
 				if (str(closingRow[6])  == "Dr"
 					and  (str(closingRow[0])== "Corpus" 
@@ -682,6 +682,7 @@ class abt(xmlrpc.XMLRPC):
 			try:
 				os.system("sqlite3 /opt/abt/db/"+ newDatabase+"< /opt/abt/db/db_dump.dump")
 				for account in rollOverAccounts.keys():
+					connection = dbconnect.engines[self.client_id[1]].raw_connection()
 					editStatement = "update account set openingbalance = "+str(rollOverAccounts[account])+\
 							" where accountname = '" + account + "'"
 					dbconnect.engines[self.client_id[1]].execute(editStatement)
