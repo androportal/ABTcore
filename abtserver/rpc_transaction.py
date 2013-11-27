@@ -772,9 +772,36 @@ class transaction(xmlrpc.XMLRPC):
 		      scalar()
 		Session.close()
 		connection.connection.close()
-		print "result"
-		print result
+		
 		if result == 0:
 			return "0"
 		else:
 			return "1"
+	
+	def xmlrpc_chequeNoExist(self, queryParams, client_id):
+		"""
+		* Purpose:
+			- Function for finding if an cheque_no already 
+			  exists with the supplied code.
+		  
+		* Input:
+			- cheque_no (datatype:string)
+		
+		* Output:
+			- return "1" if cheque_no exists and "0" if not.
+		
+		"""
+		queryParams = blankspace.remove_whitespaces(queryParams)
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(func.count(dbconnect.VoucherMaster.cheque_no)).\
+		      filter(dbconnect.VoucherMaster.cheque_no == queryParams[0]).\
+		      scalar()
+		Session.close()
+		connection.connection.close()
+		if result == 0:
+			return "0"
+		else:
+			return "1"
+			
+		
