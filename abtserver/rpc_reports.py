@@ -2456,6 +2456,7 @@ class reports(xmlrpc.XMLRPC):
 		    cash_total.append('%.2f'%total_cash_dr)
 		    cash_total.append('%.2f'%total_cash_cr)
 		    cashbooklist.insert(1,cash_total)
+		    cashbooklist.append(["","",""])
 		   
 		if AllBankAccounts !=[]:
 	       
