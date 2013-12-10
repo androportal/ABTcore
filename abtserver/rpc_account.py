@@ -397,17 +397,17 @@ class account(xmlrpc.XMLRPC):
 		"""
 		financial_fromdate = str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
 		financial_enddate =  str(datetime.strptime(str(queryParams[3]),"%d-%m-%Y"))
-		statement = "select sum(amount)\
+		statement = 'select sum(amount)\
 				from view_voucherbook\
-				where account_name = '"+queryParams[0]+"' \
+				where account_name = "'+queryParams[0]+'" \
 				and vouchercode \
 				in(select vouchercode from view_voucherbook \
-				where typeflag = 'Dr' \
-				and account_name = '"+queryParams[1]+"'\
-				and reffdate >= '"+financial_fromdate+"'\
-				and reffdate <= '"+financial_enddate+"'\
+				where typeflag = "Dr" \
+				and account_name = "'+queryParams[1]+'"\
+				and reffdate >= "'+financial_fromdate+'"\
+				and reffdate <= "'+financial_enddate+'"\
 				and flag = 1)\
-				group by account_name"
+				group by account_name'
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		
 		CashFlowReceived = []
@@ -435,17 +435,17 @@ class account(xmlrpc.XMLRPC):
 		financial_fromdate = str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
 		financial_enddate =  str(datetime.strptime(str(queryParams[3]),"%d-%m-%Y"))
 		
-		statement = "select sum(amount)\
+		statement = 'select sum(amount)\
 				from view_voucherbook\
-				where account_name ='"+queryParams[0]+"'\
+				where account_name ="'+queryParams[0]+'"\
 				and vouchercode \
 				in(select vouchercode from view_voucherbook \
-				where typeflag = 'Cr' \
-				and account_name = '"+queryParams[1]+"'\
-				and reffdate >= '"+financial_fromdate+"' \
-				and reffdate <= '"+financial_enddate+"'\
+				where typeflag = "Cr" \
+				and account_name = "'+queryParams[1]+'"\
+				and reffdate >= "'+financial_fromdate+'" \
+				and reffdate <= "'+financial_enddate+'"\
 				and flag = 1)\
-				group by account_name"
+				group by account_name'
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		
 		getCashFlowPaid = []
@@ -590,13 +590,13 @@ class account(xmlrpc.XMLRPC):
 		
 		"""
 		if queryParams[0] == 1:
-			statement = "select groupname,subgroupname,accountcode,accountname,openingbalance\
+			statement = 'select groupname,subgroupname,accountcode,accountname,openingbalance\
 			     		from group_subgroup_account\
-			     		where accountcode = '"+queryParams[1]+"'"
+			     		where accountcode = "'+queryParams[1]+'"'
 		else:	     	
-			statement = "select groupname,subgroupname,accountcode,accountname,openingbalance\
+			statement = 'select groupname,subgroupname,accountcode,accountname,openingbalance\
 			     		from group_subgroup_account\
-			     		where accountname = '"+queryParams[1]+"'"	
+			     		where accountname = "'+queryParams[1]+'"'	
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		
 		
@@ -655,11 +655,11 @@ class account(xmlrpc.XMLRPC):
 		"""
 		transaction = rpc_transaction.transaction()
 		projectcode = transaction.xmlrpc_getProjectcodeByProjectName(queryParams,client_id)
-		statement = "select distinct(account_name)\
+		statement = 'select distinct(account_name)\
 		     		from view_voucherbook\
-		     		where projectcode = '"+str(projectcode)+"'\
+		     		where projectcode = "'+str(projectcode)+'"\
 				and flag = 1\
-				order by account_name"  
+				order by account_name' 
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
 		accountname = []
 		for Row in result:
@@ -728,9 +728,9 @@ class account(xmlrpc.XMLRPC):
 		connection = dbconnect.engines[client_id].connect()
 		Session = dbconnect.session(bind=connection)
 		
-		statement = "select count(vouchercode) as vouchercodeCount\
+		statement = 'select count(vouchercode) as vouchercodeCount\
 			     		from view_voucherbook\
-			     		where account_name ='"+str(queryParams[0])+"'"
+			     		where account_name ="'+str(queryParams[0])+'"'
 		
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		Session.close()
@@ -830,10 +830,10 @@ class account(xmlrpc.XMLRPC):
 		* Output:
 			- Returns list of accountnames
 		"""
-		statement = "select accountname\
+		statement = 'select accountname\
 			     		from group_subgroup_account\
-			     		where subgroupname ='Cash'\
-					order by accountname"  
+			     		where subgroupname ="Cash"\
+					order by accountname'  
 		getallcashaccounts = dbconnect.engines[client_id].execute(statement).fetchall()
 		
 		if getallcashaccounts == []:

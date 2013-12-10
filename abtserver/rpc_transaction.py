@@ -197,25 +197,25 @@ class transaction(xmlrpc.XMLRPC):
 		to_date = str(datetime.strptime(str(queryParams[2]),"%d-%m-%Y"))
 		if queryParams[3] == 'No Project':
 			
-			statement = "select vouchercode,typeflag,reffdate,reference,amount,narration,cheque_no\
+			statement = 'select vouchercode,typeflag,reffdate,reference,amount,narration,cheque_no\
 			     		from view_voucherbook\
-			     		where account_name = '"+queryParams[0]+"'\
-			     		and reffdate >= '"+from_date+"'\
-					and reffdate <= '"+to_date+"'\
+			     		where account_name = "'+queryParams[0]+'"\
+			     		and reffdate >= "'+from_date+'"\
+					and reffdate <= "'+to_date+'"\
 					and flag = 1\
-					order by reffdate"
+					order by reffdate'
 			result = dbconnect.engines[client_id].execute(statement).fetchall()
 		else:
 			project_code = self.xmlrpc_getProjectcodeByProjectName([str(queryParams[3])],client_id)
 			
-			statement = "select vouchercode, typeflag ,reffdate,reference,amount,narration,cheque_no\
+			statement = 'select vouchercode, typeflag ,reffdate,reference,amount,narration,cheque_no\
 					from view_voucherbook\
-					where account_name = '"+queryParams[0]+"'\
-					and projectcode = '"+str(project_code)+"'\
-					and reffdate >= '"+from_date +"'\
-					and reffdate <= '"+to_date+"'\
+					where account_name = "'+queryParams[0]+'"\
+					and projectcode = "'+str(project_code)+'"\
+					and reffdate >= "'+from_date +'"\
+					and reffdate <= "'+to_date+'"\
 					and flag = 1\
-					order by reffdate"
+					order by reffdate'
 			result = dbconnect.engines[client_id].execute(statement).fetchall()
 			
 		transactionlist = []
@@ -246,12 +246,12 @@ class transaction(xmlrpc.XMLRPC):
 			- [accountnames]
 
 		"""
-		statement = "select account_name\
+		statement = 'select account_name\
 		     		from view_voucherbook\
-		     		where vouchercode = '"+str(queryParams[0])+"'\
-		     		and typeflag ='"+queryParams[1]+"' \
+		     		where vouchercode = "'+str(queryParams[0])+'"\
+		     		and typeflag ="'+queryParams[1]+'" \
 		     		and flag = 1\
-				order by account_name"
+				order by account_name'
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
 		accountnames = []
 		for row in result:
@@ -379,10 +379,10 @@ class transaction(xmlrpc.XMLRPC):
 			
 		if queryParams[0] == 5: 
 			
-			statement = "select *\
+			statement = 'select *\
 			     		from view_voucherbook\
-			     		where account_name = '"+str(queryParams[3])+"'\
-			     		and flag = 1 order by reffdate"
+			     		where account_name = "'+str(queryParams[3])+'"\
+			     		and flag = 1 order by reffdate'
 			     		
 			result = dbconnect.engines[client_id].execute(statement).fetchall()
 			print "search voucher by account name"
@@ -420,10 +420,10 @@ class transaction(xmlrpc.XMLRPC):
 			- [totalamount]
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
-		statement = "select sum(amount) as totalamount\
+		statement = 'select sum(amount) as totalamount\
 			     		from view_voucherbook\
-			     		where vouchercode = '"+str(queryParams[0])+"'\
-			     		and typeflag ='Cr'"
+			     		where vouchercode = "'+str(queryParams[0])+'"\
+			     		and typeflag ="Cr"'
 			     		
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		
@@ -446,10 +446,10 @@ class transaction(xmlrpc.XMLRPC):
 
 		"""
 		queryParams = blankspace.remove_whitespaces(queryParams)
-		statement = "select account_name,typeflag,amount,cheque_no\
+		statement = 'select account_name,typeflag,amount,cheque_no\
 			     		from view_voucherbook\
-			     		where vouchercode = '"+str(queryParams[0])+"'\
-			     		and flag = 1 "
+			     		where vouchercode = "'+str(queryParams[0])+'"\
+			     		and flag = 1 '
 			     		
 		result = dbconnect.engines[client_id].execute(statement).fetchall()
 		
@@ -696,9 +696,9 @@ class transaction(xmlrpc.XMLRPC):
 			- [reffno]
 		"""
 		print queryParams[0]
-		statement = "select reference\
+		statement = 'select reference\
 				from view_voucherbook\
-				where vouchertype = '"+queryParams[0]+"'and flag = 1"
+				where vouchertype = "'+queryParams[0]+'"and flag = 1'
 
 		reff_no = dbconnect.engines[client_id].execute(statement).fetchall()
 		reffno = []
@@ -729,9 +729,9 @@ class transaction(xmlrpc.XMLRPC):
 		* Output:
 			- [reference_date]
 		"""
-		statement = "select reffdate\
+		statement = 'select reffdate\
 				from view_voucherbook\
-				where vouchertype = '"+queryParams[1]+"'and flag = 1"
+				where vouchertype = "'+queryParams[1]+'"and flag = 1'
 		reff_date= dbconnect.engines[client_id].execute(statement).fetchall()
 		reffdate = []
 		if reff_date == []:

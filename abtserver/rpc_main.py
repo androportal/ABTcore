@@ -683,8 +683,8 @@ class abt(xmlrpc.XMLRPC):
 				os.system("sqlite3 /opt/abt/db/"+ newDatabase+"< /opt/abt/db/db_dump.dump")
 				for account in rollOverAccounts.keys():
 					connection = dbconnect.engines[self.client_id[1]].raw_connection()
-					editStatement = "update account set openingbalance = "+str(rollOverAccounts[account])+\
-							" where accountname = '" + account + "'"
+					editStatement = 'update account set openingbalance = '+str(rollOverAccounts[account])+\
+							' where accountname = "' + account + '"'
 					dbconnect.engines[self.client_id[1]].execute(editStatement)
 		
 					connection.commit()

@@ -214,15 +214,15 @@ class reports(xmlrpc.XMLRPC):
 		"""
 		
 		# get the groupname accourding to ac
-		statement = "select groupname\
+		statement = 'select groupname\
 			     from group_subgroup_account\
-			     where accountname = '"+queryParams[0]+"'"
+			     where accountname = "'+queryParams[0]+'"'
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		
 		group_name = result[0]
-		statement = "select openingbalance\
+		statement = 'select openingbalance\
 			      from group_subgroup_account\
-			      where accountname = '"+queryParams[0]+"'"
+			      where accountname = "'+queryParams[0]+'"'
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		opening_balance = result[0]
 		financial_fromdate = str(datetime.strptime(str(queryParams[1]),"%d-%m-%Y"))
@@ -272,24 +272,24 @@ class reports(xmlrpc.XMLRPC):
 			
 		
 		else:
-			statement = "select sum(amount) as dr_amount\
+			statement = 'select sum(amount) as dr_amount\
 				from view_voucherbook \
-				where account_name = '"+queryParams[0]+"'\
-				and typeflag = 'Dr' \
-				and reffdate >= '"+financial_fromdate+"' \
-				and reffdate < '"+report_fromdate+"'\
-				and flag = 1"
+				where account_name = "'+queryParams[0]+'"\
+				and typeflag = "Dr" \
+				and reffdate >= "'+financial_fromdate+'" \
+				and reffdate < "'+report_fromdate+'"\
+				and flag = 1'
 	
 			result = dbconnect.engines[client_id].execute(statement).fetchone()
 			total_dr_upto_from = result[0]
 			
-			statement = "select sum(amount) as cr_amount \
+			statement = 'select sum(amount) as cr_amount \
 				from view_voucherbook \
-				where account_name ='"+queryParams[0]+"'\
-				and typeflag = 'Cr' \
-				and reffdate >= '"+financial_fromdate+"' \
-				and reffdate < '"+report_fromdate+"' \
-				and flag = 1"
+				where account_name ="'+queryParams[0]+'"\
+				and typeflag = "Cr" \
+				and reffdate >= "'+financial_fromdate+'" \
+				and reffdate < "'+report_fromdate+'" \
+				and flag = 1'
 				
 			result = dbconnect.engines[client_id].execute(statement).fetchone()
 			total_cr_upto_from = result[0]
@@ -345,23 +345,23 @@ class reports(xmlrpc.XMLRPC):
 		                baltype = 'Cr'
 				opening_baltype = 'Cr'
 				
-		statement = "select sum(amount) as dr_amount\
+		statement = 'select sum(amount) as dr_amount\
 				from view_voucherbook\
-				where typeflag = 'Dr'\
-				and account_name = '"+queryParams[0]+"'\
-				and reffdate >= '"+report_fromdate+"'\
-				and reffdate <= '"+report_todate+"' \
-				and flag = 1"
+				where typeflag = "Dr"\
+				and account_name = "'+queryParams[0]+'"\
+				and reffdate >= "'+report_fromdate+'"\
+				and reffdate <= "'+report_todate+'" \
+				and flag = 1'
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		total_DrBal = result[0]
 		
-		statement = "select sum(amount) as cr_amount\
+		statement = 'select sum(amount) as cr_amount\
 				from view_voucherbook\
-				where typeflag ='Cr'\
-				and account_name = '"+queryParams[0]+"'\
-				and reffdate >= '"+report_fromdate+"'\
-				and reffdate <= '"+report_todate+"'\
-				and flag = 1"
+				where typeflag ="Cr"\
+				and account_name = "'+queryParams[0]+'"\
+				and reffdate >= "'+report_fromdate+'"\
+				and reffdate <= "'+report_todate+'"\
+				and flag = 1'
 		result = dbconnect.engines[client_id].execute(statement).fetchone()
 		total_CrBal = result[0]
 		
@@ -602,24 +602,24 @@ class reports(xmlrpc.XMLRPC):
 		report_todate =  str(datetime.strptime(str(queryParams[4]),"%d-%m-%Y"))
 		transaction = rpc_transaction.transaction()
 		projectcode = transaction.xmlrpc_getProjectcodeByProjectName([queryParams[0]],client_id)
-		statement = "select sum(amount)\
+		statement = 'select sum(amount)\
 			     		from view_voucherbook\
-			     		where projectcode = '"+str(projectcode)+"'\
-			     		and account_name = '"+str(queryParams[1])+"'\
-			     		and reffdate >= '"+report_fromdate+"'\
-					and reffdate <= '"+report_todate+"' \
-			     		and typeflag = 'Dr'\
-					and flag = 1"  	
+			     		where projectcode = "'+str(projectcode)+'"\
+			     		and account_name = "'+str(queryParams[1])+'"\
+			     		and reffdate >= "'+report_fromdate+'"\
+					and reffdate <= "'+report_todate+'" \
+			     		and typeflag = "Dr"\
+					and flag = 1'  	
 		totalDr = dbconnect.engines[client_id].execute(statement).fetchone()
 		total_dr = totalDr[0]
-		statement = "select sum(amount)\
+		statement = 'select sum(amount)\
 			     		from view_voucherbook\
-			     		where projectcode = '"+str(projectcode)+"'\
-			     		and account_name = '"+str(queryParams[1])+"'\
-			     		and reffdate >= '"+report_fromdate+"'\
-					and reffdate <= '"+report_todate+"' \
-			     		and typeflag = 'Cr'\
-					and flag = 1"  	
+			     		where projectcode = "'+str(projectcode)+'"\
+			     		and account_name = "'+str(queryParams[1])+'"\
+			     		and reffdate >= "'+report_fromdate+'"\
+					and reffdate <= "'+report_todate+'" \
+			     		and typeflag = "Cr"\
+					and flag = 1' 	
 		totalCr = dbconnect.engines[client_id].execute(statement).fetchone()
 		total_cr = totalCr[0]
 		
