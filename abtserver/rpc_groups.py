@@ -200,6 +200,34 @@ class groups(xmlrpc.XMLRPC):
 			return [result.groupname]
 		else:
 			return []
+	
+	
+	def xmlrpc_getSubGroupCodeByAccountName(self,queryParams,client_id):
+		'''
+		* Purpose:
+			- function for extracting subgroup code of group based on accountname
+			- query the account table to retrive subgroupcode for reqested accountname 
+			
+		* Input:
+			- accountname(datatype:text),client_id(datatype:integer)
+			
+		* Output:
+			- returns list containing subgroupcode if its not None else will return false.
+			
+		'''
+		queryParams = blankspace.remove_whitespaces(queryParams)
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		result = Session.query(dbconnect.Account).\
+		      filter(dbconnect.Account.accountname == queryParams[0]).\
+		      first()
+		Session.close()
+		connection.connection.close()
+		if result != None:
+			return [result.subgroupcode]
+		else:
+			return []
+	
 			
 	def xmlrpc_subgroupExists(self,queryParams,client_id):	
 		'''
