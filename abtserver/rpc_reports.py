@@ -817,13 +817,13 @@ class reports(xmlrpc.XMLRPC):
 			
 				difamount ='%.2f'%(float(totalDr) - float(pnlcr))
 			else:
-				difamount = '%.2f'%(float(pnlcr)-float(totalDr))
+				difamount = '%.2f'%(float(pnlcr)- float(totalDr))
 		else:
 			if float(totalCr) > float(pnldr):
 			
 				difamount = '%.2f'%(float(totalCr) - float(pnldr))
 			else:
-				difamount = '%.2f'%(float(pnldr)-float(totalCr))# get the values of balacesheet to rearrange it
+				difamount = '%.2f'%(float(pnldr)- float(totalCr))# get the values of balacesheet to rearrange it
 			
 					
 		if balancesheet_type == "Conventional Balance Sheet": 
@@ -862,11 +862,13 @@ class reports(xmlrpc.XMLRPC):
 					
 						accountname = baltrialdata[i][2]
 						amount = float(baltrialdata[i][3])
-						if(amount<0):
-							corpuslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
+						if(amount < 0): # if closing balance is debit 
+							
+							corpuslist.append(["         "+accountname,'%.2f'%(abs(amount)),"",""])
 							
 						else:
-							corpuslist.append(["         "+accountname,'%.2f'%(amount),"",""])
+							corpuslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
+							
 							
 						Lcount = Lcount+1
 						
@@ -888,10 +890,11 @@ class reports(xmlrpc.XMLRPC):
 						amount = float(baltrialdata[i][3])
 						
 						if(amount<0):
-							corpuslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
 							
+							corpuslist.append(["         "+accountname,'%.2f'%(abs(amount)),"",""])
 						else:	
-							corpuslist.append(["         "+accountname,'%.2f'%(amount),"",""])
+							
+							corpuslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
 							
 						Lcount = Lcount+1
 				
@@ -910,11 +913,11 @@ class reports(xmlrpc.XMLRPC):
 						
 						if(amount<0):
 						
-							corpuslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
+							corpuslist.append(["         "+accountname,'%.2f'%(abs(amount)),"",""])
 						else:
 						
-							corpuslist.append(["         "+accountname,'%.2f'%(amount),"",""])
-							
+							corpuslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
+						
 						Lcount = Lcount+1	
 			
 				corpuslist.append(["","","",tot_loanlia])		
@@ -933,10 +936,11 @@ class reports(xmlrpc.XMLRPC):
 						amount = float(baltrialdata[i][3])
 						
 						if(amount < 0):
+							
+							corpuslist.append(["         "+accountname,'%.2f'%(abs(amount)),"",""])
+						else:	
 							corpuslist.append(["         "+accountname,"",'%.2f'%(abs(amount)),""])
 							
-						else:	
-							corpuslist.append(["         "+accountname,'%.2f'%(amount),"",""])
 						Lcount = Lcount+1
 				
 				corpuslist.append(["","","",tot_currlia])
@@ -953,10 +957,7 @@ class reports(xmlrpc.XMLRPC):
 				if (profitloss[1] != "0.00"):
 					corpuslist.append(["",flag,profitloss[1],""])	
 					Lcount = Lcount+1
-							
-			#else:
-				#corpuslist.append(["","","",""])	
-				#Lcount = Lcount+1	
+		
 			
 			if (rowFlag == "liabilities"):
 				for i in range (0, rows):
