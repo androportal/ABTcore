@@ -316,4 +316,15 @@ class Users(Base):
 
 users_table = Users.__table__
 
+class ProfitLoss(Base):
+	__tablename__='profit_loss'
+	plid = Column(Integer, primary_key=True)
+	net_flag =  Column(String)
+	opening_balance =  Column(Numeric(13, 2))
+	
+	def __init__(self,net_flag,opening_balance):
+		self.plid = None
+		self.net_flag = net_flag
+		self.opening_balance = opening_balance
+profit_loss = ProfitLoss.__table__
 orm.compile_mappers()

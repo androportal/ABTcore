@@ -586,11 +586,146 @@ class abt(xmlrpc.XMLRPC):
 			- created new financile year and database 
 			- restore accounts its closingbalance as openingbalance and subgroups 
 		"""
-		#print "queyParams"
-		#print queryParams
+	
 		organisation = rpc_organisation.organisation()
 		financialFrom = queryParams[1] # get financial from date 
 		financialTo = queryParams[2] # get financial to date
+		
+		
+		NewFinancialYear = self.newFinancialYears([financialFrom,financialTo])
+		
+		orgType = organisation.xmlrpc_getorgTypeByname([queryParams[0]],client_id)
+		
+		
+	##########################################################
+		account = rpc_account.account()
+		accounts = account.xmlrpc_getAllAccountNames(client_id)
+		rollOverAccounts = {}
+		for acc in accounts:
+			report = rpc_reports.reports()
+			closingRow = report.xmlrpc_calculateBalance([acc,queryParams[1],queryParams[2],\
+									queryParams[2]],client_id)
+			# [group_name,bal_brought,curbal,total_DrBal,total_CrBal,opening_baltype,baltype]
+			closing_balance = 0.00
+			print acc
+			if (str(closingRow[6])  == "Cr" 
+				and (str(closingRow[0])== "Current Asset" 
+				or str(closingRow[0])== "Fixed Assets" 
+				or str(closingRow[0])== "Investment" 
+				or str(closingRow[0])== "Loans(Asset)" 
+				or str(closingRow[0])== "Miscellaneous Expenses(Asset)"
+				)
+				):
+			
+				closing_balance = -float(closingRow[2])
+				rollOverAccounts[acc] = closing_balance
+			
+			if (str(closingRow[6])  == "Dr" 
+				and  (str(closingRow[0])== "Current Asset" 
+				or str(closingRow[0])== "Fixed Assets" 
+				or str(closingRow[0])== "Investment" 
+				or str(closingRow[0])== "Loans(Asset)" 
+				or str(closingRow[0])== "Miscellaneous Expenses(Asset)"
+				
+				)):
+			
+				closing_balance = float(closingRow[2])
+				rollOverAccounts[acc] = closing_balance
+			
+			if (str(closingRow[6])  == "Cr"
+				and  (str(closingRow[0])== "Corpus" 
+				or str(closingRow[0])== "Capital" 
+				or str(closingRow[0])== "Current Liability" 
+				or str(closingRow[0])== "Loans(Liability)" 
+				or str(closingRow[0])== "Reserves")):
+			
+				closing_balance = float(closingRow[2])
+				rollOverAccounts[acc] = closing_balance
+			
+			if (str(closingRow[6])  == "Dr"
+				and  (str(closingRow[0])== "Corpus" 
+				or str(closingRow[0])== "Capital" 
+				or str(closingRow[0])== "Current Liability" 
+				or str(closingRow[0])== "Loans(Liability)"
+				or str(closingRow[0])== "Reserves")):	
+			
+				closing_balance = -float(closingRow[2])
+				rollOverAccounts[acc] = closing_balance
+	
+		
+		profitloss= report.xmlrpc_getBalancesheetDisplay([queryParams[1],queryParams[1],queryParams[2],"balancesheet",orgType,None],client_id)
+		
+		Flag = profitloss[0]
+		netFlag = profitloss[3]
+		netPL = '%.2f'%(float(profitloss[1]))
+		netOpening = '%.2f'%(float(profitloss[2]))
+		connection = dbconnect.engines[client_id].connect()
+		Session = dbconnect.session(bind=connection)
+		connection = dbconnect.engines[client_id].raw_connection()
+		dbconnect.engines[client_id].execute("delete from profit_loss;")
+		connection.commit()
+		Session.add(dbconnect.ProfitLoss(Flag,netPL))
+		Session.commit()
+		database = dbconnect.getDatabaseName([queryParams[0],financialFrom,financialTo])
+		try:
+			os.system("sqlite3 /opt/abt/db/"+database+" .sch > schema")
+			os.system("sqlite3 /opt/abt/db/"+database+" .dump > dump")
+			os.system("grep -vxw -f schema dump > /opt/abt/db/db.dump")
+			os.system("grep -w 'account\|subgroups\|organisation\|users\|flags\|profit_loss' /opt/abt/db/db.dump > /opt/abt/db/db_dump.dump")
+		except:
+			print "problem to dump database"
+	
+		################################################################
+		
+		connection = dbconnect.engines[client_id].raw_connection()
+		dbconnect.engines[client_id].execute("delete from profit_loss;")
+		connection.commit()
+		Session.add(dbconnect.ProfitLoss(netFlag,netOpening))
+		Session.commit()
+		
+		Session.close()
+		dbconnect.engines[client_id].dispose()
+		
+		
+		del dbconnect.engines[client_id]
+		self.client_id = self.xmlrpc_Deploy([queryParams[0],NewFinancialYear[0],NewFinancialYear[1],orgType])
+	
+		print "new database is not deployed"
+		newDatabase = dbconnect.getDatabaseName([queryParams[0],NewFinancialYear[0],NewFinancialYear[1]])
+		
+		print "deployment is done and the new dbname is " + newDatabase
+		connection = dbconnect.engines[self.client_id[1]].raw_connection()
+		dbconnect.engines[self.client_id[1]].execute("delete from subgroups;")
+		connection.commit()
+		dbconnect.engines[self.client_id[1]].execute("delete from flags;")
+		connection.commit()
+		
+		
+		try:
+			os.system("sqlite3 /opt/abt/db/"+ newDatabase+"< /opt/abt/db/db_dump.dump")
+			for account in rollOverAccounts.keys():
+				connection = dbconnect.engines[self.client_id[1]].raw_connection()
+				
+				editStatement = 'update account set openingbalance = '+str(rollOverAccounts[account])+\
+						' where accountname = "' + account + '"'
+				dbconnect.engines[self.client_id[1]].execute(editStatement)
+	
+				connection.commit()
+			queryParams.append(database) #dbname
+			queryParams.append("1") #rollover flag
+			# parsing abt.xml file to update rollover flag from '0' to '1'
+			self.xmlrpc_writeToXmlFile(queryParams,"/opt/abt/abt.xml");
+			Session.close()
+			
+		except:
+			print "in rollover exception"
+		
+		return "rollover"
+		
+	def xmlrpc_completeFinancialYear(self,queryParams):
+		
+		financialFrom = queryParams[0] # get financial from date 
+		financialTo = queryParams[1] # get financial to date
 		
 		
 		NewFinancialYear = self.newFinancialYears([financialFrom,financialTo])
@@ -601,106 +736,9 @@ class abt(xmlrpc.XMLRPC):
 		
 		now = datetime.datetime.now()
 		if now >= datetime.datetime.strptime(str(NewFinancialYear[0]),"%d-%m-%Y"):
-			print "yes it match"
-		##########################################################
-			account = rpc_account.account()
-			accounts = account.xmlrpc_getAllAccountNames(client_id)
-			rollOverAccounts = {}
-			for acc in accounts:
-				report = rpc_reports.reports()
-				closingRow = report.xmlrpc_calculateBalance([acc,queryParams[1],queryParams[2],\
-										queryParams[2]],client_id)
-				# [group_name,bal_brought,curbal,total_DrBal,total_CrBal,opening_baltype,baltype]
-				closing_balance = 0.00
-				if (str(closingRow[6])  == "Cr" 
-					and (str(closingRow[0])== "Current Asset" 
-					or str(closingRow[0])== "Fixed Assets" 
-					or str(closingRow[0])== "Investment" 
-					or str(closingRow[0])== "Loans(Asset)" 
-					or str(closingRow[0])== "Miscellaneous Expenses(Asset)")):
-				
-					closing_balance = -float(closingRow[2])
-					rollOverAccounts[acc] = closing_balance
-				
-				if (str(closingRow[6])  == "Dr" 
-					and  (str(closingRow[0])== "Current Asset" 
-					or str(closingRow[0])== "Fixed Assets" 
-					or str(closingRow[0])== "Investment" 
-					or str(closingRow[0])== "Loans(Asset)" 
-					or str(closingRow[0])== "Miscellaneous Expenses(Asset)")):
-				
-					closing_balance = float(closingRow[2])
-					rollOverAccounts[acc] = closing_balance
-				
-				if (str(closingRow[6])  == "Cr"
-					and  (str(closingRow[0])== "Corpus" 
-					or str(closingRow[0])== "Capital" 
-					or str(closingRow[0])== "Current Liability" 
-					or str(closingRow[0])== "Loans(Liability)" 
-					or str(closingRow[0])== "Reserves")):
-				
-					closing_balance = float(closingRow[2])
-					rollOverAccounts[acc] = closing_balance
-				
-				if (str(closingRow[6])  == "Dr"
-					and  (str(closingRow[0])== "Corpus" 
-					or str(closingRow[0])== "Capital" 
-					or str(closingRow[0])== "Current Liability" 
-					or str(closingRow[0])== "Loans(Liability)"
-					or str(closingRow[0])== "Reserves")):	
-				
-					closing_balance = -float(closingRow[2])
-					rollOverAccounts[acc] = closing_balance
-		
-			print "yes it match"
-			database = dbconnect.getDatabaseName([queryParams[0],financialFrom,financialTo])
-			try:
-				os.system("sqlite3 /opt/abt/db/"+database+" .sch > schema")
-				os.system("sqlite3 /opt/abt/db/"+database+" .dump > dump")
-				os.system("grep -vxw -f schema dump > /opt/abt/db/db.dump")
-				os.system("grep -w 'account\|subgroups\|organisation\|users\|flags' /opt/abt/db/db.dump > /opt/abt/db/db_dump.dump")
-			except:
-				print "problem to dump database"
-		
-			################################################################3
-			dbconnect.engines[client_id].dispose()
-			
-			orgType = organisation.xmlrpc_getorgTypeByname([queryParams[0]],client_id)
-			del dbconnect.engines[client_id]
-			self.client_id = self.xmlrpc_Deploy([queryParams[0],NewFinancialYear[0],NewFinancialYear[1],orgType])
-		
-			print "new database is not deployed"
-			newDatabase = dbconnect.getDatabaseName([queryParams[0],NewFinancialYear[0],NewFinancialYear[1]])
-			
-			print "deployment is done and the new dbname is " + newDatabase
-			connection = dbconnect.engines[self.client_id[1]].raw_connection()
-			dbconnect.engines[self.client_id[1]].execute("delete from subgroups;")
-			connection.commit()
-			dbconnect.engines[self.client_id[1]].execute("delete from flags;")
-			connection.commit()
-			
-			try:
-				os.system("sqlite3 /opt/abt/db/"+ newDatabase+"< /opt/abt/db/db_dump.dump")
-				for account in rollOverAccounts.keys():
-					connection = dbconnect.engines[self.client_id[1]].raw_connection()
-					editStatement = 'update account set openingbalance = '+str(rollOverAccounts[account])+\
-							' where accountname = "' + account + '"'
-					dbconnect.engines[self.client_id[1]].execute(editStatement)
-		
-					connection.commit()
-				queryParams.append(database) #dbname
-				queryParams.append("1") #rollover flag
-				# parsing abt.xml file to update rollover flag from '0' to '1'
-				self.xmlrpc_writeToXmlFile(queryParams,"/opt/abt/abt.xml");
-				flag = "true"
-					
-			except:
-				print "in rollover exception"
-				flag = "false"
+			return "true"	
 		else:
-			flag = "false"
-		return flag
-		
+			return "false"
 	def xmlrpc_existRollOver(self,queryParams):
 		"""
 		Purpose:
@@ -736,9 +774,6 @@ class abt(xmlrpc.XMLRPC):
 			else:
 				pass
 		 	
-
-	 
-		
 def runabt():
 	"""
 	+ As we have imported all the nested XMLRPC resource,so that create one handler ``abt`` 
