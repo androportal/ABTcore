@@ -599,10 +599,11 @@ class abt(xmlrpc.XMLRPC):
 		
 	##########################################################
 		account = rpc_account.account()
+		report = rpc_reports.reports()
 		accounts = account.xmlrpc_getAllAccountNames(client_id)
 		rollOverAccounts = {}
 		for acc in accounts:
-			report = rpc_reports.reports()
+			
 			closingRow = report.xmlrpc_calculateBalance([acc,queryParams[1],queryParams[2],\
 									queryParams[2]],client_id)
 			# [group_name,bal_brought,curbal,total_DrBal,total_CrBal,opening_baltype,baltype]
