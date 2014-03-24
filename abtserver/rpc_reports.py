@@ -1954,7 +1954,10 @@ class reports(xmlrpc.XMLRPC):
 		for ledgerRow in ledgerResult:
 			#get the subgroup code by account name and check if it is bank code ie. 1
 			subgroupCode = groups.xmlrpc_getSubGroupCodeByAccountName([str(ledgerRow[1])],client_id)
-			if (subgroupCode[0] == 1):
+			voucherType = transaction.xmlrpc_getVoucherMaster([ledgerRow[6]],client_id)
+							
+			#from contra, only bank-bank transactions will come in bank-recon
+			if (voucherType[2] != "Contra" or (voucherType[2] == "Contra" and subgroupCode[0] == 1)):
 				reconRow = []
 				reconRow.append(ledgerRow[6]) # voucher code
 				reconRow.append(ledgerRow[0]) # voucher date
@@ -2207,8 +2210,9 @@ class reports(xmlrpc.XMLRPC):
 				#may be more than one account was involved at the other side so loop through.
 				#get the subgroup code by account name and check if it is bank code ie. 1
 				subgroupCode = groups.xmlrpc_getSubGroupCodeByAccountName([particulars[0]],client_id)
-				
-				if (len(particulars) == 1 and subgroupCode[0] == 1):
+				voucherType = transaction.xmlrpc_getVoucherMaster([transactionRow[0]],client_id)
+				#from contra, only bank-bank transactions will come in bank-recon
+				if (len(particulars) == 1 and (voucherType[2] != "Contra" or (voucherType[2] == "Contra" and subgroupCode[0] == 1))):
 					for particularRow in particulars:
 						cleared =transaction.xmlrpc_getOnlyClearedTransactions([\
 								str(particularRow),str(transactionRow[0]),\
@@ -2236,8 +2240,9 @@ class reports(xmlrpc.XMLRPC):
 				#may be more than one account was involved a tthe other side so loop through.
 				#get the subgroup code by account name and check if it is bank code ie. 1
 				subgroupCode = groups.xmlrpc_getSubGroupCodeByAccountName([particulars[0]],client_id)
-				
-				if (len(particulars) == 1 and subgroupCode[0] == 1):
+				voucherType = transaction.xmlrpc_getVoucherMaster([transactionRow[0]],client_id)
+				#from contra, only bank-bank transactions will come in bank-recon
+				if (len(particulars) == 1 and (voucherType[2] != "Contra" or (voucherType[2] == "Contra" and subgroupCode[0] == 1))):
 					for particularRow in particulars:
 						cleared =transaction.xmlrpc_getOnlyClearedTransactions(\
 								[str(particularRow),str(transactionRow[0]),\
