@@ -288,7 +288,8 @@ class organisation(xmlrpc.XMLRPC):
 	               		 first()
 		Session.close()
 	        connection.connection.close()
-		
+		print "getorgtype"
+		print result.orgtype
 		if result == None:
 		    return "0"   
 		else:

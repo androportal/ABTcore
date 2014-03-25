@@ -1701,6 +1701,7 @@ class reports(xmlrpc.XMLRPC):
 					DIcount = DIcount+1
 					DIList.append(["By,",flag,grossProfitloss])
 				
+			
 			############### for empty coloum in Direct Expense ########
 	
 			if (DIcount > DEcount):
@@ -1718,7 +1719,7 @@ class reports(xmlrpc.XMLRPC):
 				amount= direxp
 				
 			DEList.append(["","Total",amount])
-			
+			finalList.append(DEList) # Final list for entire first coloumn DE + IE
 			
 				
 			#######################  Indirect Expense Accounts #####################
@@ -1779,24 +1780,6 @@ class reports(xmlrpc.XMLRPC):
 					DEList.append(["To,",flag,netProfitloss])
 					
 			
-			############## for empty coloum in Indirect Expense ######
-			
-			if (IIcount > IEcount):
-				diff = IIcount - IEcount
-				for i in range(0,diff):
-					DEList.append(["","",""])
-					
-			############# Total of IE amount ##################
-			if (netFlag == "netLoss"):
-				amount=netTotal
-			
-			if (netFlag == "netProfit"):
-				amount=grandTotal
-				
-			DEList.append(["","Total",amount])
-			
-			finalList.append(DEList) # Final list for entire first coloumn DE + IE
-			
 			############### for empty coloum in Direct Income ######
 	
 			if (DEcount > DIcount):
@@ -1804,7 +1787,7 @@ class reports(xmlrpc.XMLRPC):
 				for i in range(0,diff):
 					DIList.append(["","",""])
 	
-						
+			
 			#################### Total of DI ammount ###############
 			
 			if (grossFlag == "grossProfit"):
@@ -1814,6 +1797,7 @@ class reports(xmlrpc.XMLRPC):
 				amount= direxp
 				
 			DIList.append(["","Total",amount])
+			
 			
 			################### Indirect Income Accounts ###########
 			
@@ -1874,6 +1858,27 @@ class reports(xmlrpc.XMLRPC):
 					IIcount = IIcount+1		
 					DIList.append(["By,",flag,netProfitloss])
 			
+			
+			############## for empty coloum in Indirect Expense ######
+			
+			if (IIcount > IEcount):
+				diff = IIcount - IEcount
+				for i in range(0,diff):
+					DEList.append(["","",""])
+					
+			############# Total of IE amount ##################
+			if (netFlag == "netLoss"):
+				amount=netTotal
+			
+			if (netFlag == "netProfit"):
+				amount=grandTotal
+				
+			DEList.append(["","Total",amount])
+			
+			
+			
+			
+			
 			############## for empty coloum in Indirect Income #############
 			
 			if (IEcount > IIcount):
@@ -1892,6 +1897,7 @@ class reports(xmlrpc.XMLRPC):
 				amount= grandTotal
 			
 			DIList.append(["","Total",amount])
+			
 			finalList.append(DIList) # Final list of 2nd coloumn DI +II
 		
 		return finalList

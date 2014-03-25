@@ -596,7 +596,6 @@ class abt(xmlrpc.XMLRPC):
 		
 		orgType = organisation.xmlrpc_getorgTypeByname([queryParams[0]],client_id)
 		
-		
 	##########################################################
 		account = rpc_account.account()
 		report = rpc_reports.reports()
