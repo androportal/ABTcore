@@ -12,8 +12,11 @@ if __name__ == "__main__":
 				print "creating abt and db directory and copying places.db to abt"
 				os.system("mkdir -p /opt/abt/db") # create abt directory and db to host all databases
 				os.system("mkdir -p /opt/abt/export")
-				os.system("cp ./src/places.db /opt/abt/") # copy places.db from /src to abt
 				
+				if os.path.exists("./src/places.db") == True:
+					os.system("cp ./src/places.db /opt/abt/places.db") # copy places.db from /src to abt
+				else:
+					os.system("cp root/ABTcore/src/places.db /opt/abt/places.db") # copy places.db from /src to abt
 			except:
 				print "can't create directory somthing is wrong"
 
@@ -23,7 +26,10 @@ if __name__ == "__main__":
 					print "creating db directory and copying places.db"
 					os.system("mkdir /opt/abt/db") # create db directory in abt
 					os.system("mkdir -p /opt/abt/export")
-					os.system("cp ./src/places.db /opt/abt/") # copy places.db from /src to abt
+					if os.path.exists("./src/places.db") == True:
+						os.system("cp ./src/places.db /opt/abt/places.db") # copy places.db from /src to abt
+					else:
+						os.system("cp root/ABTcore/src/places.db /opt/abt/places.db") # copy places.db from /src to abt
 				except:
 					print "can't create directory somthing is wrong"
 			else:
