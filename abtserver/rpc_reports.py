@@ -783,7 +783,7 @@ class reports(xmlrpc.XMLRPC):
 			elif (Net_Flag == "netLoss" and Flag =="netLoss"):
 		
 				final_net_value = float(profitloss[1])+Net_Opening
-				final_flag  =="netLoss"
+				final_flag  = "netLoss"
 			elif (Net_Flag == "netProfit" and Flag =="netLoss"):
 		
 				if(float(profitloss[1]) > Net_Opening):
