@@ -14,7 +14,7 @@ busybox chroot $MNT /bin/bash -c "/root/ABTcore/abtstart"
 sleep 5
 
 # Delete 'restart_server.sh' file
-abt shell rm -r /data/local/restart_server.sh
+adb shell rm -r /data/local/restart_server.sh
 
 echo "ABT server started, please press Ctrl+c to exit."
 exit 0
