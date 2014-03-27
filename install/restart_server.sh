@@ -13,6 +13,11 @@ busybox chroot $MNT /bin/bash -c "/root/ABTcore/abtstart"
 # Sleep for 5 seconds so that ABT server can start efficiently
 sleep 5
 
-echo "ABT server is running, type Ctrl+c to exit."
+# Delete 'restart_server.sh' file
+abt shell rm -r /data/local/restart_server.sh
+
+echo "ABT server started, please press Ctrl+c to exit."
+exit 0
+
 
 
