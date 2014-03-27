@@ -5,13 +5,14 @@ export bin=/system/bin
 export PATH=$bin:/usr/bin:/usr/sbin:/bin:$PATH
 export MNT=/data/local/abt
 
-# entering the chroot environment and kill the abt server
+# Enter chroot and kill the ABT server
 busybox chroot $MNT /usr/bin/killall -v "abtstart"
-# staring abt server
+
+# Start ABT server
 busybox chroot $MNT /bin/bash -c "/root/ABTcore/abtstart"
+# Sleep for 5 seconds so that ABT server can start efficiently
 sleep 5
-#remove update_abtcore.sh
-rm -r /data/local/update_abtcore.sh
-echo "ABT server is running, please press CTR+c or CTR+z to exit..."
+
+echo "ABT server is running, type Ctrl+c to exit."
 
 
