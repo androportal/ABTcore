@@ -1,6 +1,8 @@
 #!/bin/bash
 # installation script for Aakash Business Tool
 
+ABT_TARBALL_SRC="http://www.it.iitb.ac.in/AakashApps/repo/abt.tar.gz"
+
 chmod +x ./adb
 
 function connect_device() {
@@ -51,7 +53,7 @@ function installing() {
     	fi	
     else
     	echo "downloading image, please wait..."
-    	wget -c http://aakashlabs.org/builds/abt.tar.gz
+    	wget -c ${ABT_TARBALL_SRC}
     	if [ -f abt.tar.gz ]; then
     	    echo "extracting image..."
     	    tar -xvzf abt.tar.gz
@@ -79,7 +81,7 @@ function installing() {
 	echo "Installing APK... "
 	./adb install -r ABT.apk
     else
-	echo "downloading APK...."
+	echo "Downloading APK...."
 	wget -c http://aakashlabs.org/builds/ABT.apk
 	if [ -f ABT.apk ]; then
 	    echo "Installing APK... "
