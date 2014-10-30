@@ -122,7 +122,7 @@ class user(xmlrpc.XMLRPC):
 			 
    			return result.userrole
 		else:
-			return []
+			return ""
 	
 	def xmlrpc_isAdmin(self,client_id):
 		'''
